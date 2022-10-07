@@ -58,9 +58,9 @@ Uint8List serializeVectorWithFunc(List<dynamic> value, String func) {
   return serializer.getBytes();
 }
 
-List<dynamic> deserializeVector(Deserializer deserializer, dynamic deserializeFunc) {
+List<T> deserializeVector<T>(Deserializer deserializer, dynamic deserializeFunc) {
   int length = deserializer.deserializeUleb128AsU32();
-  final list = <dynamic>[];
+  final list = <T>[];
   for (int i = 0; i < length; i += 1) {
     list.add(deserializeFunc(deserializer));
   }

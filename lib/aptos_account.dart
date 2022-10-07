@@ -25,13 +25,6 @@ class AptosAccount {
     return AptosAccount(HexString.ensure(obj.privateKeyHex!).toUint8Array(), obj.address);
   }
 
-  // static isValidPath = bool (String path) {
-  //   if (!/^m\/44'\/637'\/[0-9]+'\/[0-9]+'\/[0-9]+'+$/.test(path)) {
-  //     return false;
-  //   }
-  //   return true;
-  // };
-
   static bool isValidPath(String path) {
     if (RegExp(r"^m/44'/637'/[0-9]+'/[0-9]+'/[0-9]+'+$").hasMatch(path)) {
       return true;

@@ -16,7 +16,7 @@ void main() {
     final serializer = Serializer();
     serializeVector([address0, address1], serializer);
 
-    final addresses = deserializeVector(Deserializer(serializer.getBytes()), AccountAddress.deserialize);
+    final addresses = deserializeVector<AccountAddress>(Deserializer(serializer.getBytes()), AccountAddress.deserialize);
 
     expect(addresses[0].address, address0.address);
     expect(addresses[1].address, address1.address);

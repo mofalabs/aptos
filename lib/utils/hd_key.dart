@@ -1,7 +1,3 @@
-
-// type Hex = string;
-// type Path = string;
-
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -55,8 +51,7 @@ Keys ckdPriv(Keys keys, int index) {
 }
 
 Uint8List getPublicKey(Uint8List privateKey, [bool withZeroByte = true]) {
-  // final keyPair = ed25519.newKeyFromSeed(privateKey);
-  // const signPk = keyPair.secretKey.subarray(32); privateKey vs secretKey
+  // verify privateKey
   final signPk = privateKey.sublist(32);
   final zero = Uint8List.fromList([0]);
   if (!withZeroByte) return signPk;
