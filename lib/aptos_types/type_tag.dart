@@ -1,7 +1,5 @@
 
-
 import 'package:aptos/aptos.dart';
-import 'package:aptos/aptos_types/identifier.dart';
 
 abstract class TypeTag with Serializable {
 

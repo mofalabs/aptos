@@ -7,6 +7,7 @@ import 'package:aptos/aptos.dart';
 import 'package:aptos/aptos_types/authenticator.dart';
 import 'package:aptos/aptos_types/identifier.dart';
 import 'package:aptos/aptos_types/type_tag.dart';
+import 'package:aptos/utils/sha.dart';
 import 'package:pointycastle/digests/sha3.dart';
 
 class RawTransaction with Serializable {
@@ -481,9 +482,7 @@ abstract class Transaction with Serializable {
   Uint8List hash();
 
   Uint8List getHashSalt() {
-    final sha3Hash = SHA3Digest(256);
-    final data = Uint8List.fromList(utf8.encode("APTOS::Transaction"));
-    return sha3Hash.process(data);
+    return sha3256FromString("APTOS::Transaction");
   }
 
   static Transaction deserialize(Deserializer deserializer) {
