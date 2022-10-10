@@ -90,19 +90,19 @@ void main() {
   });
 
   test('aptos submit batch transactions', () async {
-    final tx = Transaction(
-      address,
-      "6", 
-      "63000", 
-      "1000", 
-      "1664996874708", 
-      Payload(
+    final tx = TransactionRequest(
+      sender: address,
+      sequenceNumber: "6", 
+      maxGasAmount: "63000", 
+      gasUnitPrice: "1000", 
+      expirationTimestampSecs: "1664996874708", 
+      payload: Payload(
         "entry_function_payload",
         "0x1::aptos_account::transfer",
         [],
         ["0x96ab1e6d8485523e84dff030cfdecc2e7fb1ef318c33a2f066e8318e09d66012", "100"]
       ),
-      Signature(
+      signature: Signature(
         "ed25519_signature",
         "0x2b3a30c47712b5eddabfed336a9f22d2f12573d9ee6da20e1fe3c84b6f3e6a8c",
         "0xe11cd7d7dd6bf4d8d1900e5473def694c5483023aeca934dcf58d7e01b9fcd9a6bbeb212d4ddaca0b46d995253069fd3c7105118584b6b7ec746cf327224d504"
@@ -112,19 +112,19 @@ void main() {
   });
 
   test('aptos simulate transaction', () async {
-    final tx = Transaction(
-      address,
-      "6", 
-      "63000", 
-      "1000", 
-      "1664996874708", 
-      Payload(
+    final tx = TransactionRequest(
+      sender: address,
+      sequenceNumber: "6", 
+      maxGasAmount: "63000", 
+      gasUnitPrice: "1000", 
+      expirationTimestampSecs: "1664996874708", 
+      payload: Payload(
         "entry_function_payload",
         "0x1::aptos_account::transfer",
         [],
         ["0x96ab1e6d8485523e84dff030cfdecc2e7fb1ef318c33a2f066e8318e09d66012", "100"]
       ),
-      Signature(
+      signature: Signature(
         "ed25519_signature",
         "0x2b3a30c47712b5eddabfed336a9f22d2f12573d9ee6da20e1fe3c84b6f3e6a8c",
         "0xe11cd7d7dd6bf4d8d1900e5473def694c5483023aeca934dcf58d7e01b9fcd9a6bbeb212d4ddaca0b46d995253069fd3c7105118584b6b7ec746cf327224d504"
@@ -151,19 +151,19 @@ void main() {
   });
 
   test('aptos encode submission', () async {
-    final tx = TransactionEncodeSubmission(
-      address,
-      "6",
-      "100",
-      "10",
-      "1664996874708",
-      Payload(
+    final tx = TransactionEncodeSubmissionRequest(
+      sender: address,
+      sequenceNumber: "6",
+      maxGasAmount: "100",
+      gasUnitPrice: "10",
+      expirationTimestampSecs: "1664996874708",
+      payload: Payload(
         "entry_function_payload",
         "0x1::aptos_account::transfer",
         [],
         ["0x96ab1e6d8485523e84dff030cfdecc2e7fb1ef318c33a2f066e8318e09d66012", "100"]
       ),
-      []
+      secondarySigners: []
     );
     final result = await aptos.encodeSubmission(tx);
   });

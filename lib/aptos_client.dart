@@ -138,36 +138,19 @@ class AptosClient {
     return resp.data;
   }
 
-  Future<dynamic> submitTransaction({
-    required String sender,
-    required String sequenceNumber,
-    required String maxGasAmount,
-    required String gasUnitPrice,
-    required String expirationTimestampSecs,
-    required Payload payload,
-    required Signature signature
-  }) async {
-    final data = <String, dynamic>{};
-    data["sender"] = sender;
-    data["sequence_number"] = sequenceNumber;
-    data["max_gas_amount"] = maxGasAmount;
-    data["gas_unit_price"] = gasUnitPrice;
-    data["expiration_timestamp_secs"] = expirationTimestampSecs;
-    data["payload"] = payload;
-    data["signature"] = signature;
-
+  Future<dynamic> submitTransaction(TransactionRequest transaction) async {
     final path = "$endpoint/transactions";
-    final resp = await http.post(path, data: data);
+    final resp = await http.post(path, data: transaction);
     return resp.data;
   }
 
-  Future<dynamic> submitBatchTransactions(List<Transaction> transactions) async {
+  Future<dynamic> submitBatchTransactions(List<TransactionRequest> transactions) async {
     final path = "$endpoint/transactions/batch";
     final resp = await http.post(path, data: transactions);
     return resp.data;
   }
 
-  Future<dynamic> simulateTransaction(Transaction transaction) async {
+  Future<dynamic> simulateTransaction(TransactionRequest transaction) async {
     final path = "$endpoint/transactions/simulate";
     final resp = await http.post(path, data: transaction.toJson());
     return resp.data;
@@ -195,7 +178,7 @@ class AptosClient {
     return resp.data;
   }
 
-  Future<dynamic> encodeSubmission(TransactionEncodeSubmission transaction) async {
+  Future<String> encodeSubmission(TransactionEncodeSubmissionRequest transaction) async {
     final path = "$endpoint/transactions/encode_submission";
     final resp = await http.post(path, data: transaction);
     return resp.data;

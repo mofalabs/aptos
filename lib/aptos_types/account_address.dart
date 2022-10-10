@@ -11,7 +11,7 @@ class AccountAddress with Serializable {
   static const LENGTH = 32;
   // final CORE_CODE_ADDRESS = AccountAddress.fromHex("0x1");
 
-  var address = Uint8List(0);
+  final Uint8List address;
 
   AccountAddress(this.address) {
     if (address.length != AccountAddress.LENGTH) {

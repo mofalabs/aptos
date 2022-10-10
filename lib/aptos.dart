@@ -18,4 +18,5 @@ export 'package:aptos/aptos_types/type_tag.dart';
 export 'package:aptos/utils/hd_key.dart';
 export 'package:aptos/transaction_builder/builder.dart';
 export 'package:aptos/transaction_builder/builder_utils.dart';
+export 'package:hex/hex.dart';
 
