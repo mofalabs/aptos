@@ -9,7 +9,7 @@ import 'package:aptos/aptos_client.dart';
 void main() {
 
   String address = "0x9d36a1531f1ac2fc0e9d0a78105357c38e55f1a97a504d98b547f2f62fbbe3c6";
-  AptosClient aptos = AptosClient(Constants.testnetAPI);
+  AptosClient aptos = AptosClient(Constants.testnetAPI, enableDebugLog: true);
 
   test('aptos client node health', () async {
     final result = await aptos.checkBasicNodeHealth();
@@ -115,8 +115,8 @@ void main() {
     final tx = TransactionRequest(
       sender: address,
       sequenceNumber: "6", 
-      maxGasAmount: "63000", 
-      gasUnitPrice: "1000", 
+      maxGasAmount: "63000",
+      gasUnitPrice: "1000",
       expirationTimestampSecs: "1664996874708", 
       payload: Payload(
         "entry_function_payload",

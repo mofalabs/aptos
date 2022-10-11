@@ -19,6 +19,10 @@ class AccountAddress with Serializable {
     }
   }
 
+  String hexAddress() {
+    return HexString.fromBuffer(address).hex();
+  }
+
   static AccountAddress fromHex(String addr) {
     var address = HexString.ensure(addr);
 

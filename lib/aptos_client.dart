@@ -1,14 +1,16 @@
+import 'package:aptos/constants.dart';
 import 'package:aptos/http/http.dart';
-import 'package:aptos/models/payload.dart';
-import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';
 
 class AptosClient {
 
-  AptosClient(this.endpoint);
+  AptosClient(this.endpoint, {this.enableDebugLog = false}) {
+    Constants.enableDebugLog = enableDebugLog;
+  }
 
   final String endpoint;
+  final bool enableDebugLog;
 
   /// Accounts ///
 

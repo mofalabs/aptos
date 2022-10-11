@@ -1,24 +1,24 @@
-
 import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/signature.dart';
 
 class TransactionRequest {
-  TransactionRequest({
-    required this.sender, 
-    this.sequenceNumber, 
-    this.maxGasAmount, 
-    this.gasUnitPrice, 
-    this.expirationTimestampSecs,
-    required this.payload,
-    required this.signature});
 
   final String sender;
-  final String? sequenceNumber;
-  final String? maxGasAmount;
-  final String? gasUnitPrice;
-  final String? expirationTimestampSecs;
+  final String sequenceNumber;
+  final String maxGasAmount;
+  final String gasUnitPrice;
+  final String expirationTimestampSecs;
   final Payload payload;
-  Signature signature;
+  final Signature signature;
+
+  TransactionRequest({
+    required this.sender,
+    required this.sequenceNumber,
+    required this.maxGasAmount,
+    required this.gasUnitPrice, 
+    required this.expirationTimestampSecs,
+    required this.payload,
+    required this.signature});
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -37,36 +37,19 @@ class TransactionEncodeSubmissionRequest {
   TransactionEncodeSubmissionRequest({
     required this.sender, 
     required this.payload,
-    this.sequenceNumber, 
-    this.maxGasAmount, 
-    this.gasUnitPrice, 
-    this.expirationTimestampSecs,
+    required this.sequenceNumber, 
+    required this.maxGasAmount, 
+    required this.gasUnitPrice, 
+    required this.expirationTimestampSecs,
     this.secondarySigners});
 
   final String sender;
-  final String? sequenceNumber;
-  final String? maxGasAmount;
-  final String? gasUnitPrice;
-  final String? expirationTimestampSecs;
+  final String sequenceNumber;
+  final String maxGasAmount;
+  final String gasUnitPrice;
+  final String expirationTimestampSecs;
   final Payload payload;
   final List<String>? secondarySigners;
-
-  factory TransactionEncodeSubmissionRequest.fromTransactionRequest(
-      TransactionRequest tx,
-      List<String> signers) {
-
-    final tser = TransactionEncodeSubmissionRequest(
-      sender: tx.sender,
-      sequenceNumber: tx.sequenceNumber,
-      maxGasAmount: tx.maxGasAmount,
-      gasUnitPrice: tx.gasUnitPrice,
-      expirationTimestampSecs: tx.expirationTimestampSecs,
-      payload: tx.payload,
-      secondarySigners: signers
-    );
-
-    return tser;
-  }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{
@@ -78,7 +61,7 @@ class TransactionEncodeSubmissionRequest {
       "payload": payload.toJson()
     };
     if (secondarySigners != null) {
-      data["secondary_signers"] = secondarySigners.toString();
+      data["secondary_signers"] = secondarySigners;
     }
     return data;
   }
