@@ -2,12 +2,11 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:aptos/aptos.dart';
 import 'package:aptos/constants.dart';
 import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/transaction.dart';
-import 'package:aptos/utils/sha.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:aptos/aptos.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed25519;
