@@ -19,4 +19,6 @@ export 'package:aptos/utils/hd_key.dart';
 export 'package:aptos/transaction_builder/builder.dart';
 export 'package:aptos/transaction_builder/builder_utils.dart';
 export 'package:hex/hex.dart';
+export 'package:bip39/bip39.dart';
+export 'package:pointycastle/export.dart';
 

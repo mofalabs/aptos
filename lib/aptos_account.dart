@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:aptos/hex_string.dart';
@@ -31,6 +32,22 @@ class AptosAccount {
     }
     return false;
   }
+
+  static SecureRandom _getRandom() {
+    final secureRandom = FortunaRandom();
+    final seedSource = Random.secure();
+    final seeds = <int>[];
+    for (int i = 0; i < 32; i++) {
+      seeds.add(seedSource.nextInt(255));
+    }
+    secureRandom.seed(KeyParameter(Uint8List.fromList(seeds)));
+    return secureRandom;
+  }
+
+  static String generateMnemonic({int strength = 128 }) {
+    return bip39.generateMnemonic(strength: strength, randomBytes: _getRandom().nextBytes);
+  }
+
 
   static AptosAccount fromDerivePath(String path, String mnemonics) {
     if (!AptosAccount.isValidPath(path)) {

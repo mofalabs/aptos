@@ -19,6 +19,16 @@ void main() {
     expect(a1.address().hex() == a2.address().hex(), false);
   });
 
+  test("generates mnemonic", () {
+    final m1 = AptosAccount.generateMnemonic();
+    final m2 = AptosAccount.generateMnemonic(strength: 256);
+    expect(m1.split(RegExp(r"\s")).length == 12, true);
+    expect(m2.split(RegExp(r"\s")).length == 24, true);
+
+    expect(() {
+      AptosAccount.generateMnemonic(strength: 257);
+    }, throwsAssertionError);
+  });
 
   test("generates derive path accounts", () {
     const address = "0x07968dab936c1bad187c60ce4082f307d030d780e91e694ae03aef16aba73f30";
