@@ -48,6 +48,11 @@ class AptosAccount {
     return bip39.generateMnemonic(strength: strength, randomBytes: _getRandom().nextBytes);
   }
 
+  static AptosAccount generateAccount(String mnemonics, { int addressIndex = 0, int accountIndex = 0 }) {
+    String path = "m/44'/637'/$accountIndex'/0'/$addressIndex'";
+    return fromDerivePath(path, mnemonics);
+  }
+
 
   static AptosAccount fromDerivePath(String path, String mnemonics) {
     if (!AptosAccount.isValidPath(path)) {

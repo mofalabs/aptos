@@ -34,9 +34,12 @@ void main() {
     const address = "0x07968dab936c1bad187c60ce4082f307d030d780e91e694ae03aef16aba73f30";
     final a1 = AptosAccount.fromDerivePath("m/44'/637'/0'/0'/0'", mnemonic);
     expect(a1.address().hex(), address);
+
+    final a2 = AptosAccount.generateAccount(mnemonic, addressIndex: 0);
+    expect(a2.address().hex(), address);
   });
 
-  test("generates derive path accounts", () {
+  test("generates derive path accounts fail", () {
     expect(() {
       AptosAccount.fromDerivePath("", mnemonic);
     }, throwsArgumentError);
