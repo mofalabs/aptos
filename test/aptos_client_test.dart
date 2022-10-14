@@ -23,7 +23,7 @@ void main() {
 
   test('aptos get account', () async {
     final result = await aptos.getAccount(address);
-    expect(int.parse(result["sequence_number"]) >= 0, true);
+    expect(int.parse(result.sequenceNumber) >= 0, true);
   });
 
   test('aptos get account resouces', () async {
@@ -171,5 +171,11 @@ void main() {
   test('aptos estimate gas price', () async {
     final result = await aptos.estimateGasPrice();
     expect(result > 0, true);
+  });
+
+  test('transaction pending status', () async {
+    const hash = "0xfafe767a13e2dd8d7efcb287050647e7747ba964ecb42db8b5d13a272c16ab9b";
+    final isPending = await aptos.transactionPending(hash);
+    expect(isPending, false);
   });
 }

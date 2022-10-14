@@ -17,7 +17,7 @@ class Http extends DioForNative {
   Http._();
 
   _init() {
-    options.connectTimeout = 3000;
+    options.connectTimeout = 5000;
     options.receiveTimeout = 5000;
 
     options.headers["Content-Type"] = "application/json";
@@ -27,10 +27,6 @@ class Http extends DioForNative {
   }
 }
 
-_parseAndDecode(String response) {
-  return jsonDecode(response);
-}
+_parseAndDecode(String response) => jsonDecode(response);
 
-parseJson(String text) {
-  return compute(_parseAndDecode, text);
-}
+parseJson(String text) => compute(_parseAndDecode, text);

@@ -8,7 +8,6 @@ import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/transaction.dart';
 import 'package:flutter/material.dart';
-import 'package:aptos/aptos.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed25519;
 
 void main() {
@@ -59,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final accountInfo = await aptos.getAccount(sender);
     final txSubmission = TransactionEncodeSubmissionRequest(
       sender: sender,
-      sequenceNumber: accountInfo["sequence_number"],
+      sequenceNumber: accountInfo.sequenceNumber,
       maxGasAmount: maxGasAmount.toString(),
       gasUnitPrice: gasPrice.toString(),
       expirationTimestampSecs: expirationTimestamp.toString(),
@@ -82,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final tx = TransactionRequest(
         sender: txSubmission.sender,
-        sequenceNumber: txSubmission.sequenceNumber.toString(),
+        sequenceNumber: txSubmission.sequenceNumber,
         maxGasAmount: txSubmission.maxGasAmount.toString(),
         gasUnitPrice: txSubmission.gasUnitPrice.toString(),
         expirationTimestampSecs: txSubmission.expirationTimestampSecs.toString(),
@@ -106,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final accountInfo = await aptos.getAccount(sender);
     final ledgerInfo = await aptos.getLedgerInfo();
-    final sequenceNumber = int.parse(accountInfo["sequence_number"].toString());
+    final sequenceNumber = int.parse(accountInfo.sequenceNumber);
 
     const typeArgs = "0x1::aptos_coin::AptosCoin";
     const moduleId = "0x1::coin";

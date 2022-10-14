@@ -1,7 +1,9 @@
 import 'package:aptos/constants.dart';
 import 'package:aptos/http/http.dart';
+import 'package:aptos/models/response/account_data.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';
+import 'package:dio/dio.dart';
 
 class AptosClient {
 
@@ -14,10 +16,10 @@ class AptosClient {
 
   /// Accounts ///
 
-  Future<dynamic> getAccount(String address) async {
+  Future<AccountData> getAccount(String address) async {
     final path = "$endpoint/accounts/$address";
     final resp = await http.get(path);
-    return resp.data;
+    return AccountData.fromJson(resp.data);
   }
 
   Future<bool> accountExist(String address) async {
@@ -190,6 +192,75 @@ class AptosClient {
     final path = "$endpoint/estimate_gas_price";
     final resp = await http.get(path);
     return resp.data["gas_estimate"];
+  }
+
+  Future<bool> transactionPending(String txnHash) async {
+    final response = await getTransactionByHash(txnHash);
+    return response["type"] == "pending_transaction";
+  }
+
+  Future<dynamic> waitForTransactionWithResult(
+    String txnHash,
+    { int? timeoutSecs, bool? checkSuccess }
+  ) async {
+    timeoutSecs = timeoutSecs ?? 20;
+    checkSuccess = checkSuccess ?? false;
+
+    var isPending = true;
+    var count = 0;
+    dynamic lastTxn;
+    while (isPending) {
+      if (count >= timeoutSecs) {
+        break;
+      }
+      try {
+        lastTxn = await getTransactionByHash(txnHash);
+        isPending = lastTxn["type"] == "pending_transaction";
+        if (!isPending) {
+          break;
+        }
+      } catch (e) {
+        final isDioError = e is DioError;
+        int statusCode = 0;
+        if (isDioError) {
+          statusCode = e.response?.statusCode ?? 0;
+        }
+        if (isDioError && statusCode != 404 && statusCode >= 400 && statusCode < 500) {
+          rethrow;
+        }
+      }
+      await Future.delayed(const Duration(seconds: 1));
+      count += 1;
+    }
+
+    if (lastTxn == null) {
+      throw Exception("Waiting for transaction $txnHash failed");
+    }
+
+    if (isPending) {
+      throw Exception(
+        "Waiting for transaction $txnHash timed out after $timeoutSecs seconds"
+      );
+    }
+    if (!checkSuccess) {
+      return lastTxn;
+    }
+    if (!(lastTxn.success)) {
+      throw Exception(
+        "Transaction $txnHash committed to the blockchain but execution failed"
+      );
+    }
+    return lastTxn;
+  }
+
+  Future<void> waitForTransaction(
+    String txnHash,
+    { int? timeoutSecs, bool? checkSuccess }
+  ) async {
+    await waitForTransactionWithResult(
+      txnHash, 
+      timeoutSecs: timeoutSecs, 
+      checkSuccess: checkSuccess);
   }
 
 }

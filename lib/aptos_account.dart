@@ -33,6 +33,10 @@ class AptosAccount {
     return false;
   }
 
+  static bool isValidMnemonics(String mnemonics) {
+    return bip39.validateMnemonic(mnemonics);
+  }
+
   static SecureRandom _getRandom() {
     final secureRandom = FortunaRandom();
     final seedSource = Random.secure();
@@ -55,8 +59,12 @@ class AptosAccount {
 
 
   static AptosAccount fromDerivePath(String path, String mnemonics) {
-    if (!AptosAccount.isValidPath(path)) {
+    if (!isValidPath(path)) {
       throw ArgumentError("Invalid derivation path");
+    }
+
+    if (isValidMnemonics(mnemonics)) {
+      throw ArgumentError("Invalid mnemonics");
     }
 
     final normalizeMnemonics = mnemonics
