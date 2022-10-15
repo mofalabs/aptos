@@ -154,9 +154,16 @@ class AptosClient {
     return resp.data;
   }
 
-  Future<dynamic> simulateTransaction(TransactionRequest transaction) async {
+  Future<dynamic> simulateTransaction(
+    TransactionRequest transaction,
+    { bool estimateGasUnitPrice = false,
+      bool estimateMaxGasAmount = false}) async {
+    final params = <String, bool>{
+      "estimate_gas_unit_price": estimateGasUnitPrice,
+      "estimate_max_gas_amount": estimateMaxGasAmount
+    };
     final path = "$endpoint/transactions/simulate";
-    final resp = await http.post(path, data: transaction.toJson());
+    final resp = await http.post(path, data: transaction.toJson(), queryParameters: params);
     return resp.data;
   }
 
@@ -192,6 +199,24 @@ class AptosClient {
     final path = "$endpoint/estimate_gas_price";
     final resp = await http.get(path);
     return resp.data["gas_estimate"];
+  }
+
+  Future<BigInt> estimateGasUnitPrice(TransactionRequest transaction) async {
+    final txData = await simulateTransaction(transaction, estimateGasUnitPrice: true);
+    final txInfo = txData[0];
+    bool isSuccess = txInfo["success"];
+    if (!isSuccess) throw Exception({txInfo["vm_status"]});
+    final maxGasAmount = txInfo["gas_unit_price"].toString();
+    return BigInt.parse(maxGasAmount);
+  }
+
+  Future<BigInt> estimateGasAmount(TransactionRequest transaction) async {
+    final txData = await simulateTransaction(transaction, estimateMaxGasAmount: true);
+    final txInfo = txData[0];
+    bool isSuccess = txInfo["success"];
+    if (!isSuccess) throw Exception({txInfo["vm_status"]});
+    final maxGasAmount = txInfo["gas_used"].toString();
+    return BigInt.parse(maxGasAmount);
   }
 
   Future<bool> transactionPending(String txnHash) async {
