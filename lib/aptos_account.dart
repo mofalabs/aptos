@@ -63,7 +63,7 @@ class AptosAccount {
       throw ArgumentError("Invalid derivation path");
     }
 
-    if (isValidMnemonics(mnemonics)) {
+    if (!isValidMnemonics(mnemonics)) {
       throw ArgumentError("Invalid mnemonics");
     }
 

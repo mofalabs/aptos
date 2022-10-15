@@ -32,8 +32,11 @@ void main() {
   });
 
   test('aptos get account resouce by type', () async {
-    final result = await aptos.getAccountResouce(address, "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
-    expect(result["type"] , "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
+    // final result = await aptos.getAccountResouce(address, "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
+    // expect(result["type"] , "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
+
+    final result1 = await aptos.getAccountResouce("0xfaf52ae1b48f945014ab1ba2798f85498995848cedfb0fbd167fada7ccb2d66e", "0xfaf52ae1b48f945014ab1ba2798f85498995848cedfb0fbd167fada7ccb2d66e::chat::MessageStore");
+    print(result1);
   });
 
   test('aptos get account modules', () async {
