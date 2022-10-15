@@ -8,8 +8,12 @@ class CoinClient {
 
   late AptosClient aptosClient;
 
-  CoinClient(String endpoint) {
-    aptosClient = AptosClient(endpoint);
+  CoinClient(AptosClient client) {
+    aptosClient = client;
+  }
+
+  factory CoinClient.fromEndpoint(String endpoint, {bool enableDebugLog = false}) {
+    return CoinClient(AptosClient(endpoint, enableDebugLog: enableDebugLog));
   }
 
   Future<BigInt> checkBalance(String address, { String? coinType }) async {
