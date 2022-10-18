@@ -379,7 +379,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     BigInt? expireTimestamp
   }) async {
     final rawTransaction = await generateRawTransaction(
-      sender.address(), 
+      sender.accountAddress, 
       payload,
       maxGasAmount: maxGasAmount,
       gasUnitPrice: gasUnitPrice,

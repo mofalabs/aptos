@@ -16,7 +16,7 @@ void main() {
     final a1 = AptosAccount();
     final a2 = AptosAccount();
     expect(a1.authKey() == a2.authKey(), false);
-    expect(a1.address().hex() == a2.address().hex(), false);
+    expect(a1.address == a2.address, false);
   });
 
   test("generates mnemonic", () {
@@ -33,10 +33,10 @@ void main() {
   test("generates derive path accounts", () {
     const address = "0x07968dab936c1bad187c60ce4082f307d030d780e91e694ae03aef16aba73f30";
     final a1 = AptosAccount.fromDerivePath("m/44'/637'/0'/0'/0'", mnemonic);
-    expect(a1.address().hex(), address);
+    expect(a1.address, address);
 
     final a2 = AptosAccount.generateAccount(mnemonic, addressIndex: 0);
-    expect(a2.address().hex(), address);
+    expect(a2.address, address);
   });
 
   test("generates derive path accounts fail", () {
@@ -48,19 +48,19 @@ void main() {
   test("accepts custom address", () {
     const address = "0x777";
     final a1 = AptosAccount(null, address);
-    expect(a1.address().hex(), address);
+    expect(a1.address, address);
   });
 
   test("Deserializes from AptosAccountObject", () {
     final a1 = AptosAccount.fromAptosAccountObject(aptosAccountObject);
-    expect(a1.address().hex(), aptosAccountObject.address);
+    expect(a1.address, aptosAccountObject.address);
     expect(a1.pubKey().hex(), aptosAccountObject.publicKeyHex);
   });
 
   test("Deserializes from AptosAccountObject without address", () {
     final privateKeyObject = AptosAccountObject(privateKeyHex: aptosAccountObject.privateKeyHex);
     final a1 = AptosAccount.fromAptosAccountObject(privateKeyObject);
-    expect(a1.address().hex(), aptosAccountObject.address);
+    expect(a1.address, aptosAccountObject.address);
     expect(a1.pubKey().hex(), aptosAccountObject.publicKeyHex);
   });
 
@@ -68,7 +68,7 @@ void main() {
     final a1 = AptosAccount();
     final a2 = AptosAccount.fromAptosAccountObject(a1.toPrivateKeyObject());
     expect(a1.authKey().hex(), a2.authKey().hex());
-    expect(a1.address().hex(), a2.address().hex());
+    expect(a1.address, a2.address);
   });
 
   test("Signs Strings", () {

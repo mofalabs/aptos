@@ -54,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final aptos = AptosClient(Constants.testnetAPI, enableDebugLog: true);
     final account = AptosAccount(Uint8List.fromList(HEX.decode(privateKey)));
-    final sender = account.address().hex();
+    final sender = account.address;
     final accountInfo = await aptos.getAccount(sender);
     final txSubmission = TransactionEncodeSubmissionRequest(
       sender: sender,
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
       BigInt expirationTimestamp) async {
     final aptos = AptosClient(Constants.testnetAPI, enableDebugLog: true);
     final account = AptosAccount(Uint8List.fromList(HEX.decode(privateKey)));
-    final sender = account.address().hex();
+    final sender = account.address;
 
     final accountInfo = await aptos.getAccount(sender);
     final ledgerInfo = await aptos.getLedgerInfo();

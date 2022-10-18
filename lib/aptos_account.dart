@@ -18,9 +18,9 @@ class AptosAccountObject {
 
 class AptosAccount {
 
-  late ed25519.KeyPair signingKey;
+  late final ed25519.KeyPair signingKey;
 
-  late HexString accountAddress;
+  late final HexString accountAddress;
 
   static AptosAccount fromAptosAccountObject(AptosAccountObject obj) {
     return AptosAccount(HexString.ensure(obj.privateKeyHex!).toUint8Array(), obj.address);
@@ -89,9 +89,7 @@ class AptosAccount {
     accountAddress = HexString.ensure(address ?? authKey().hex());
   }
 
-  HexString address() {
-    return accountAddress;
-  }
+  String get address =>  accountAddress.hex();
 
   HexString authKey() {
     final pkBytes = publicKeyBytes(signingKey);
@@ -120,7 +118,7 @@ class AptosAccount {
   AptosAccountObject toPrivateKeyObject() {
     final privateKey = signingKey.privateKey.bytes.sublist(0, 32);
     return AptosAccountObject(
-      address: address().hex(),
+      address: address,
       publicKeyHex: pubKey().hex(),
       privateKeyHex: HexString.fromUint8Array(Uint8List.fromList(privateKey)).hex(),
     );

@@ -7,6 +7,7 @@ import 'package:aptos/aptos_types/type_tag.dart';
 import 'package:aptos/bcs/helper.dart';
 import 'package:aptos/coin_client.dart';
 import 'package:aptos/constants.dart';
+import 'package:aptos/faucet_client.dart';
 import 'package:aptos/hex_string.dart';
 import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/signature.dart';
@@ -251,7 +252,6 @@ test('submits bcs transaction', () async {
     final fromAddress = HexString("c2d808c1920f76b4ca728a9f55cb34845ef9bf63957deebfb5165058669cc542ac5aa1971f5c43862eec59497958fba552d2b9b30aea23774d51c7287b647829").toUint8Array();
     final account1 = AptosAccount(fromAddress);
 
-    // final account2 = AptosAccount();
     final account2 = "0x9d36a1531f1ac2fc0e9d0a78105357c38e55f1a97a504d98b547f2f62fbbe3c6";
 
     final token = TypeTagStruct(StructTag.fromString("0x1::aptos_coin::AptosCoin"));
@@ -265,7 +265,7 @@ test('submits bcs transaction', () async {
       ),
     );
 
-    final rawTxn = await client.generateRawTransaction(account1.address(), entryFunctionPayload);
+    final rawTxn = await client.generateRawTransaction(account1.accountAddress, entryFunctionPayload);
 
     final bcsTxn = AptosClient.generateBCSTransaction(account1, rawTxn);
 
