@@ -1,6 +1,13 @@
 import 'dart:convert';
 
+import 'package:aptos/aptos_account.dart';
+import 'package:aptos/aptos_types/account_address.dart';
+import 'package:aptos/aptos_types/transaction.dart';
+import 'package:aptos/aptos_types/type_tag.dart';
+import 'package:aptos/bcs/helper.dart';
+import 'package:aptos/coin_client.dart';
 import 'package:aptos/constants.dart';
+import 'package:aptos/hex_string.dart';
 import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/table_item.dart';
@@ -229,4 +236,46 @@ void main() {
     final isPending = await aptos.transactionPending(hash);
     expect(isPending, false);
   });
+
+  test('description', (){
+    final mnemonics = AptosAccount.generateMnemonic();
+    final account = AptosAccount.generateAccount(mnemonics);
+    final client = AptosClient(Constants.testnetAPI, enableDebugLog: true);
+    final coinClient = CoinClient(client);
+    
+  });
+
+test('submits bcs transaction', () async {
+    final client = AptosClient(Constants.testnetAPI, enableDebugLog: true);
+
+    final fromAddress = HexString("c2d808c1920f76b4ca728a9f55cb34845ef9bf63957deebfb5165058669cc542ac5aa1971f5c43862eec59497958fba552d2b9b30aea23774d51c7287b647829").toUint8Array();
+    final account1 = AptosAccount(fromAddress);
+
+    // final account2 = AptosAccount();
+    final account2 = "0x9d36a1531f1ac2fc0e9d0a78105357c38e55f1a97a504d98b547f2f62fbbe3c6";
+
+    final token = TypeTagStruct(StructTag.fromString("0x1::aptos_coin::AptosCoin"));
+
+    final entryFunctionPayload = TransactionPayloadEntryFunction(
+      EntryFunction.natural(
+        "0x1::coin",
+        "transfer",
+        [token],
+        [bcsToBytes(AccountAddress.fromHex(account2)), bcsSerializeUint64(BigInt.from(717))],
+      ),
+    );
+
+    final rawTxn = await client.generateRawTransaction(account1.address(), entryFunctionPayload);
+
+    final bcsTxn = AptosClient.generateBCSTransaction(account1, rawTxn);
+
+    final transactionRes = await client.submitSignedBCSTransaction(bcsTxn);
+
+    await client.waitForTransaction(transactionRes.hash);
+
+    final resources = await client.getAccountResources(account2);
+    final accountResource = resources.firstWhere((r) => r["type"] == CoinClient.APTOS_COIN);
+    expect(accountResource != null, true);
+  });
+
 }

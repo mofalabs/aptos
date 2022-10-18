@@ -1,8 +1,16 @@
+import 'dart:typed_data';
+
+import 'package:aptos/aptos_account.dart';
+import 'package:aptos/aptos_types/account_address.dart';
+import 'package:aptos/aptos_types/ed25519.dart';
+import 'package:aptos/aptos_types/transaction.dart';
 import 'package:aptos/constants.dart';
+import 'package:aptos/hex_string.dart';
 import 'package:aptos/http/http.dart';
 import 'package:aptos/models/response/account_data.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';
+import 'package:aptos/transaction_builder/builder.dart';
 import 'package:dio/dio.dart';
 
 class AptosClient {
@@ -116,6 +124,12 @@ class AptosClient {
     return resp.data;
   }
 
+  Future<int> getChainId() async {
+    final ledgerInfo = await getLedgerInfo();
+    final chainId = ledgerInfo["chain_id"];
+    return chainId;
+  }
+
 
   /// Table ///
 
@@ -146,6 +160,19 @@ class AptosClient {
     final path = "$endpoint/transactions";
     final resp = await http.post(path, data: transaction);
     return resp.data;
+  }
+
+  Future<dynamic> submitSignedBCSTransaction(Uint8List signedTxn) async {
+    // Need to construct a customized post request for transactions in BCS payload
+    final path = "$endpoint/transactions";
+    final data = HexString.fromUint8Array(signedTxn).hex();
+    final options = Options(contentType: "application/x.aptos.signed_transaction+bcs");
+    final resp = await http.post(path, data: data, options: options);
+    return resp.data;
+  }
+
+  Future<dynamic> submitBCSTransaction(Uint8List signedTxn) async {
+    return submitSignedBCSTransaction(signedTxn);
   }
 
   Future<dynamic> submitBatchTransactions(List<TransactionRequest> transactions) async {
@@ -286,6 +313,81 @@ class AptosClient {
       txnHash, 
       timeoutSecs: timeoutSecs, 
       checkSuccess: checkSuccess);
+  }
+
+  // Generates a signed transaction that can be submitted to the chain for execution.
+  static Uint8List generateBCSTransaction(AptosAccount accountFrom, RawTransaction rawTxn) {
+    final txnBuilder = TransactionBuilderEd25519(
+      accountFrom.pubKey().toUint8Array(), 
+      (Uint8List signingMessage) => Ed25519Signature(accountFrom.signBuffer(signingMessage).toUint8Array())
+    );
+
+    return txnBuilder.sign(rawTxn);
+  }
+
+  static SignedTransaction generateBCSRawTransaction(AptosAccount accountFrom, RawTransaction rawTxn) {
+    final txnBuilder = TransactionBuilderEd25519(
+      accountFrom.pubKey().toUint8Array(), 
+      (Uint8List signingMessage) => Ed25519Signature(accountFrom.signBuffer(signingMessage).toUint8Array())
+    );
+
+    return txnBuilder.rawToSigned(rawTxn);
+  }
+
+
+// Note: Unless you have a specific reason for using this, it'll probably be simpler
+// to use `simulateTransaction`.
+// Generates a BCS transaction that can be submitted to the chain for simulation.
+static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTransaction rawTxn) async {
+  final txnBuilder = TransactionBuilderEd25519(
+    accountFrom.pubKey().toUint8Array(), 
+    (Uint8List _signingMessage) => Ed25519Signature(Uint8List(64)));
+
+  return txnBuilder.sign(rawTxn);
+}
+
+  Future<RawTransaction> generateRawTransaction(
+    HexString accountFrom,
+    TransactionPayload payload,{
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp
+  }) async {
+    final account = await getAccount(accountFrom.hex());
+    final chainId = await getChainId();
+
+    maxGasAmount ??= BigInt.from(20000);
+    gasUnitPrice ??= BigInt.from(await estimateGasPrice());
+    expireTimestamp ??= BigInt.from((DateTime.now().millisecondsSinceEpoch / 1000).floor() + 20);
+
+    return RawTransaction(
+      AccountAddress.fromHex(accountFrom.hex()),
+      BigInt.parse(account.sequenceNumber),
+      payload,
+      maxGasAmount,
+      gasUnitPrice,
+      expireTimestamp,
+      ChainId(chainId),
+    );
+  }
+
+  Future<String> generateSignSubmitTransaction(
+    AptosAccount sender,
+    TransactionPayload payload,{
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp
+  }) async {
+    final rawTransaction = await generateRawTransaction(
+      sender.address(), 
+      payload,
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasUnitPrice,
+      expireTimestamp: expireTimestamp
+    );
+    final bcsTxn = AptosClient.generateBCSTransaction(sender, rawTransaction);
+    final pendingTransaction = await submitSignedBCSTransaction(bcsTxn);
+    return pendingTransaction["hash"];
   }
 
 }

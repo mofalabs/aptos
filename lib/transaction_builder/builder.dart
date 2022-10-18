@@ -129,7 +129,7 @@ class TransactionBuilderABI {
 
   late final ABIBuilderConfig builderConfig;
 
-  TransactionBuilderABI(List<Uint8List> abis, ABIBuilderConfig? builderConfig) {
+  TransactionBuilderABI(List<Uint8List> abis, {ABIBuilderConfig? builderConfig}) {
 
     abis.forEach((abi) {
       var deserializer = Deserializer(abi);
