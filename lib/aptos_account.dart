@@ -79,6 +79,9 @@ class AptosAccount {
 
   AptosAccount([Uint8List? privateKeyBytes, String? address]) {
     if (privateKeyBytes != null) {
+      if (privateKeyBytes.length != 32 && privateKeyBytes.length != 64) {
+        throw ArgumentError("Invalid private key");
+      }
       final sk = ed25519.newKeyFromSeed(privateKeyBytes.sublist(0, 32));
       final pk = ed25519.public(sk);
       signingKey = ed25519.KeyPair(sk, pk);
