@@ -57,6 +57,12 @@ void main() {
     expect(a1.pubKey().hex(), aptosAccountObject.publicKeyHex);
   });
 
+  test("Deserializes from private key", () {
+    final a1 = AptosAccount.fromPrivateKey(aptosAccountObject.privateKeyHex!);
+    expect(a1.address, aptosAccountObject.address);
+    expect(a1.pubKey().hex(), aptosAccountObject.publicKeyHex);
+  });
+
   test("Deserializes from AptosAccountObject without address", () {
     final privateKeyObject = AptosAccountObject(privateKeyHex: aptosAccountObject.privateKeyHex);
     final a1 = AptosAccount.fromAptosAccountObject(privateKeyObject);

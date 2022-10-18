@@ -22,10 +22,6 @@ class AptosAccount {
 
   late final HexString accountAddress;
 
-  static AptosAccount fromAptosAccountObject(AptosAccountObject obj) {
-    return AptosAccount(HexString.ensure(obj.privateKeyHex!).toUint8Array(), obj.address);
-  }
-
   static bool isValidPath(String path) {
     if (RegExp(r"^m/44'/637'/[0-9]+'/[0-9]+'/[0-9]+'+$").hasMatch(path)) {
       return true;
@@ -90,6 +86,18 @@ class AptosAccount {
     }
     
     accountAddress = HexString.ensure(address ?? authKey().hex());
+  }
+
+  factory AptosAccount.fromAptosAccountObject(AptosAccountObject obj) {
+    return AptosAccount(HexString.ensure(obj.privateKeyHex!).toUint8Array(), obj.address);
+  }
+
+  factory AptosAccount.fromPrivateKey(String privateKey) {
+    final privateKeyHex = HexString(privateKey).noPrefix();
+    if (privateKeyHex.length != 64 && privateKeyHex.length != 128) {
+      throw ArgumentError("Invalid private key length ${privateKeyHex.length}");
+    }
+    return AptosAccount(HexString(privateKeyHex).toUint8Array());
   }
 
   String get address =>  accountAddress.hex();
