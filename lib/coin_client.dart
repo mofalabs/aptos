@@ -7,16 +7,10 @@ import 'package:aptos/transaction_builder/builder.dart';
 
 class CoinClient {
 
-  static const APTOS_COIN = "0x1::aptos_coin::AptosCoin";
-
   late AptosClient aptosClient;
-  late TransactionBuilderABI transactionBuilder;
 
   CoinClient(AptosClient client) {
     aptosClient = client;
-    transactionBuilder = TransactionBuilderABI(
-      COIN_ABIS.map((abi) => HexString(abi).toUint8Array()).toList()
-    );
   }
 
   factory CoinClient.fromEndpoint(String endpoint, {bool enableDebugLog = false}) {
@@ -32,24 +26,14 @@ class CoinClient {
     String? expireTimestamp,
     String? coinType
   }) async {
-    coinType ??= APTOS_COIN;
-    final payload = transactionBuilder.buildTransactionPayload(
-      "0x1::coin::transfer",
-      [coinType],
-      [to, amount]
-    );
-    final txHash = aptosClient.generateSignSubmitTransaction(
-      from, 
-      payload,
-      maxGasAmount: BigInt.tryParse(maxGasAmount ?? ""),
-      gasUnitPrice: BigInt.tryParse(gasUnitPrice ?? ""),
-      expireTimestamp: BigInt.tryParse(expireTimestamp ?? "")
-    );
-    return txHash;
+    coinType ??= AptosClient.APTOS_COIN;
+    final submitTxn = await aptosClient.generateTransferTransaction(from, to, amount, coinType: coinType);
+    final resp = await aptosClient.submitTransaction(submitTxn);
+    return resp["hash"];
   }
 
   Future<BigInt> checkBalance(String address, { String? coinType }) async {
-    coinType ??= APTOS_COIN;
+    coinType ??= AptosClient.APTOS_COIN;
     String typeTag = "0x1::coin::CoinStore<$coinType>";
     final resources = await aptosClient.getAccountResources(address);
     final accountResource = resources.firstWhere((r) => r["type"] == typeTag);

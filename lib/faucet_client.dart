@@ -5,7 +5,7 @@ import 'package:aptos/http/http.dart';
 
 class FaucetClient {
 
-  final aptosClient = AptosClient(Constants.devnetAPI);
+  final aptosClient = AptosClient(Constants.devnetAPI, enableDebugLog: true);
   final String endpoint;
 
   FaucetClient(this.endpoint);

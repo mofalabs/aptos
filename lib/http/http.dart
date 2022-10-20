@@ -18,7 +18,7 @@ class Http extends DioForNative {
 
   _init() {
     options.connectTimeout = 5000;
-    options.receiveTimeout = 5000;
+    options.receiveTimeout = 10000;
 
     options.headers["Content-Type"] = "application/json";
 
