@@ -158,16 +158,41 @@ class _MyHomePageState extends State<MyHomePage> {
     return result;
   }
 
+  Future<dynamic> _transferAptos(
+      AptosAccount account,
+      String receiverAddress,
+      BigInt amount,
+      {BigInt? gasPrice,
+      BigInt? maxGasAmount,
+      BigInt? expirationTimestamp}) async {
+    final aptos = AptosClient(Constants.testnetAPI, enableDebugLog: true);
+    final txRequest = await aptos.generateTransferTransaction(
+      account,
+      receiverAddress,
+      amount.toString(),
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasPrice,
+      expireTimestamp: expirationTimestamp
+    );
+    final result = await aptos.submitTransaction(txRequest);
+    debugPrint(result.toString());
+    return result;
+  }
+
+
   void _send() async {
     final privateKey = privateKeyTextEditingController.text.trim();
     final address = addressTextEditingController.text.trim();
     final amountText = amountTextEditingController.text.trim();
 
-    if (privateKey.length != 128 && privateKey.length != 130) {
-     setState(() {
-       message = "invalid private key length";
-     });
-     return;
+    AptosAccount account;
+    try {
+      account = AptosAccount(HexString(privateKey).toUint8Array());
+    } catch (e) {
+      setState(() {
+        message = "invalid private key length";
+      });
+      return;
     }
 
     final amount = double.tryParse(amountText);
@@ -178,14 +203,8 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    print((amount * pow(10, 8)).toString());
     final totalAptos = BigInt.from(amount * pow(10, 8));
-    final milliseconds = BigInt.from(DateTime.now().add(Duration(minutes: 1)).millisecondsSinceEpoch);
-    final maxGasAmount = BigInt.from(1008);
-    final gasPrice = BigInt.from(3000);
-    final result = await _transfer(privateKey, address, totalAptos, gasPrice, maxGasAmount, milliseconds);
-    // final result = await _transferWithEncodeSubmissionAPI(
-    //   privateKey, address, totalAptos, gasPrice, maxGasAmount ,milliseconds);
+    final result = await _transferAptos(account, address, totalAptos);
     setState(() {
       message = "txhash: ${result["hash"]}";
     });

@@ -357,7 +357,7 @@ class AptosClient {
     final account = await getAccount(accountFrom.address);
     maxGasAmount ??= BigInt.from(20000);
     gasUnitPrice ??= BigInt.from(await estimateGasPrice());
-    expireTimestamp ??= BigInt.from((DateTime.now().millisecondsSinceEpoch / 1000).floor() + 20);
+    expireTimestamp ??= BigInt.from((DateTime.now().add(const Duration(seconds: 10)).microsecondsSinceEpoch));
 
     final token = TypeTagStruct(StructTag.fromString(coinType));
     final entryFunctionPayload = TransactionPayloadEntryFunction(
