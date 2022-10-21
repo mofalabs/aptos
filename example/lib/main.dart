@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:aptos/aptos.dart';
+import 'package:aptos/coin_client.dart';
 import 'package:aptos/constants.dart';
 import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/signature.dart';
@@ -166,17 +167,17 @@ class _MyHomePageState extends State<MyHomePage> {
       BigInt? maxGasAmount,
       BigInt? expirationTimestamp}) async {
     final aptos = AptosClient(Constants.testnetAPI, enableDebugLog: true);
-    final txRequest = await aptos.generateTransferTransaction(
+    final coinClient = CoinClient(aptos);
+    final txHash = await coinClient.transfer(
       account,
       receiverAddress,
-      amount.toString(),
+      amount,
       maxGasAmount: maxGasAmount,
       gasUnitPrice: gasPrice,
       expireTimestamp: expirationTimestamp
     );
-    final result = await aptos.submitTransaction(txRequest);
-    debugPrint(result.toString());
-    return result;
+    debugPrint(txHash);
+    return txHash;
   }
 
 
