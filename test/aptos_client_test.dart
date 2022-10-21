@@ -14,6 +14,7 @@ import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';
+import 'package:aptos/transaction_builder/builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:aptos/aptos_client.dart';
 
@@ -21,6 +22,8 @@ void main() {
 
   String address = "0x9d36a1531f1ac2fc0e9d0a78105357c38e55f1a97a504d98b547f2f62fbbe3c6";
   AptosClient aptos = AptosClient(Constants.testnetAPI, enableDebugLog: true);
+
+  const aptosCoinStore = "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>";
 
   test('aptos client node health', () async {
     final result = await aptos.checkBasicNodeHealth();
@@ -260,37 +263,69 @@ void main() {
 
   });
 
-  // test('submits bcs transaction', () async {
-  //   final client = AptosClient(Constants.testnetAPI, enableDebugLog: true);
+  test(
+    "test submitSignedBCSTransaction", () async {
+      final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
+      final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
+      // final coinClient = CoinClient(client);
 
-  //   final fromAddress = HexString("0xf244795a0d9524afc41489cb73b8e337a929fccec6465b9df7585063e6732560").toUint8Array();
-  //   final account1 = AptosAccount(fromAddress);
+      final privateArray = HexString("9e2dc8c01845a5b68d2abfb8e08cfb627325a9741b0041818076ce0910fce82b").toUint8Array();
+      final account1 =  AptosAccount(privateArray);
+      final account2 = AptosAccount();
 
-  //   final account2 = "0x9d36a1531f1ac2fc0e9d0a78105357c38e55f1a97a504d98b547f2f62fbbe3c6";
+      await faucetClient.fundAccount(account2.address, "0");
 
-  //   final token = TypeTagStruct(StructTag.fromString("0x1::aptos_coin::AptosCoin"));
+      final builder = TransactionBuilderRemoteABI(client, ABIBuilderConfig(sender: account1.address));
+      final rawTxn = await builder.build(
+        "0x1::coin::transfer",
+        ["0x1::aptos_coin::AptosCoin"],
+        [account2.address, 400],
+      );
 
-  //   final entryFunctionPayload = TransactionPayloadEntryFunction(
-  //     EntryFunction.natural(
-  //       "0x1::coin",
-  //       "transfer",
-  //       [token],
-  //       [bcsToBytes(AccountAddress.fromHex(account2)), bcsSerializeUint64(BigInt.from(717))],
-  //     ),
-  //   );
+      final bcsTxn = AptosClient.generateBCSTransaction(account1, rawTxn);
+      final transactionRes = await client.submitSignedBCSTransaction(bcsTxn);
 
-  //   // final expireDateTime = DateTime.now().add(Duration(minutes: 10)).millisecondsSinceEpoch;
-  //   final rawTxn = await client.generateRawTransaction(account1.accountAddress, entryFunctionPayload);
+      await Future.delayed(const Duration(seconds: 3));
+      await client.waitForTransaction(transactionRes["hash"]);
 
-  //   final bcsTxn = AptosClient.generateBCSTransaction(account1, rawTxn);
+      final resources = await client.getAccountResources(account2.address);
+      final accountResource = (resources as List).firstWhere((r) => r["type"] == aptosCoinStore);
+      expect(accountResource["data"]["coin"]["value"] == "400", true);
+    }
+  );
 
-  //   final transactionRes = await client.submitSignedBCSTransaction(bcsTxn);
+  test('submits bcs transaction', () async {
+    final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
+    final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
 
-  //   await client.waitForTransaction(transactionRes.hash);
+    final privateArray = HexString("9e2dc8c01845a5b68d2abfb8e08cfb627325a9741b0041818076ce0910fce82b").toUint8Array();
+    final account1 =  AptosAccount(privateArray);
+    final account2 = AptosAccount();
 
-  //   final resources = await client.getAccountResources(account2);
-  //   final accountResource = resources.firstWhere((r) => r["type"] == AptosClient.APTOS_COIN);
-  //   expect(accountResource != null, true);
-  // });
+    await faucetClient.fundAccount(account2.address, "0");
+
+    final token = TypeTagStruct(StructTag.fromString("0x1::aptos_coin::AptosCoin"));
+
+    final entryFunctionPayload = TransactionPayloadEntryFunction(
+      EntryFunction.natural(
+        "0x1::coin",
+        "transfer",
+        [token],
+        [bcsToBytes(AccountAddress.fromHex(account2.address)), bcsSerializeUint64(BigInt.from(717))],
+      ),
+    );
+
+    final rawTxn = await client.generateRawTransaction(account1.accountAddress, entryFunctionPayload);
+
+    final bcsTxn = AptosClient.generateBCSTransaction(account1, rawTxn);
+
+    final transactionRes = await client.submitSignedBCSTransaction(bcsTxn);
+
+    await client.waitForTransaction(transactionRes["hash"]);
+
+    final resources = await client.getAccountResources(account2.address);
+    final accountResource = resources.firstWhere((r) => r["type"] == aptosCoinStore);
+    expect(accountResource != null, true);
+  });
 
 }

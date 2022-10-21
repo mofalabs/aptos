@@ -15,11 +15,17 @@ void main() {
   });
 
   test('transfer aptos coin', () async {
-    final from = AptosAccount(HexString("0xf244795a0d9524afc41489cb73b8e337a929fccec6465b9df7585063e6732560").toUint8Array());
-    const to = "0x9d36a1531f1ac2fc0e9d0a78105357c38e55f1a97a504d98b547f2f62fbbe3c6";
+    final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
+    final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
+    final coinClient = CoinClient(client);
 
-    final client = CoinClient.fromEndpoint(Constants.testnetAPI);
-    final txHash = await client.transfer(from, to, "1000");
+    final privateArray = HexString("9e2dc8c01845a5b68d2abfb8e08cfb627325a9741b0041818076ce0910fce82b").toUint8Array();
+    final account1 =  AptosAccount(privateArray);
+    final account2 = AptosAccount();
+
+    await faucetClient.fundAccount(account2.address, "0");
+
+    final txHash = await coinClient.transfer(account1, account2.address, BigInt.from(333));
     expect(txHash.isNotEmpty, true);
   });
 
@@ -50,7 +56,6 @@ void main() {
     }
 
     // Transfer Aptos Coin
-    final txHash = await coinClient.transfer(sender, receiver.address, "10000");
+    final txHash = await coinClient.transfer(sender, receiver.address, BigInt.from(10000));
   });
-
 }
