@@ -5,10 +5,12 @@ import 'package:aptos/http/http.dart';
 
 class FaucetClient {
 
-  final aptosClient = AptosClient(Constants.devnetAPI, enableDebugLog: true);
+  late final AptosClient aptosClient;
   final String endpoint;
 
-  FaucetClient(this.endpoint);
+  FaucetClient(this.endpoint, {AptosClient? client, bool? enableDebugLog}) {
+    aptosClient = client ?? AptosClient(Constants.devnetAPI, enableDebugLog: enableDebugLog ?? false);
+  }
 
   Future<List<String>> fundAccount(String address, String amount, {int timeoutSecs = 20}) async {
     final params = { "address": HexString.ensure(address).noPrefix(), "amount": amount };

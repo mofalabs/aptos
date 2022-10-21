@@ -1,25 +1,17 @@
 import 'dart:typed_data';
 
 import 'package:aptos/aptos.dart';
-import 'package:aptos/aptos_account.dart';
-import 'package:aptos/aptos_types/account_address.dart';
-import 'package:aptos/aptos_types/authenticator.dart';
-import 'package:aptos/aptos_types/ed25519.dart';
-import 'package:aptos/aptos_types/transaction.dart';
-import 'package:aptos/aptos_types/type_tag.dart';
-import 'package:aptos/bcs/helper.dart';
 import 'package:aptos/constants.dart';
-import 'package:aptos/hex_string.dart';
 import 'package:aptos/http/http.dart';
+import 'package:aptos/models/entry_function_payload.dart';
 import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/response/account_data.dart';
 import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';
-import 'package:aptos/transaction_builder/builder.dart';
 import 'package:dio/dio.dart';
 
-class AptosClient {
+class AptosClient with AptosClientInterface {
 
   static const APTOS_COIN = "0x1::aptos_coin::AptosCoin";
 
@@ -32,6 +24,7 @@ class AptosClient {
 
   /// Accounts ///
 
+  @override
   Future<AccountData> getAccount(String address) async {
     final path = "$endpoint/accounts/$address";
     final resp = await http.get(path);
@@ -59,6 +52,7 @@ class AptosClient {
     return resp.data;
   }
 
+  @override
   Future<dynamic> getAccountModules(String address) async {
     final path = "$endpoint/accounts/$address/modules";
     final resp = await http.get(path);
@@ -132,6 +126,7 @@ class AptosClient {
     return resp.data;
   }
 
+  @override
   Future<int> getChainId() async {
     final ledgerInfo = await getLedgerInfo();
     final chainId = ledgerInfo["chain_id"];
@@ -171,11 +166,10 @@ class AptosClient {
   }
 
   Future<dynamic> submitSignedBCSTransaction(Uint8List signedTxn) async {
-    // Need to construct a customized post request for transactions in BCS payload
     final path = "$endpoint/transactions";
-    // final data = HexString.fromUint8Array(signedTxn).hex();
+    final file = MultipartFile.fromBytes(signedTxn).finalize();
     final options = Options(contentType: "application/x.aptos.signed_transaction+bcs");
-    final resp = await http.post(path, data: signedTxn, options: options);
+    final resp = await http.post(path, data: file, options: options);
     return resp.data;
   }
 
@@ -230,6 +224,7 @@ class AptosClient {
     return resp.data;
   }
 
+  @override
   Future<int> estimateGasPrice() async {
     final path = "$endpoint/estimate_gas_price";
     final resp = await http.get(path);
@@ -342,64 +337,64 @@ class AptosClient {
     return txnBuilder.rawToSigned(rawTxn);
   }
 
-  Future<TransactionRequest> generateTransferTransaction(
-    AptosAccount accountFrom,
-    String receiverAddress,
-    String amount,{
-    String? coinType,
-    BigInt? maxGasAmount,
-    BigInt? gasUnitPrice,
-    BigInt? expireTimestamp
-  }) async {
-    const function = "0x1::coin::transfer";
-    coinType ??= AptosClient.APTOS_COIN;
+  // Future<TransactionRequest> generateTransferTransaction(
+  //   AptosAccount accountFrom,
+  //   String receiverAddress,
+  //   String amount,{
+  //   String? coinType,
+  //   BigInt? maxGasAmount,
+  //   BigInt? gasUnitPrice,
+  //   BigInt? expireTimestamp
+  // }) async {
+  //   const function = "0x1::coin::transfer";
+  //   coinType ??= AptosClient.APTOS_COIN;
 
-    final account = await getAccount(accountFrom.address);
-    maxGasAmount ??= BigInt.from(20000);
-    gasUnitPrice ??= BigInt.from(await estimateGasPrice());
-    expireTimestamp ??= BigInt.from((DateTime.now().add(const Duration(seconds: 10)).microsecondsSinceEpoch));
+  //   final account = await getAccount(accountFrom.address);
+  //   maxGasAmount ??= BigInt.from(20000);
+  //   gasUnitPrice ??= BigInt.from(await estimateGasPrice());
+  //   expireTimestamp ??= BigInt.from((DateTime.now().add(const Duration(seconds: 10)).microsecondsSinceEpoch));
 
-    final token = TypeTagStruct(StructTag.fromString(coinType));
-    final entryFunctionPayload = TransactionPayloadEntryFunction(
-      EntryFunction.natural(
-        function.split("::").take(2).join("::"),
-        function.split("::").last,
-        [token],
-        [bcsToBytes(AccountAddress.fromHex(receiverAddress)), bcsSerializeUint64(BigInt.parse(amount))],
-      ),
-    );
+  //   final token = TypeTagStruct(StructTag.fromString(coinType));
+  //   final entryFunctionPayload = TransactionPayloadEntryFunction(
+  //     EntryFunction.natural(
+  //       function.split("::").take(2).join("::"),
+  //       function.split("::").last,
+  //       [token],
+  //       [bcsToBytes(AccountAddress.fromHex(receiverAddress)), bcsSerializeUint64(BigInt.parse(amount))],
+  //     ),
+  //   );
     
-    final rawTxn = await generateRawTransaction(
-      accountFrom.accountAddress, 
-      entryFunctionPayload, 
-      maxGasAmount: maxGasAmount, 
-      gasUnitPrice: gasUnitPrice, 
-      expireTimestamp: expireTimestamp
-    );
+  //   final rawTxn = await generateRawTransaction(
+  //     accountFrom.accountAddress, 
+  //     entryFunctionPayload, 
+  //     maxGasAmount: maxGasAmount, 
+  //     gasUnitPrice: gasUnitPrice, 
+  //     expireTimestamp: expireTimestamp
+  //   );
 
-    final signedTxn = AptosClient.generateBCSRawTransaction(accountFrom, rawTxn);
-    final txAuthEd25519 = signedTxn.authenticator as TransactionAuthenticatorEd25519;
-    final signature = txAuthEd25519.signature.value;
+  //   final signedTxn = AptosClient.generateBCSRawTransaction(accountFrom, rawTxn);
+  //   final txAuthEd25519 = signedTxn.authenticator as TransactionAuthenticatorEd25519;
+  //   final signature = txAuthEd25519.signature.value;
 
-    return TransactionRequest(
-      sender: accountFrom.address,
-      sequenceNumber: account.sequenceNumber,
-      payload: Payload(
-        "entry_function_payload",
-        function,
-        [coinType],
-        [receiverAddress, amount]
-      ),
-      maxGasAmount: maxGasAmount.toString(),
-      gasUnitPrice: gasUnitPrice.toString(),
-      expirationTimestampSecs: expireTimestamp.toString(),
-      signature: Signature(
-        "ed25519_signature",
-        accountFrom.pubKey().hex(),
-        HexString.fromUint8Array(signature).hex()
-      )
-    );
-  }
+  //   return TransactionRequest(
+  //     sender: accountFrom.address,
+  //     sequenceNumber: account.sequenceNumber,
+  //     payload: Payload(
+  //       "entry_function_payload",
+  //       function,
+  //       [coinType],
+  //       [receiverAddress, amount]
+  //     ),
+  //     maxGasAmount: maxGasAmount.toString(),
+  //     gasUnitPrice: gasUnitPrice.toString(),
+  //     expirationTimestampSecs: expireTimestamp.toString(),
+  //     signature: Signature(
+  //       "ed25519_signature",
+  //       accountFrom.pubKey().hex(),
+  //       HexString.fromUint8Array(signature).hex()
+  //     )
+  //   );
+  // }
 
 
 // Note: Unless you have a specific reason for using this, it'll probably be simpler
@@ -457,4 +452,22 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     return pendingTransaction["hash"];
   }
 
+  Future<RawTransaction> generateTransaction(
+    AptosAccount sender,
+    EntryFunctionPayload payload,{
+    String? sequenceNumber,
+    String? gasUnitPrice,
+    String? maxGasAmount,
+    String? expirationTimestampSecs
+  }) async {
+    final builderConfig = ABIBuilderConfig(
+      sender: sender.address,
+      sequenceNumber: sequenceNumber != null ? BigInt.parse(sequenceNumber) : null,
+      gasUnitPrice: gasUnitPrice != null ? BigInt.parse(gasUnitPrice) : null,
+      maxGasAmount: maxGasAmount != null ? BigInt.parse(maxGasAmount) : null,
+      expSecFromNow: expirationTimestampSecs != null ? BigInt.parse(expirationTimestampSecs) : null
+    );
+    final builder = TransactionBuilderRemoteABI(this, builderConfig);
+    return await builder.build(payload.functionId, payload.typeArguments, payload.arguments);
+  }
 }

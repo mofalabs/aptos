@@ -20,15 +20,29 @@ class CoinClient {
   Future<String> transfer(
     AptosAccount from,
     String to,
-    String amount,{
-    String? maxGasAmount,
-    String? gasUnitPrice,
-    String? expireTimestamp,
+    BigInt amount,{
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp,
     String? coinType
   }) async {
     coinType ??= AptosClient.APTOS_COIN;
-    final submitTxn = await aptosClient.generateTransferTransaction(from, to, amount, coinType: coinType);
-    final resp = await aptosClient.submitTransaction(submitTxn);
+
+    final config = ABIBuilderConfig(
+      sender: from.address,
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasUnitPrice,
+      expSecFromNow: expireTimestamp
+    );
+    final builder = TransactionBuilderRemoteABI(aptosClient, config);
+    final rawTxn = await builder.build(
+      "0x1::coin::transfer",
+      ["0x1::aptos_coin::AptosCoin"],
+      [to, amount],
+    );
+
+    final bcsTxn = AptosClient.generateBCSTransaction(from, rawTxn);
+    final resp = await aptosClient.submitSignedBCSTransaction(bcsTxn);
     return resp["hash"];
   }
 

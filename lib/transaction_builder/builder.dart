@@ -12,6 +12,7 @@ import 'package:aptos/bcs/deserializer.dart';
 import 'package:aptos/bcs/helper.dart';
 import 'package:aptos/bcs/serializer.dart';
 import 'package:aptos/hex_string.dart';
+import 'package:aptos/models/response/account_data.dart';
 import 'package:aptos/transaction_builder/builder_utils.dart';
 import 'package:aptos/utils/sha.dart';
 
@@ -119,7 +120,7 @@ class ABIBuilderConfig {
   BigInt? sequenceNumber;
   BigInt? gasUnitPrice;
   BigInt? maxGasAmount;
-  int? expSecFromNow;
+  BigInt? expSecFromNow;
   int? chainId;
 }
 
@@ -151,8 +152,8 @@ class TransactionBuilderABI {
     });
 
     this.builderConfig = ABIBuilderConfig(
-        maxGasAmount: BigInt.from(DEFAULT_MAX_GAS_AMOUNT),
-        expSecFromNow: DEFAULT_TXN_EXP_SEC_FROM_NOW,
+        maxGasAmount: builderConfig?.maxGasAmount ?? BigInt.from(DEFAULT_MAX_GAS_AMOUNT),
+        expSecFromNow: builderConfig?.expSecFromNow ?? BigInt.from(DateTime.now().add(const Duration(seconds: DEFAULT_TXN_EXP_SEC_FROM_NOW)).millisecondsSinceEpoch),
         sender: builderConfig?.sender,
         sequenceNumber: builderConfig?.sequenceNumber,
         gasUnitPrice: builderConfig?.gasUnitPrice,
@@ -225,7 +226,7 @@ class TransactionBuilderABI {
 
     final senderAccount = builderConfig.sender is AccountAddress ? builderConfig.sender : AccountAddress.fromHex(builderConfig.sender);
     
-    final expTimestampSec = BigInt.from((DateTime.now().millisecondsSinceEpoch / 1000).floor() + builderConfig.expSecFromNow!);
+    final expTimestampSec = builderConfig.expSecFromNow ?? BigInt.from(DateTime.now().add(const Duration(seconds: 10)).microsecondsSinceEpoch);
     final payload = buildTransactionPayload(func, tyTags, args);
 
     return RawTransaction(
@@ -240,117 +241,104 @@ class TransactionBuilderABI {
   }
 }
 
-// type RemoteABIBuilderConfig = Partial<Omit<ABIBuilderConfig, "sender">> & {
-//   sender: MaybeHexString | AccountAddress;
-// };
+mixin AptosClientInterface {
+  Future<dynamic> getAccountModules(String address);
+  Future<AccountData> getAccount(String address);
+  Future<int> getChainId();
+  Future<int> estimateGasPrice();
+}
 
-// mixin AptosClientInterface {
-//   Future<String> getAccountModules(String accountAddress);
-//   // getAccountModules: (accountAddress: MaybeHexString) => Promise<Gen.MoveModuleBytecode[]>;
-//   Future<AccountData> getAccount(String accountAddress);
-//   // getAccount: (accountAddress: MaybeHexString) => Promise<Gen.AccountData>;
-//   Future<int> getChainId();
-//   // getChainId: () => Promise<number>;
-//   Future<int> estimateGasPrice();
-//   // estimateGasPrice: () => Promise<Gen.GasEstimation>;
-// }
+class TransactionBuilderRemoteABI {
+  // We don't want the builder to depend on the actual AptosClient.
+  // There might be circular dependencies.
+  TransactionBuilderRemoteABI(this.aptosClient, this.builderConfig);
 
-// class TransactionBuilderRemoteABI {
-//   // We don't want the builder to depend on the actual AptosClient. There might be circular dependencies.
-//   TransactionBuilderRemoteABI(this.aptosClient, this.builderConfig);
+  final AptosClientInterface aptosClient;
+  final ABIBuilderConfig builderConfig;
 
-//   final AptosClientInterface aptosClient;
-//   final ABIBuilderConfig builderConfig;
+  Future<Map<String, dynamic>> fetchABI(String addr) async {
+    final modules = await aptosClient.getAccountModules(addr);
+    final abis = (modules as List)
+      .map((module) => module["abi"])
+      .expand((abi) =>
+        abi["exposed_functions"]
+          .where((ef) => ef["is_entry"] as bool)
+          .map((ef) => {
+                "fullName": "${abi["address"]}::${abi["name"]}::${ef["name"]}",
+                ...ef,
+              },
+          ),
+      );
 
-//   // Cache for 10 minutes
-//   // @MemoizeExpiring(10 * 60 * 1000)
-//   dynamic fetchABI(String addr) async {
-//     final modules = await this.aptosClient.getAccountModules(addr);
-//     final abis = modules
-//       .map((module) => module.abi)
-//       .flatMap((abi) =>
-//         abi!.exposed_functions
-//           .filter((ef) => ef.is_entry)
-//           .map(
-//             (ef) =>
-//               ({
-//                 fullName: `${abi!.address}::${abi!.name}::${ef.name}`,
-//                 ...ef,
-//               } as Gen.MoveFunction & { fullName: string }),
-//           ),
-//       );
+    final abiMap = <String, dynamic>{};
+    for (var abi in abis) {
+      abiMap[abi["fullName"]] = abi;
+    }
 
-//     const abiMap = Map<String, Gen.MoveFunction & { fullName: string }>();
-//     abis.forEach((abi) => {
-//       abiMap.set(abi.fullName, abi);
-//     });
-
-//     return abiMap;
-//   }
+    return abiMap;
+  }
 
 
-//   Future<RawTransaction> build(String func, List<String> ty_tags, List<dynamic> args) async {
-//     Function normlize = (String s) => s.replaceAll(RegExp(r"^0[xX]0*"), "0x");
-//     func = normlize(func);
-//     final funcNameParts = func.split("::");
-//     if (funcNameParts.length != 3) {
-//       throw ArgumentError(
-//         "'func' needs to be a fully qualified function name in format <address>::<module>::<function>, e.g. 0x1::coins::transfer",
-//       );
-//     }
+  Future<RawTransaction> build(String func, List<String> typeArgs, List<dynamic> args) async {
+    func = func.replaceAll(RegExp(r"^0[xX]0*"), "0x");
+    final funcNameParts = func.split("::");
+    if (funcNameParts.length != 3) {
+      throw ArgumentError(
+        "'func' needs to be a fully qualified function name in format <address>::<module>::<function>, e.g. 0x1::coins::transfer",
+      );
+    }
 
-//     // final [addr, module] = func.split("::");
-//     final result = func.split("::");
-//     final addr = result[0];
-//     final module = result[1];
+    final addr = funcNameParts[0];
+    final module = funcNameParts[1];
 
-//     // Downloads the JSON abi
-//     final abiMap = await fetchABI(addr);
-//     if (!abiMap.has(func)) {
-//       throw ArgumentError("$func doesn't exist.");
-//     }
+    final abiMap = await fetchABI(addr);
+    if (!abiMap.containsKey(func)) {
+      throw ArgumentError("$func doesn't exist.");
+    }
 
-//     final funcAbi = abiMap.get(func);
+    final funcAbi = abiMap[func];
 
-//     // Remove all `signer` and `&signer` from argument list because the Move VM injects those arguments. Clients do not
-//     // need to care about those args. `signer` and `&signer` are required be in the front of the argument list. But we
-//     // just loop through all arguments and filter out `signer` and `&signer`.
-//     final originalArgs = funcAbi!.params.filter((param) => param != "signer" && param != "&signer");
+    // Remove all `signer` and `&signer` from argument list because the Move VM injects those arguments. Clients do not
+    // need to care about those args. `signer` and `&signer` are required be in the front of the argument list. But we
+    // just loop through all arguments and filter out `signer` and `&signer`.
+    final originalArgs = (funcAbi["params"] as List).where((param) => param != "signer" && param != "&signer").toList();
 
-//     // Convert string arguments to TypeArgumentABI
-//     final typeArgABIs = originalArgs.map((arg, i) => ArgumentABI("var$i", TypeTagParser(arg).parseTypeTag()));
+    // Convert string arguments to TypeArgumentABI
+    final typeArgABIs = <ArgumentABI>[];
+    for (var i = 0; i < originalArgs.length; i++) {
+      typeArgABIs.add(ArgumentABI("var$i", TypeTagParser(originalArgs[i]).parseTypeTag()));
+    }
 
-//     final entryFunctionABI = EntryFunctionABI(
-//       funcAbi!.name,
-//       ModuleId.fromStr("$addr::$module"),
-//       "", // Doc string
-//       funcAbi!.generic_type_params.map((_, i) => TypeArgumentABI("$i")),
-//       typeArgABIs,
-//     );
+    final genericTypeParams = funcAbi["generic_type_params"];
+    final genericTypeParamsList = <TypeArgumentABI>[];
+    for (var i = 0; i < genericTypeParams.length; i++) {
+      genericTypeParamsList.add(TypeArgumentABI("$i"));
+    }
 
-//     // final { sender, ...rest } = this.builderConfig;
-//     final sender = builderConfig.sender;
+    final entryFunctionABI = EntryFunctionABI(
+      funcAbi["name"],
+      ModuleId.fromStr("$addr::$module"),
+      "",
+      genericTypeParamsList,
+      typeArgABIs,
+    );
 
-//     final senderAddress = sender is AccountAddress ? HexString.fromUint8Array(sender.address) : sender;
+    final sender = builderConfig.sender;
+    final senderAddress = sender is AccountAddress ? HexString.fromUint8Array(sender.address).hex() : sender;
+    final sequenceNumber = builderConfig.sequenceNumber ?? BigInt.parse((await aptosClient.getAccount(senderAddress)).sequenceNumber);
+    final chainId = builderConfig.chainId ?? await aptosClient.getChainId();
+    final gasUnitPrice = builderConfig.gasUnitPrice ?? BigInt.from(await aptosClient.estimateGasPrice());
 
-//     final sequenceNumber = builderConfig.sequenceNumber ?? aptosClient.getAccount(senderAddress);
+    final config = ABIBuilderConfig(
+      sender: sender,
+      sequenceNumber: sequenceNumber,
+      gasUnitPrice: gasUnitPrice,
+      chainId: chainId,
+      maxGasAmount: builderConfig.maxGasAmount,
+      expSecFromNow: builderConfig.expSecFromNow
+    );
+    final builderABI = TransactionBuilderABI([bcsToBytes(entryFunctionABI)], builderConfig: config);
 
-//     final [{ sequence_number: sequenceNumber }, chainId, { gas_estimate: gasUnitPrice }] = await Promise.all([
-//       builderConfig?.sequenceNumber
-//         ? Promise.resolve({ sequence_number: builderConfig?.sequenceNumber })
-//         : this.aptosClient.getAccount(senderAddress),
-//       builderConfig?.chainId ? Promise.resolve(builderConfig?.chainId) : aptosClient.getChainId(),
-//       builderConfig?.gasUnitPrice ? Promise.resolve({ gas_estimate: builderConfig?.gasUnitPrice }) : this.aptosClient.estimateGasPrice(),
-//     ]);
-
-//     final builderABI = TransactionBuilderABI([bcsToBytes(entryFunctionABI)], {
-//       sender,
-//       sequenceNumber,
-//       chainId,
-//       gasUnitPrice: BigInt(gasUnitPrice),
-//       ...rest,
-//     });
-
-//     return builderABI.build(func, ty_tags, args);
-//   }
-// }
+    return builderABI.build(func, typeArgs, args);
+  }
+}

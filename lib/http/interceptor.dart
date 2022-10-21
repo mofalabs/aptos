@@ -13,7 +13,7 @@ class ApiInterceptor extends InterceptorsWrapper {
       debugPrint("--------------- request ---------------");
       debugPrint(options.uri.toString());
       debugPrint(options.headers.toString());
-      debugPrint(jsonEncode(options.data));
+      debugPrint(options.contentType == "application/json" ? jsonEncode(options.data) : options.data.toString());
       debugPrint("--------------- request end -------------");
       debugPrint("");
     }
