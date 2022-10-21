@@ -35,8 +35,12 @@ class AptosClient with AptosClientInterface {
     try {
       await getAccount(address);
       return true;
-    } catch (err) {
-      return false;
+    } catch (e) {
+      dynamic err = e;
+      if (err.response.statusCode == 404) {
+        return false;
+      }
+      rethrow;
     }
   }
 

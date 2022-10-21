@@ -45,17 +45,17 @@ void main() {
       final faucetClient = FaucetClient(Constants.faucetDevAPI);
       await faucetClient.fundAccount(sender.address, amount.toString());
       await faucetClient.fundAccount(receiver.address, "0");
+      await Future.delayed(const Duration(seconds: 2));
     }
 
     final coinClient = CoinClient(aptosClient);
 
     // Check account balance
     final balance = await coinClient.checkBalance(sender.address);
-    if (balance != amount) {
-      throw Exception("Fund ${sender.address} failed");
-    }
+    print(balance);
 
     // Transfer Aptos Coin
     final txHash = await coinClient.transfer(sender, receiver.address, BigInt.from(10000));
+    print(txHash);
   });
 }
