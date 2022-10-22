@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:aptos/aptos_account.dart';
 import 'package:aptos/aptos_types/account_address.dart';
@@ -49,7 +50,7 @@ void main() {
     // final result = await aptos.getAccountResouce(address, "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
     // expect(result["type"] , "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
 
-    final result1 = await aptos.getAccountResouce("0xfaf52ae1b48f945014ab1ba2798f85498995848cedfb0fbd167fada7ccb2d66e", "0xfaf52ae1b48f945014ab1ba2798f85498995848cedfb0fbd167fada7ccb2d66e::chat::MessageStore");
+    final result1 = await aptos.getAccountResource("0xfaf52ae1b48f945014ab1ba2798f85498995848cedfb0fbd167fada7ccb2d66e", "0xfaf52ae1b48f945014ab1ba2798f85498995848cedfb0fbd167fada7ccb2d66e::chat::MessageStore");
     print(result1);
   });
 
@@ -242,27 +243,6 @@ void main() {
     expect(isPending, false);
   });
 
-  test('description', (){
-    final mnemonics = AptosAccount.generateMnemonic();
-    final account = AptosAccount.generateAccount(mnemonics);
-    final client = AptosClient(Constants.testnetAPI, enableDebugLog: true);
-    final coinClient = CoinClient(client);
-    
-  });
-
-  test('test generateTransferSubmitTransaction', () async {
-    final client = AptosClient(Constants.testnetAPI, enableDebugLog: true);
-
-    final fromAddress = HexString("0xf244795a0d9524afc41489cb73b8e337a929fccec6465b9df7585063e6732560").toUint8Array();
-    final account1 = AptosAccount(fromAddress);
-    const account2 = "0x9d36a1531f1ac2fc0e9d0a78105357c38e55f1a97a504d98b547f2f62fbbe3c6";
-
-    final submitTxn = await client.generateTransferTransaction(account1, account2, "1000");
-    final resp = await client.submitTransaction(submitTxn);
-    expect(resp["hash"].isNotEmpty, true);
-
-  });
-
   test(
     "test submitSignedBCSTransaction", () async {
       final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
@@ -315,7 +295,7 @@ void main() {
       ),
     );
 
-    final rawTxn = await client.generateRawTransaction(account1.accountAddress, entryFunctionPayload);
+    final rawTxn = await client.generateRawTransaction(account1.address, entryFunctionPayload);
 
     final bcsTxn = AptosClient.generateBCSTransaction(account1, rawTxn);
 
@@ -327,5 +307,40 @@ void main() {
     final accountResource = resources.firstWhere((r) => r["type"] == aptosCoinStore);
     expect(accountResource != null, true);
   });
+
+  test('lookup original address', () async {
+    final client = AptosClient(Constants.devnetAPI);
+    final account1 =  AptosAccount();
+
+    final address = await client.lookupOriginalAddress(account1.address);
+    expect(address.isNotEmpty, true);
+  });
+
+  test(
+    "rotates auth key ed25519",
+    () async {
+      final client = AptosClient(Constants.devnetAPI);
+      final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client, enableDebugLog: true);
+
+      final alice = AptosAccount();
+      await faucetClient.fundAccount(alice.address, "100000000");
+
+      final helperAccount = AptosAccount();
+
+      final secretKey = Uint8List.fromList(helperAccount.signingKey.privateKey.bytes);
+      final pendingTxn = await client.rotateAuthKeyEd25519(alice, secretKey);
+
+      await client.waitForTransaction(pendingTxn["hash"]);
+
+      final origAddressHex = await client.lookupOriginalAddress(helperAccount.address);
+      // Sometimes the returned addresses do not have leading 0s. To be safe, converting hex addresses to AccountAddress
+      final origAddress = AccountAddress.fromHex(origAddressHex);
+      final aliceAddress = AccountAddress.fromHex(alice.address);
+
+      expect(HexString.fromUint8Array(origAddress.address).hex() ==
+        HexString.fromUint8Array(aliceAddress.address).hex(), true
+      );
+    }
+  );
 
 }

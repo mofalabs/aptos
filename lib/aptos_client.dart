@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:aptos/aptos.dart';
+import 'package:aptos/aptos_types/rotation_proof_challenge.dart';
 import 'package:aptos/constants.dart';
 import 'package:aptos/http/http.dart';
 import 'package:aptos/models/entry_function_payload.dart';
@@ -50,7 +51,7 @@ class AptosClient with AptosClientInterface {
     return resp.data;
   }
 
-  Future<dynamic> getAccountResouce(String address, String resourceType) async {
+  Future<dynamic> getAccountResource(String address, String resourceType) async {
     final path = "$endpoint/accounts/$address/resource/$resourceType";
     final resp = await http.get(path);
     return resp.data;
@@ -413,13 +414,13 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
 }
 
   Future<RawTransaction> generateRawTransaction(
-    HexString accountFrom,
+    String accountFrom,
     TransactionPayload payload,{
     BigInt? maxGasAmount,
     BigInt? gasUnitPrice,
     BigInt? expireTimestamp
   }) async {
-    final account = await getAccount(accountFrom.hex());
+    final account = await getAccount(accountFrom);
     final chainId = await getChainId();
 
     maxGasAmount ??= BigInt.from(20000);
@@ -427,7 +428,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     expireTimestamp ??= BigInt.from((DateTime.now().millisecondsSinceEpoch / 1000).floor() + 20);
 
     return RawTransaction(
-      AccountAddress.fromHex(accountFrom.hex()),
+      AccountAddress.fromHex(accountFrom),
       BigInt.parse(account.sequenceNumber),
       payload,
       maxGasAmount,
@@ -437,7 +438,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     );
   }
 
-  Future<String> generateSignSubmitTransaction(
+  Future<dynamic> generateSignSubmitTransaction(
     AptosAccount sender,
     TransactionPayload payload,{
     BigInt? maxGasAmount,
@@ -445,7 +446,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     BigInt? expireTimestamp
   }) async {
     final rawTransaction = await generateRawTransaction(
-      sender.accountAddress, 
+      sender.address, 
       payload,
       maxGasAmount: maxGasAmount,
       gasUnitPrice: gasUnitPrice,
@@ -453,7 +454,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     );
     final bcsTxn = AptosClient.generateBCSTransaction(sender, rawTransaction);
     final pendingTransaction = await submitSignedBCSTransaction(bcsTxn);
-    return pendingTransaction["hash"];
+    return pendingTransaction;
   }
 
   Future<RawTransaction> generateTransaction(
@@ -474,4 +475,63 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     final builder = TransactionBuilderRemoteABI(this, builderConfig);
     return await builder.build(payload.functionId, payload.typeArguments, payload.arguments);
   }
+
+  /// Rotate an account's auth key. After rotation, only the new private key can be used to sign txns for
+  /// the account.
+  /// WARNING: You must create a new instance of AptosAccount after using this function.
+  Future<dynamic> rotateAuthKeyEd25519(
+    AptosAccount forAccount,
+    Uint8List toPrivateKeyBytes,
+  ) async {
+    final accountInfo = await getAccount(forAccount.address);
+    final sequenceNumber = accountInfo.sequenceNumber;
+    final authKey = accountInfo.authenticationKey;
+
+    final helperAccount = AptosAccount(toPrivateKeyBytes);
+
+    final challenge = RotationProofChallenge(
+      AccountAddress.coreCodeAddress(),
+      "account",
+      "RotationProofChallenge",
+      BigInt.parse(sequenceNumber),
+      AccountAddress.fromHex(forAccount.address),
+      AccountAddress(HexString(authKey).toUint8Array()),
+      helperAccount.pubKey().toUint8Array(),
+    );
+
+    final challengeBytes = bcsToBytes(challenge);
+
+    final proofSignedByCurrentPrivateKey = forAccount.signBuffer(challengeBytes);
+
+    final proofSignedByNewPrivateKey = helperAccount.signBuffer(challengeBytes);
+
+    final payload = TransactionPayloadEntryFunction(
+      EntryFunction.natural(
+        "0x1::account",
+        "rotate_authentication_key",
+        [],
+        [
+          bcsSerializeU8(0), // ed25519 scheme
+          bcsSerializeBytes(forAccount.pubKey().toUint8Array()),
+          bcsSerializeU8(0), // ed25519 scheme
+          bcsSerializeBytes(helperAccount.pubKey().toUint8Array()),
+          bcsSerializeBytes(proofSignedByCurrentPrivateKey.toUint8Array()),
+          bcsSerializeBytes(proofSignedByNewPrivateKey.toUint8Array()),
+        ],
+      ),
+    );
+
+    final rawTransaction = await generateRawTransaction(forAccount.address, payload);
+    final bcsTxn = AptosClient.generateBCSTransaction(forAccount, rawTransaction);
+    return submitSignedBCSTransaction(bcsTxn);
+  }
+
+  Future<String> lookupOriginalAddress(String addressOrAuthKey) async {
+    final resource = await getAccountResource("0x1", "0x1::account::OriginatingAddress");
+    final handle = resource["data"]["address_map"]["handle"];
+    final tableItem = TableItem("address", "address", HexString.ensure(addressOrAuthKey).hex());
+    final origAddress = await queryTableItem(handle, tableItem);
+    return origAddress.toString();
+  }
+
 }

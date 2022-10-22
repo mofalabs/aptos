@@ -9,7 +9,7 @@ import 'package:aptos/hex_string.dart';
 class AccountAddress with Serializable {
 
   static const LENGTH = 32;
-  // final CORE_CODE_ADDRESS = AccountAddress.fromHex("0x1");
+  static const CORE_CODE_ADDRESS = "0x1";
 
   final Uint8List address;
 
@@ -21,6 +21,10 @@ class AccountAddress with Serializable {
 
   String hexAddress() {
     return HexString.fromBuffer(address).hex();
+  }
+  
+  static AccountAddress coreCodeAddress() {
+    return AccountAddress.fromHex(CORE_CODE_ADDRESS);
   }
 
   static AccountAddress fromHex(String addr) {
