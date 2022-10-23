@@ -4,5 +4,5 @@ class TableItem {
 
   final String keyType;
   final String valueType;
-  final String key;
+  final dynamic key;
 }

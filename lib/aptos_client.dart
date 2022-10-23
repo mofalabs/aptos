@@ -143,7 +143,7 @@ class AptosClient with AptosClientInterface {
 
   Future<dynamic> queryTableItem(String tableHandle, TableItem tableItem) async {
     final path = "$endpoint/tables/$tableHandle/item";
-    final data = <String, String>{};
+    final data = <String, dynamic>{};
     data["key_type"] = tableItem.keyType;
     data["value_type"] = tableItem.valueType;
     data["key"] = tableItem.key;
@@ -305,7 +305,7 @@ class AptosClient with AptosClientInterface {
     if (!checkSuccess) {
       return lastTxn;
     }
-    if (!(lastTxn.success)) {
+    if (!(lastTxn["success"])) {
       throw Exception(
         "Transaction $txnHash committed to the blockchain but execution failed"
       );
@@ -438,7 +438,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     );
   }
 
-  Future<dynamic> generateSignSubmitTransaction(
+  Future<String> generateSignSubmitTransaction(
     AptosAccount sender,
     TransactionPayload payload,{
     BigInt? maxGasAmount,
@@ -446,7 +446,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     BigInt? expireTimestamp
   }) async {
     final rawTransaction = await generateRawTransaction(
-      sender.address, 
+      sender.address,
       payload,
       maxGasAmount: maxGasAmount,
       gasUnitPrice: gasUnitPrice,
@@ -454,7 +454,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     );
     final bcsTxn = AptosClient.generateBCSTransaction(sender, rawTransaction);
     final pendingTransaction = await submitSignedBCSTransaction(bcsTxn);
-    return pendingTransaction;
+    return pendingTransaction["hash"];
   }
 
   Future<RawTransaction> generateTransaction(
