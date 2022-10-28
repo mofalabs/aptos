@@ -5,6 +5,7 @@ import 'package:hex/hex.dart';
 import 'package:pointycastle/digests/sha512.dart';
 import 'package:pointycastle/macs/hmac.dart';
 import 'package:pointycastle/pointycastle.dart';
+import 'package:ed25519_edwards/ed25519_edwards.dart' as ed25519;
 
 class Keys {
   Keys({this.key, this.chainCode});
@@ -51,10 +52,10 @@ Keys ckdPriv(Keys keys, int index) {
 }
 
 Uint8List getPublicKey(Uint8List privateKey, [bool withZeroByte = true]) {
-  // verify privateKey
-  final signPk = privateKey.sublist(32);
-  final zero = Uint8List.fromList([0]);
+  final keyPair = ed25519.newKeyFromSeed(privateKey);
+  final signPk = Uint8List.fromList(keyPair.bytes.sublist(32));
   if (!withZeroByte) return signPk;
+  final zero = Uint8List.fromList([0]);
   final data = Uint8List(zero.lengthInBytes + signPk.lengthInBytes);
   data.addAll(zero);
   data.addAll(signPk);
@@ -89,5 +90,4 @@ Keys derivePath(String path, String seed, {int offset = HARDENED_OFFSET}) {
     parentKeys = ckdPriv(parentKeys, i + offset);
   }
   return parentKeys;
-  // return segments.reduce((parentKeys, segment) => ckdPriv(parentKeys, segment + offset), { key, chainCode });
 }

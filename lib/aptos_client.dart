@@ -425,7 +425,7 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
 
     maxGasAmount ??= BigInt.from(20000);
     gasUnitPrice ??= BigInt.from(await estimateGasPrice());
-    expireTimestamp ??= BigInt.from((DateTime.now().millisecondsSinceEpoch / 1000).floor() + 20);
+    expireTimestamp ??= BigInt.from(DateTime.now().add(const Duration(seconds: 20)).millisecondsSinceEpoch);
 
     return RawTransaction(
       AccountAddress.fromHex(accountFrom),
