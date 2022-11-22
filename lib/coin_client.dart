@@ -37,7 +37,7 @@ class CoinClient {
     final builder = TransactionBuilderRemoteABI(aptosClient, config);
     final rawTxn = await builder.build(
       "0x1::coin::transfer",
-      ["0x1::aptos_coin::AptosCoin"],
+      [coinType],
       [to, amount],
     );
 
