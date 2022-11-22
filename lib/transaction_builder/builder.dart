@@ -62,7 +62,7 @@ class TransactionBuilder<F extends SigningFn> {
 }
 
 class TransactionBuilderEd25519 extends TransactionBuilder<SigningFn> {
-  
+
   TransactionBuilderEd25519(this.publicKey, SigningFn signingFunction, {TransactionBuilderABI? rawTxnBuilder})
     : super(signingFunction, rawTxnBuilder: rawTxnBuilder);
 
@@ -153,7 +153,7 @@ class TransactionBuilderABI {
 
     this.builderConfig = ABIBuilderConfig(
         maxGasAmount: builderConfig?.maxGasAmount ?? BigInt.from(DEFAULT_MAX_GAS_AMOUNT),
-        expSecFromNow: builderConfig?.expSecFromNow ?? BigInt.from(DateTime.now().add(const Duration(seconds: DEFAULT_TXN_EXP_SEC_FROM_NOW)).millisecondsSinceEpoch),
+        expSecFromNow: builderConfig?.expSecFromNow ?? BigInt.from(DEFAULT_TXN_EXP_SEC_FROM_NOW),
         sender: builderConfig?.sender,
         sequenceNumber: builderConfig?.sequenceNumber,
         gasUnitPrice: builderConfig?.gasUnitPrice,
@@ -192,7 +192,7 @@ class TransactionBuilderABI {
   }
 
   TransactionPayload buildTransactionPayload(String func, List<String> tyTags, List<dynamic> args) {
-    
+
     final typeTags = tyTags.map((e) => TypeTagParser(e).parseTypeTag()).toList();
 
     TransactionPayload payload;
@@ -225,8 +225,9 @@ class TransactionBuilderABI {
     }
 
     final senderAccount = builderConfig.sender is AccountAddress ? builderConfig.sender : AccountAddress.fromHex(builderConfig.sender);
-    
-    final expTimestampSec = builderConfig.expSecFromNow ?? BigInt.from(DateTime.now().add(const Duration(seconds: 10)).microsecondsSinceEpoch);
+    final nowSeconds = BigInt.from(DateTime.now().millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond);
+    final addSeconds = builderConfig.expSecFromNow ?? BigInt.from(DEFAULT_TXN_EXP_SEC_FROM_NOW);
+    final expTimestampSec = nowSeconds + addSeconds;
     final payload = buildTransactionPayload(func, tyTags, args);
 
     return RawTransaction(
