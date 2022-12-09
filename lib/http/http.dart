@@ -1,32 +1,5 @@
-import 'dart:convert';
-import 'package:aptos/http/interceptor.dart';
 import 'package:dio/dio.dart';
-import 'package:dio/native_imp.dart';
-import 'package:flutter/foundation.dart';
 
-final Http http = Http();
+import 'http_native.dart' if (dart.library.html) 'http_web.dart';
 
-class Http extends DioForNative {
-  static Http? instance;
-
-  factory Http() {
-      instance ??= Http._().._init();
-    return instance!;
-  }
-
-  Http._();
-
-  _init() {
-    options.connectTimeout = 5000;
-    options.receiveTimeout = 10000;
-
-    options.headers["Content-Type"] = "application/json";
-
-    (transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
-    interceptors.add(ApiInterceptor());
-  }
-}
-
-_parseAndDecode(String response) => jsonDecode(response);
-
-parseJson(String text) => compute(_parseAndDecode, text);
+final Dio http = Http();
