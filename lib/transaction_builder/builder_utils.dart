@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:aptos/aptos_types/account_address.dart';
@@ -11,7 +10,8 @@ import 'package:tuple/tuple.dart';
 
 void assertType(dynamic val, List<dynamic> types, {String? message}) {
   if (types.any((type) => val.runtimeType.toString() == type)) {
-    throw ArgumentError(message ?? "Invalid arg: $val type should be ${types.join(" or ")}");
+    throw ArgumentError(
+        message ?? "Invalid arg: $val type should be ${types.join(" or ")}");
   }
 }
 
@@ -84,9 +84,7 @@ List<Token> tokenize(String tagStr) {
   return tokens;
 }
 
-
 class TypeTagParser {
-
   TypeTagParser(this.tagStr) {
     this.tokens = tokenize(tagStr);
   }
@@ -115,7 +113,9 @@ class TypeTagParser {
       }
 
       _consume(",");
-      if (tokens.isNotEmpty && tokens[0].item2 == endToken && allowTraillingComma) {
+      if (tokens.isNotEmpty &&
+          tokens[0].item2 == endToken &&
+          allowTraillingComma) {
         break;
       }
 
@@ -156,7 +156,8 @@ class TypeTagParser {
       _consume(">");
       return TypeTagVector(res);
     }
-    if (tokenTy == "IDENT" && (tokenVal.startsWith("0x") || tokenVal.startsWith("0X"))) {
+    if (tokenTy == "IDENT" &&
+        (tokenVal.startsWith("0x") || tokenVal.startsWith("0X"))) {
       String address = tokenVal;
       _consume("::");
       var item = tokens.removeAt(0);
@@ -272,7 +273,7 @@ void serializeArg(dynamic argVal, TypeTag argType, Serializer serializer) {
       }
     }
 
-    if (argVal is! Array && argVal is! Iterable) {
+    if (argVal is! Iterable) {
       throw ArgumentError("Invalid vector args $argVal.");
     }
 
@@ -284,11 +285,10 @@ void serializeArg(dynamic argVal, TypeTag argType, Serializer serializer) {
 
   if (argType is TypeTagStruct) {
     StructTag val = argType.value;
-    if (
-      "${HexString.fromUint8Array(val.address.address).toShortString()}::${val.moduleName.value}::${val.name.value}" !=
-      "0x1::string::String"
-    ) {
-      throw ArgumentError("The only supported struct arg is of type 0x1::string::String");
+    if ("${HexString.fromUint8Array(val.address.address).toShortString()}::${val.moduleName.value}::${val.name.value}" !=
+        "0x1::string::String") {
+      throw ArgumentError(
+          "The only supported struct arg is of type 0x1::string::String");
     }
     assertType(argVal, ["string"]);
 
@@ -326,7 +326,7 @@ TransactionArgument argToTransactionArgument(dynamic argVal, TypeTag argType) {
     if (argVal is! Iterable<int>) {
       throw ArgumentError("$argVal should be an instance of Uint8Array");
     }
-    
+
     return TransactionArgumentU8Vector(Uint8List.fromList(argVal.toList()));
   }
 
