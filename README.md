@@ -13,7 +13,7 @@ Installation
 ```
 aptos:
     git:
-      url: https://github.com/movebuilder/aptos.git
+      url: https://github.com/0xmove/aptos.git
       ref: main
 ```
 
