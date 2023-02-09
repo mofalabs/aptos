@@ -50,6 +50,25 @@ class AccountAddress with Serializable {
     return AccountAddress(res);
   }
 
+  static bool isValid(String addr) {
+    // At least one zero is required
+    if (addr.isEmpty) {
+      return false;
+    }
+
+    var address = HexString.ensure(addr);
+
+    // If an address hex has odd number of digits, padd the hex string with 0
+    // e.g. '1aa' would become '01aa'.
+    if (address.noPrefix().length % 2 != 0) {
+      address = HexString("0${address.noPrefix()}");
+    }
+
+    final addressBytes = address.toUint8Array();
+
+    return addressBytes.length <= AccountAddress.LENGTH;
+  }
+
   @override
   void serialize(Serializer serializer) {
     serializer.serializeFixedBytes(address);
