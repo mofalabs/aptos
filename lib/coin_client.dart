@@ -49,8 +49,7 @@ class CoinClient {
   Future<BigInt> checkBalance(String address, { String? coinType }) async {
     coinType ??= AptosClient.APTOS_COIN;
     String typeTag = "0x1::coin::CoinStore<$coinType>";
-    final resources = await aptosClient.getAccountResources(address);
-    final accountResource = resources.firstWhere((r) => r["type"] == typeTag);
+    final accountResource = await aptosClient.getAccountResource(address, typeTag);
     return BigInt.parse(accountResource["data"]["coin"]["value"]);
   }
 }
