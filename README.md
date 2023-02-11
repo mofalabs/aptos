@@ -1,20 +1,14 @@
 Aptos Dart SDK
 -
 
-Requirements
--
-
-- sdk: ">=2.15.1 <3.0.0"
-- flutter: ">=1.17.0"
+[![Pub](https://img.shields.io/badge/pub-v0.0.1-blue)](https://github.com/0xmove/aptos)
 
 Installation
 -
 
 ```
-aptos:
-    git:
-      url: https://github.com/0xmove/aptos.git
-      ref: main
+dependencies:
+  aptos: ^0.0.1
 ```
 
 Usage
