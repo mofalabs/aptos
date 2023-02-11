@@ -8,6 +8,13 @@ import 'package:aptos/bcs/serializer.dart';
 import 'package:aptos/hex_string.dart';
 import 'package:tuple/tuple.dart';
 
+final stringStructTag = StructTag(
+  AccountAddress.fromHex("0x1"),
+  Identifier("string"),
+  Identifier("String"),
+  [],
+);
+
 void assertType(dynamic val, List<dynamic> types, {String? message}) {
   if (types.any((type) => val.runtimeType.toString() == type)) {
     throw ArgumentError(

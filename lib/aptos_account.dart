@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:aptos/aptos.dart';
 import 'package:aptos/hex_string.dart';
 import 'package:aptos/utils/hd_key.dart';
+import 'package:aptos/utils/sha.dart';
 import 'package:ed25519_edwards/ed25519_edwards.dart' as ed25519;
 import 'package:pointycastle/export.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -108,6 +109,13 @@ class AptosAccount {
     final pubKey = Ed25519PublicKey(pkBytes);
     final authKey = AuthenticationKey.fromEd25519PublicKey(pubKey);
     return authKey.derivedAddress();
+  }
+
+  /// Takes source address and seeds, derive and returns the resource account address
+  static HexString getResourceAccountAddress(String sourceAddress, Uint8List seed) {
+    final source = bcsToBytes(AccountAddress.fromHex(sourceAddress));
+    final bytes = Uint8List.fromList([...source, ...seed, AuthenticationKey.DERIVE_RESOURCE_ACCOUNT_SCHEME]);
+    return HexString.fromUint8Array(sha3256(bytes));
   }
 
   HexString pubKey() {

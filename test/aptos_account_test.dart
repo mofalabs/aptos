@@ -1,4 +1,7 @@
 
+import 'dart:typed_data';
+
+import 'package:aptos/aptos.dart';
 import 'package:aptos/aptos_account.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -84,5 +87,13 @@ void main() {
     );
   });
 
+  test("Gets the resource account address", () {
+    const sourceAddress = "0xca843279e3427144cead5e4d5999a3d0";
+    final seed = Uint8List.fromList([1]);
+
+    expect(AptosAccount.getResourceAccountAddress(sourceAddress, seed).hex(),
+      "0xcbed05b37b6981a57f535c1f5d136734df822abaf4cd30c51c9b4d60eae79d5d",
+    );
+  });
 
 }

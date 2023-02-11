@@ -134,6 +134,17 @@ class TypeTagStruct extends TypeTag {
     final value = StructTag.deserialize(deserializer);
     return TypeTagStruct(value);
   }
+
+  bool isStringTypeTag() {
+    if (
+      value.moduleName.value == "string" &&
+      value.name.value == "String" &&
+      value.address.hexAddress() == AccountAddress.fromHex("0x1").hexAddress()
+    ) {
+      return true;
+    }
+    return false;
+  }
 }
 
 class StructTag with Serializable {
