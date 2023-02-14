@@ -178,8 +178,24 @@ class AptosClient with AptosClientInterface {
     return resp.data;
   }
 
-  Future<dynamic> submitBCSTransaction(Uint8List signedTxn) async {
-    return submitSignedBCSTransaction(signedTxn);
+  Future<dynamic> submitBCSSimulate(
+    Uint8List signedTxn,
+    {
+      bool estimateGasUnitPrice = false,
+      bool estimateMaxGasAmount = false,
+      bool estimatePrioritizedGasUnitPrice = false
+    }
+  ) async {
+    final params = <String, bool>{
+      "estimate_gas_unit_price": estimateGasUnitPrice,
+      "estimate_max_gas_amount": estimateMaxGasAmount,
+      "estimate_prioritized_gas_unit_price": estimatePrioritizedGasUnitPrice
+    };
+    final path = "$endpoint/transactions/simulate";
+    final file = MultipartFile.fromBytes(signedTxn).finalize();
+    final options = Options(contentType: "application/x.aptos.signed_transaction+bcs");
+    final resp = await http.post(path, data: file, options: options, queryParameters: params);
+    return resp.data;
   }
 
   Future<dynamic> submitBatchTransactions(List<TransactionRequest> transactions) async {
@@ -191,14 +207,66 @@ class AptosClient with AptosClientInterface {
   Future<dynamic> simulateTransaction(
     TransactionRequest transaction,
     { bool estimateGasUnitPrice = false,
-      bool estimateMaxGasAmount = false}) async {
+      bool estimateMaxGasAmount = false,
+      bool estimatePrioritizedGasUnitPrice = false}) async {
     final params = <String, bool>{
       "estimate_gas_unit_price": estimateGasUnitPrice,
-      "estimate_max_gas_amount": estimateMaxGasAmount
+      "estimate_max_gas_amount": estimateMaxGasAmount,
+      "estimate_prioritized_gas_unit_price": estimatePrioritizedGasUnitPrice
     };
     final path = "$endpoint/transactions/simulate";
     final resp = await http.post(path, data: transaction.toJson(), queryParameters: params);
     return resp.data;
+  }
+
+  /// [accountOrPubkey] type is AptosAccount | Ed25519PublicKey | MultiEd25519PublicKey
+  Future<dynamic> simulateRawTransaction(
+    dynamic accountOrPubkey,
+    RawTransaction rawTransaction,
+    { 
+      bool estimateGasUnitPrice = false,
+      bool estimateMaxGasAmount = false,
+      bool estimatePrioritizedGasUnitPrice = false
+    }
+  ) async {
+    Uint8List signedTxn;
+    if (accountOrPubkey is AptosAccount) {
+      signedTxn = await AptosClient.generateBCSSimulation(accountOrPubkey, rawTransaction);
+    } else if (accountOrPubkey is MultiEd25519PublicKey) {
+      final txnBuilder = TransactionBuilderMultiEd25519(
+        accountOrPubkey, 
+        (_) {
+          final bits = <int>[];
+          final signatures = <Ed25519Signature>[];
+          for (int i = 0; i < accountOrPubkey.threshold; i += 1) {
+            bits.add(i);
+            signatures.add(Ed25519Signature(Uint8List(64)));
+          }
+          final bitmap = MultiEd25519Signature.createBitmap(bits);
+          return MultiEd25519Signature(signatures, bitmap);
+        }
+      );
+
+      signedTxn = txnBuilder.sign(rawTransaction);
+    } else if (accountOrPubkey is Ed25519PublicKey) {
+      final txnBuilder = TransactionBuilderEd25519(
+        accountOrPubkey.value,
+        (_) {
+          return Ed25519Signature(Uint8List(64));
+        }
+      );
+
+      signedTxn = txnBuilder.sign(rawTransaction);
+    } else {
+      throw ArgumentError("Invalid account value $accountOrPubkey");
+    }
+
+    return submitBCSSimulate(
+      signedTxn,
+      estimateGasUnitPrice: estimateGasUnitPrice,
+      estimateMaxGasAmount: estimateMaxGasAmount,
+      estimatePrioritizedGasUnitPrice: estimatePrioritizedGasUnitPrice
+    );
   }
 
   Future<dynamic> getTransactionByHash(String txHash) async {
@@ -532,6 +600,25 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     final tableItem = TableItem("address", "address", HexString.ensure(addressOrAuthKey).hex());
     final origAddress = await queryTableItem(handle, tableItem);
     return origAddress.toString();
+  }
+
+  /// View ///
+
+  Future<dynamic> view(
+    String function,
+    List<dynamic> typeArguments,
+    List<dynamic> arguments,
+    {int? ledgerVersion}
+  ) async {
+    final data = <String, dynamic>{
+      "function": function,
+      "type_arguments": typeArguments,
+      "arguments": arguments
+    };
+    final params = ledgerVersion != null ? { "ledger_version": ledgerVersion } : null;
+    final path = "$endpoint/view";
+    final resp = await http.post(path, data: data, queryParameters: params);
+    return resp.data;
   }
 
 }

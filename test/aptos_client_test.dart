@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:aptos/aptos.dart';
 import 'package:aptos/aptos_account.dart';
 import 'package:aptos/aptos_types/account_address.dart';
 import 'package:aptos/aptos_types/transaction.dart';
@@ -16,6 +17,7 @@ import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';
 import 'package:aptos/transaction_builder/builder.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:aptos/aptos_client.dart';
 
@@ -244,15 +246,14 @@ void main() {
   });
 
   test(
-    "test submitSignedBCSTransaction", () async {
+    "submit transaction with remote ABI", () async {
       final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
       final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
-      // final coinClient = CoinClient(client);
 
-      final privateArray = HexString("9e2dc8c01845a5b68d2abfb8e08cfb627325a9741b0041818076ce0910fce82b").toUint8Array();
-      final account1 =  AptosAccount(privateArray);
+      final account1 =  AptosAccount();
+      await faucetClient.fundAccount(account1.address, "10000000");
+
       final account2 = AptosAccount();
-
       await faucetClient.fundAccount(account2.address, "0");
 
       final builder = TransactionBuilderRemoteABI(client, ABIBuilderConfig(sender: account1.address));
@@ -278,10 +279,10 @@ void main() {
     final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
     final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
 
-    final privateArray = HexString("9e2dc8c01845a5b68d2abfb8e08cfb627325a9741b0041818076ce0910fce82b").toUint8Array();
-    final account1 =  AptosAccount(privateArray);
-    final account2 = AptosAccount();
+    final account1 =  AptosAccount();
+    await faucetClient.fundAccount(account1.address, "10000000");
 
+    final account2 = AptosAccount();
     await faucetClient.fundAccount(account2.address, "0");
 
     final token = TypeTagStruct(StructTag.fromString("0x1::aptos_coin::AptosCoin"));
@@ -305,12 +306,94 @@ void main() {
 
     final resources = await client.getAccountResources(account2.address);
     final accountResource = resources.firstWhere((r) => r["type"] == aptosCoinStore);
-    expect(accountResource != null, true);
+    expect(accountResource["data"]["coin"]["value"] == "717", true);
+  });
+
+  test("submit multisig transaction simulation", () async {
+    final client = AptosClient(Constants.devnetAPI);
+    final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
+
+    final account1 = AptosAccount();
+    final account2 = AptosAccount();
+    final account3 = AptosAccount();
+
+    final multiSigPublicKey = MultiEd25519PublicKey(
+      [
+        Ed25519PublicKey(account1.pubKey().toUint8Array()),
+        Ed25519PublicKey(account2.pubKey().toUint8Array()),
+        Ed25519PublicKey(account3.pubKey().toUint8Array())
+      ],
+      2
+    );
+
+    final authKey = AuthenticationKey.fromMultiEd25519PublicKey(multiSigPublicKey);
+    final multisigAccountAddress = authKey.derivedAddress().toString();
+    await faucetClient.fundAccount(multisigAccountAddress, "50000000");
+
+    await Future.delayed(const Duration(seconds: 3));
+    var resources = await client.getAccountResources(multisigAccountAddress);
+    var accountResource = resources.firstWhere((r) => r["type"] == aptosCoinStore);
+    expect(accountResource["data"]["coin"]["value"] == "50000000", true);
+
+    final account4 = AptosAccount();
+    await faucetClient.fundAccount(account4.address, "0");
+
+    await Future.delayed(const Duration(seconds: 3));
+    resources = await client.getAccountResources(account4.address);
+    accountResource = resources.firstWhere((r) => r["type"] == aptosCoinStore);
+    expect(accountResource["data"]["coin"]["value"] == "0", true);
+
+    final token = TypeTagStruct(StructTag.fromString("0x1::aptos_coin::AptosCoin"));
+    final entryFunctionPayload = TransactionPayloadEntryFunction(
+      EntryFunction.natural(
+        "0x1::coin",
+        "transfer",
+        [token],
+        [bcsToBytes(AccountAddress.fromHex(account4.address)), bcsSerializeUint64(BigInt.from(123))],
+      )
+    );
+
+    final rawTxn = await client.generateRawTransaction(multisigAccountAddress, entryFunctionPayload);
+
+    final simuateTransactionRes = await client.simulateRawTransaction(
+      multiSigPublicKey,
+      rawTxn,
+      estimateGasUnitPrice: true,
+      estimateMaxGasAmount: true,
+      estimatePrioritizedGasUnitPrice: true
+    );
+
+    expect(int.parse(simuateTransactionRes[0]["gas_used"]) > 0, true);
+    expect(simuateTransactionRes[0]["success"], true);
+
+    final txnBuilder = TransactionBuilderMultiEd25519(
+      multiSigPublicKey, 
+      (signingMessage) {
+        final sigHexStr1 = account1.signBuffer(signingMessage);
+        final sigHexStr3 = account3.signBuffer(signingMessage);
+        final bitmap = MultiEd25519Signature.createBitmap([0, 2]);
+        final multiEd25519Sig = MultiEd25519Signature(
+          [Ed25519Signature(sigHexStr1.toUint8Array()), Ed25519Signature(sigHexStr3.toUint8Array())],
+          bitmap
+        );
+        return multiEd25519Sig;
+      }
+    );
+
+    // sign and sumit transaction
+    final signedBcsTxn = txnBuilder.sign(rawTxn);
+    final transactionRes = await client.submitSignedBCSTransaction(signedBcsTxn);
+
+    await client.waitForTransaction(transactionRes["hash"]);
+
+    resources = await client.getAccountResources(account4.address);
+    accountResource = resources.firstWhere((r) => r["type"] == aptosCoinStore);
+    expect(accountResource["data"]["coin"]["value"] == "123", true);
   });
 
   test('lookup original address', () async {
     final client = AptosClient(Constants.devnetAPI);
-    final account1 =  AptosAccount();
+    final account1 = AptosAccount();
 
     final address = await client.lookupOriginalAddress(account1.address);
     expect(address.isNotEmpty, true);
@@ -342,5 +425,27 @@ void main() {
       );
     }
   );
+
+
+  /// View ///
+
+  test("view function", () async {
+    final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
+    final faucet = FaucetClient(Constants.faucetDevAPI, client: client);
+
+    final alice = AptosAccount();
+    await faucet.fundAccount(alice.address, "10000000");
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    final balance = await client.view(
+      "0x1::coin::balance",
+      ["0x1::aptos_coin::AptosCoin"],
+      [alice.address]
+    );
+
+    expect(balance[0], "10000000");
+
+  });
 
 }
