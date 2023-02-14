@@ -17,6 +17,15 @@ class CoinClient {
     return CoinClient(AptosClient(endpoint, enableDebugLog: enableDebugLog));
   }
 
+  /// Generate, sign, and submit a transaction to the Aptos blockchain API to
+  /// transfer coins from one account to another. By default it transfers
+  /// 0x1::aptos_coin::AptosCoin, but you can specify a different coin type
+  /// with the `coinType` argument.
+  ///
+  /// You may set `createReceiverIfMissing` to true if you want to create the
+  /// receiver account if it does not exist on chain yet. If you do not set
+  /// this to true, the transaction will fail if the receiver account does not
+  /// exist on-chain.
   Future<String> transfer(
     AptosAccount from,
     String to,

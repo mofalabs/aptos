@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:aptos/abis.dart';
@@ -13,6 +14,7 @@ import 'package:aptos/hex_string.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/token_types.dart';
 import 'package:aptos/transaction_builder/builder.dart';
+import 'package:aptos/utils/property_map_serde.dart';
 
 /// Class for creating, minting and managing minting NFT collections and tokens.
 class TokenClient {
@@ -31,7 +33,10 @@ class TokenClient {
     String name,
     String description,
     String uri,
-    {BigInt? maxAmount}
+    {BigInt? maxAmount,
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp}
   ) async {
     final payload = transactionBuilder.buildTransactionPayload(
       "0x3::token::create_collection_script",
@@ -39,7 +44,13 @@ class TokenClient {
       [name, description, uri, maxAmount ?? MAX_U64_BIG_INT, [false, false, false]],
     );
 
-    return aptosClient.generateSignSubmitTransaction(account, payload);
+    return aptosClient.generateSignSubmitTransaction(
+      account, 
+      payload,
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasUnitPrice,
+      expireTimestamp: expireTimestamp
+    );
   }
 
   /// Creates a new NFT within the specified account and
@@ -51,8 +62,8 @@ class TokenClient {
     String description,
     int supply,
     String uri,
-    BigInt max,
-    {String? royaltyPayeeAddress,
+    {BigInt? max,
+    String? royaltyPayeeAddress,
     int? royaltyPointsDenominator,
     int? royaltyPointsNumerator,
     List<String>? propertyKeys,
@@ -62,8 +73,10 @@ class TokenClient {
     BigInt? gasUnitPrice,
     BigInt? expireTimestamp}
   ) async {
+    max ??= MAX_U64_BIG_INT;
     royaltyPayeeAddress ??= account.address;
     royaltyPointsDenominator ??= 0;
+    royaltyPointsNumerator ??= 0;
     propertyKeys ??= [];
     propertyValues ??= [];
     propertyTypes ??= [];
@@ -83,7 +96,7 @@ class TokenClient {
         royaltyPointsNumerator,
         [false, false, false, false, false],
         propertyKeys,
-        propertyValues,
+        getPropertyValueRaw(propertyValues, propertyTypes),
         propertyTypes,
       ],
     );
@@ -91,6 +104,65 @@ class TokenClient {
     return aptosClient.generateSignSubmitTransaction(
       account, 
       payload,
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasUnitPrice,
+      expireTimestamp: expireTimestamp
+    );
+  }
+
+  /// Creates a new NFT within the specified account and
+  /// return the hash of the transaction submitted to the API.
+  Future<String> createTokenWithMutabilityConfig(
+    AptosAccount account,
+    String collectionName,
+    String name,
+    String description,
+    int supply,
+    String uri,
+    {BigInt? max,
+    String? royaltyPayeeAddress,
+    int? royaltyPointsDenominator,
+    int? royaltyPointsNumerator,
+    List<String>? propertyKeys,
+    List<Uint8List>? propertyValues,
+    List<String>? propertyTypes,
+    List<bool>? mutabilityConfig,
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp}
+  ) {
+    max ??= MAX_U64_BIG_INT;
+    royaltyPayeeAddress ??= account.address;
+    royaltyPointsDenominator ??= 0;
+    royaltyPointsNumerator ??= 0;
+    propertyKeys ??= [];
+    propertyValues ??= [];
+    propertyTypes ??= [];
+    mutabilityConfig ??= [false, false, false, false, false];
+
+    final payload = transactionBuilder.buildTransactionPayload(
+      "0x3::token::create_token_script",
+      [],
+      [
+        collectionName,
+        name,
+        description,
+        supply,
+        max,
+        uri,
+        royaltyPayeeAddress,
+        royaltyPointsDenominator,
+        royaltyPointsNumerator,
+        mutabilityConfig,
+        propertyKeys,
+        propertyValues,
+        propertyTypes,
+      ],
+    );
+
+    return aptosClient.generateSignSubmitTransaction(
+      account, 
+      payload, 
       maxGasAmount: maxGasAmount,
       gasUnitPrice: gasUnitPrice,
       expireTimestamp: expireTimestamp
@@ -245,6 +317,149 @@ class TokenClient {
     return transactionRes["hash"];
   }
 
+  /// User opt-in or out direct transfer through a boolean flag,
+  /// return the hash of the transaction submitted to the API.
+  Future<String> optInTokenTransfer(
+    AptosAccount sender, 
+    bool optIn, {
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp
+  }) {
+    final payload = transactionBuilder.buildTransactionPayload("0x3::token::opt_in_direct_transfer", [], [optIn]);
+    return aptosClient.generateSignSubmitTransaction(
+      sender, 
+      payload, 
+      maxGasAmount: maxGasAmount, 
+      gasUnitPrice: gasUnitPrice, 
+      expireTimestamp: expireTimestamp
+    );
+  }
+
+  /// Directly transfer token from sender to a receiver.
+  /// The receiver should have opted in to direct transfer.
+  Future<String> transferWithOptIn(
+    AptosAccount sender,
+    String creator,
+    String collectionName,
+    String tokenName,
+    BigInt propertyVersion,
+    String receiver,
+    BigInt amount, {
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp
+  }) {
+    // compile script to invoke public transfer function
+    final payload = TransactionPayloadScript(
+      Script(
+        HexString(TOKEN_TRANSFER_OPT_IN).toUint8Array(),
+        [],
+        [
+          TransactionArgumentAddress(AccountAddress.fromHex(creator)),
+          TransactionArgumentU8Vector(Uint8List.fromList(utf8.encode(collectionName))),
+          TransactionArgumentU8Vector(Uint8List.fromList(utf8.encode(tokenName))),
+          TransactionArgumentU64(propertyVersion),
+          TransactionArgumentAddress(AccountAddress.fromHex(receiver)),
+          TransactionArgumentU64(amount),
+        ],
+      ),
+    );
+
+    return aptosClient.generateSignSubmitTransaction(
+      sender, 
+      payload, 
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasUnitPrice,
+      expireTimestamp: expireTimestamp
+    );
+  }
+
+  /// BurnToken by Creator
+  Future<String> burnByCreator(
+    AptosAccount creator,
+    String ownerAddress,
+    String collection,
+    String name,
+    BigInt propertyVersion,
+    BigInt amount, {
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp
+  }) {
+    final payload = transactionBuilder.buildTransactionPayload(
+      "0x3::token::burn_by_creator",
+      [],
+      [ownerAddress, collection, name, propertyVersion, amount],
+    );
+
+    return aptosClient.generateSignSubmitTransaction(
+      creator,
+      payload,
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasUnitPrice,
+      expireTimestamp: expireTimestamp
+    );
+  }
+
+  /// BurnToken by Owner
+  Future<String> burnByOwner(
+    AptosAccount owner,
+    String creatorAddress,
+    String collection,
+    String name,
+    BigInt propertyVersion,
+    BigInt amount, {
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp
+  }) {
+    final payload = transactionBuilder.buildTransactionPayload(
+      "0x3::token::burn",
+      [],
+      [creatorAddress, collection, name, propertyVersion, amount],
+    );
+
+    return aptosClient.generateSignSubmitTransaction(
+      owner, 
+      payload, 
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasUnitPrice,
+      expireTimestamp: expireTimestamp
+    );
+  }
+
+  /// [account] creator mutates the properties of the tokens own by [tokenOwner]
+  Future<String> mutateTokenProperties(
+    AptosAccount account,
+    String tokenOwner,
+    String creator,
+    String collectionName,
+    String tokenName,
+    BigInt propertyVersion,
+    BigInt amount,
+    List<String> keys,
+    List<Uint8List> values,
+    List<String> types, {
+    BigInt? maxGasAmount,
+    BigInt? gasUnitPrice,
+    BigInt? expireTimestamp
+  }) {
+    final payload = transactionBuilder.buildTransactionPayload(
+      "0x3::token::mutate_token_properties",
+      [],
+      [tokenOwner, creator, collectionName, tokenName, propertyVersion, amount, keys, values, types],
+    );
+
+    return aptosClient.generateSignSubmitTransaction(
+      account, 
+      payload, 
+      maxGasAmount: maxGasAmount,
+      gasUnitPrice: gasUnitPrice,
+      expireTimestamp: expireTimestamp
+    );
+  }
+
   /// Queries collection data.
   /// 
   /// Collection data in below format
@@ -277,9 +492,11 @@ class TokenClient {
   ///     int maximum;
   ///     int supply;
   ///     int uri;
+  ///     PropertyMap defaultProperties;
+  ///     List<bool> mutabilityConfig;
   ///   }
   /// ```
-  Future<dynamic> getTokenData(
+  Future<TokenData> getTokenData(
     String creator,
     String collectionName,
     String tokenName,
@@ -297,7 +514,17 @@ class TokenClient {
 
     final tableItem = TableItem("0x3::token::TokenDataId", "0x3::token::TokenData", tokenDataId);
 
-    return aptosClient.queryTableItem(handle, tableItem);
+    final rawTokenData = await aptosClient.queryTableItem(handle, tableItem);
+    return TokenData(
+      rawTokenData["collection"] ?? collectionName,
+      rawTokenData["description"],
+      rawTokenData["name"],
+      int.tryParse(rawTokenData["maximum"]),
+      int.parse(rawTokenData["supply"]),
+      rawTokenData["uri"],
+      rawTokenData["default_properties"],
+      rawTokenData["mutability_config"],
+    );
   }
 
   /// Queries token balance for the token creator.
@@ -327,7 +554,7 @@ class TokenClient {
     } catch (e) {
       dynamic err = e;
       if (err.response.statusCode == 404) {
-        return Token(tokenId, "0");
+        return Token(tokenId, "0", PropertyMap());
       }
       rethrow;
     }

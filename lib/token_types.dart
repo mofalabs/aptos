@@ -1,5 +1,6 @@
 
 import 'package:aptos/bcs/consts.dart';
+import 'package:aptos/utils/property_map_serde.dart';
 
 class TokenData {
   /// Unique name within this creator's account for this Token's collection
@@ -20,7 +21,25 @@ class TokenData {
   /// URL for additional information / media
   String uri;
 
-  TokenData(this.collection, this.description, this.name, this.maximum, this.supply, this.uri);
+  /// default properties of token data
+  late PropertyMap defaultProperties;
+
+  /// mutability config of tokendata fields
+  late List<bool> mutabilityConfig;
+
+  TokenData(
+    this.collection, 
+    this.description, 
+    this.name, 
+    this.maximum, 
+    this.supply, 
+    this.uri,
+    Map defaultProperties,
+    Map mutabilityConfig
+  ) {
+    this.defaultProperties = deserializePropertyMap(defaultProperties);
+    this.mutabilityConfig = mutabilityConfig.values.toList().cast<bool>();
+  }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -29,7 +48,9 @@ class TokenData {
       "name": name,
       "maximum": maximum ?? MAX_U32_NUMBER,
       "supply": supply,
-      "uri": uri
+      "uri": uri,
+      "default_properties": defaultProperties.toJson(),
+      "mutability_config": mutabilityConfig.toString()
     };
   }
 }
@@ -84,10 +105,13 @@ class Token {
   /// server will return string for u64
   String amount;
 
-  Token(this.id, this.amount);
+  PropertyMap tokenProperties;
+
+  Token(this.id, this.amount, this.tokenProperties);
 
   factory Token.fromJson(Map<String, dynamic> json) {
-    return Token(TokenId.fromJson(json["id"]), json["amount"]);
+    PropertyMap propertyMap = deserializePropertyMap(json["token_properties"]);
+    return Token(TokenId.fromJson(json["id"]), json["amount"], propertyMap);
   }
 
   Map<String, dynamic> toJson() {
