@@ -1,14 +1,14 @@
 Aptos Dart SDK
 -
 
-[![Pub](https://img.shields.io/badge/pub-v0.0.1-blue)](https://github.com/0xmove/aptos)
+[![Pub](https://img.shields.io/badge/pub-v0.0.2-blue)](https://github.com/0xmove/aptos)
 
 Installation
 -
 
 ```
 dependencies:
-  aptos: ^0.0.1
+  aptos: ^0.0.2
 ```
 
 Usage

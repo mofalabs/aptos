@@ -71,8 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
       )
     );
 
-    String jjj = jsonEncode(txSubmission);
-    print(jjj);
     final encodeTx = await aptos.encodeSubmission(txSubmission);
     final hex = HEX.decode(encodeTx.substring(2));
     final hexBytes = Uint8List.fromList(hex);
