@@ -1,7 +1,7 @@
 Aptos Dart SDK
 -
 
-[![Pub](https://img.shields.io/badge/pub-v0.0.2-blue)](https://github.com/0xmove/aptos)
+[![Pub](https://img.shields.io/badge/pub-v0.0.2-blue)](https://pub.dev/packages/aptos)
 
 Installation
 -
