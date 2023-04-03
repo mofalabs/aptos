@@ -25,6 +25,12 @@ abstract class TypeTag with Serializable {
         return TypeTagVector.load(deserializer);
       case 7:
         return TypeTagStruct.load(deserializer);
+      case 8:
+        return TypeTagU16.load(deserializer);
+      case 9:
+        return TypeTagU32.load(deserializer);
+      case 10:
+        return TypeTagU256.load(deserializer);
       default:
         throw ArgumentError("Unknown variant index for TypeTag: $index");
     }
@@ -55,6 +61,30 @@ class TypeTagU8 extends TypeTag {
   }
 }
 
+class TypeTagU16 extends TypeTag {
+
+  @override
+  void serialize(Serializer serializer) {
+    serializer.serializeU32AsUleb128(1);
+  }
+
+  static TypeTagU16 load(Deserializer deserializer) {
+    return TypeTagU16();
+  }
+}
+
+class TypeTagU32 extends TypeTag {
+
+  @override
+  void serialize(Serializer serializer) {
+    serializer.serializeU32AsUleb128(1);
+  }
+
+  static TypeTagU32 load(Deserializer deserializer) {
+    return TypeTagU32();
+  }
+}
+
 class TypeTagU64 extends TypeTag {
 
   @override
@@ -68,13 +98,26 @@ class TypeTagU64 extends TypeTag {
 }
 
 class TypeTagU128 extends TypeTag {
-    @override
+
+  @override
   void serialize(Serializer serializer) {
     serializer.serializeU32AsUleb128(3);
   }
 
   static TypeTagU128 load(Deserializer deserializer) {
     return TypeTagU128();
+  }
+}
+
+class TypeTagU256 extends TypeTag {
+
+  @override
+  void serialize(Serializer serializer) {
+    serializer.serializeU32AsUleb128(1);
+  }
+
+  static TypeTagU256 load(Deserializer deserializer) {
+    return TypeTagU256();
   }
 }
 

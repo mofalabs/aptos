@@ -12,7 +12,7 @@ import 'package:aptos/bcs/consts.dart';
 import 'package:aptos/bcs/helper.dart';
 import 'package:aptos/hex_string.dart';
 import 'package:aptos/models/table_item.dart';
-import 'package:aptos/token_types.dart';
+import 'package:aptos/aptos_types/token_types.dart';
 import 'package:aptos/transaction_builder/builder.dart';
 import 'package:aptos/utils/property_map_serde.dart';
 

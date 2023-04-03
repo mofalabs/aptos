@@ -1,12 +1,8 @@
 
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:aptos/aptos.dart';
-import 'package:aptos/aptos_types/authenticator.dart';
-import 'package:aptos/aptos_types/identifier.dart';
-import 'package:aptos/aptos_types/type_tag.dart';
 import 'package:aptos/utils/sha.dart';
 import 'package:pointycastle/digests/sha3.dart';
 
@@ -142,6 +138,61 @@ class EntryFunction with Serializable {
   }
 }
 
+class MultiSigTransactionPayload {
+
+  /// Contains the payload to run a multisig account transaction.
+  /// This can only be EntryFunction for now but Script might be supported in the future.
+  MultiSigTransactionPayload(this.transactionPayload);
+
+  final EntryFunction transactionPayload;
+
+  void serialize(Serializer serializer) {
+    // We can support multiple types of inner transaction payload in the future.
+    // For now it's only EntryFunction but if we support more types, we need to serialize with the right enum values
+    // here
+    serializer.serializeU32AsUleb128(0);
+    transactionPayload.serialize(serializer);
+  }
+
+  static MultiSigTransactionPayload deserialize(Deserializer deserializer) {
+    return MultiSigTransactionPayload(EntryFunction.deserialize(deserializer));
+  }
+}
+
+class MultiSig {
+
+  /// Contains the payload to run a multisig account transaction.
+  /// The multisig account address [multisigAddress] the transaction will be executed as.
+  /// The payload of the multisig transaction [transactionPayload] is optional when executing a multisig
+  /// transaction whose payload is already stored on chain.
+  MultiSig(this.multisigAddress, [this.transactionPayload]);
+
+  final AccountAddress multisigAddress;
+  final MultiSigTransactionPayload? transactionPayload;
+
+  void serialize(Serializer serializer) {
+    multisigAddress.serialize(serializer);
+    // Options are encoded with an extra u8 field before the value - 0x0 is none and 0x1 is present.
+    // We use serializeBool below to create this prefix value.
+    if (transactionPayload == null) {
+      serializer.serializeBool(false);
+    } else {
+      serializer.serializeBool(true);
+      transactionPayload!.serialize(serializer);
+    }
+  }
+
+  static MultiSig deserialize(Deserializer deserializer) {
+    final multisigAddress = AccountAddress.deserialize(deserializer);
+    final payloadPresent = deserializer.deserializeBool();
+    MultiSigTransactionPayload? transactionPayload;
+    if (payloadPresent) {
+      transactionPayload = MultiSigTransactionPayload.deserialize(deserializer);
+    }
+    return MultiSig(multisigAddress, transactionPayload);
+  }
+}
+
 class Module with Serializable {
 
   Module(this.code);
@@ -166,12 +217,8 @@ class ModuleId with Serializable {
   final AccountAddress address;
   final Identifier name;
 
-  /**
-   * Converts a string literal to a ModuleId
-   * @param moduleId String literal in format "AccountAddress::module_name",
-   *   e.g. "0x1::coin"
-   * @returns
-   */
+  /// Converts a string literal to a ModuleId
+  /// [moduleId] String literal in format "AccountAddress::module_name", e.g. "0x1::coin"
   static ModuleId fromStr(String moduleId) {
     final parts = moduleId.split("::");
     if (parts.length != 2) {
@@ -290,6 +337,8 @@ abstract class TransactionPayload with Serializable {
       // TODO: change to 1 once ModuleBundle has been removed from rust
       case 2:
         return TransactionPayloadEntryFunction.load(deserializer);
+      case 3:
+        return TransactionPayloadMultisig.load(deserializer);
       default:
         throw ArgumentError("Unknown variant index for TransactionPayload: $index");
     }
@@ -316,7 +365,7 @@ class TransactionPayloadScript extends TransactionPayload {
 class TransactionPayloadEntryFunction extends TransactionPayload {
   TransactionPayloadEntryFunction(this.value): super();
 
-  final EntryFunction value; 
+  final EntryFunction value;
 
   @override
   void serialize(Serializer serializer) {
@@ -327,6 +376,23 @@ class TransactionPayloadEntryFunction extends TransactionPayload {
   static TransactionPayloadEntryFunction load(Deserializer deserializer) {
     final value = EntryFunction.deserialize(deserializer);
     return TransactionPayloadEntryFunction(value);
+  }
+}
+
+class TransactionPayloadMultisig extends TransactionPayload {
+  TransactionPayloadMultisig(this.value);
+
+  final MultiSig value;
+
+  @override
+  void serialize(Serializer serializer) {
+    serializer.serializeU32AsUleb128(3);
+    value.serialize(serializer);
+  }
+
+  static TransactionPayloadMultisig load(Deserializer deserializer) {
+    final value = MultiSig.deserialize(deserializer);
+    return TransactionPayloadMultisig(value);
   }
 }
 
@@ -366,6 +432,12 @@ abstract class TransactionArgument with Serializable {
         return TransactionArgumentU8Vector.load(deserializer);
       case 5:
         return TransactionArgumentBool.load(deserializer);
+      case 6:
+        return TransactionArgumentU16.load(deserializer);
+      case 7:
+        return TransactionArgumentU32.load(deserializer);
+      case 8:
+        return TransactionArgumentU256.load(deserializer);
       default:
         throw ArgumentError("Unknown variant index for TransactionArgument: $index");
     }
@@ -386,6 +458,41 @@ class TransactionArgumentU8 extends TransactionArgument {
   static TransactionArgumentU8 load(Deserializer deserializer) {
     final value = deserializer.deserializeU8();
     return TransactionArgumentU8(value);
+  }
+}
+
+class TransactionArgumentU16 extends TransactionArgument {
+  TransactionArgumentU16(this.value);
+
+  final int value;
+
+  @override
+  void serialize(Serializer serializer) {
+    serializer.serializeU32AsUleb128(6);
+    serializer.serializeU16(value);
+  }
+
+  static TransactionArgumentU16 load(Deserializer deserializer) {
+    final value = deserializer.deserializeU16();
+    return TransactionArgumentU16(value);
+  }
+}
+
+class TransactionArgumentU32 extends TransactionArgument {
+
+  TransactionArgumentU32(this.value);
+
+  final int value;
+
+  @override
+  void serialize(Serializer serializer) {
+    serializer.serializeU32AsUleb128(7);
+    serializer.serializeU32(value);
+  }
+
+  static TransactionArgumentU32 load(Deserializer deserializer) {
+    final value = deserializer.deserializeU32();
+    return TransactionArgumentU32(value);
   }
 }
 
@@ -420,6 +527,24 @@ class TransactionArgumentU128 extends TransactionArgument {
   static TransactionArgumentU128 load(Deserializer deserializer) {
     final value = deserializer.deserializeU128();
     return TransactionArgumentU128(value);
+  }
+}
+
+class TransactionArgumentU256 extends TransactionArgument {
+
+  TransactionArgumentU256(this.value);
+
+  final BigInt value;
+
+  @override
+  void serialize(Serializer serializer) {
+    serializer.serializeU32AsUleb128(8);
+    serializer.serializeU256(value);
+  }
+
+  static TransactionArgumentU256 load(Deserializer deserializer) {
+    final value = deserializer.deserializeU256();
+    return TransactionArgumentU256(value);
   }
 }
 

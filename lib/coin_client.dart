@@ -1,8 +1,6 @@
 
-import 'package:aptos/abis.dart';
 import 'package:aptos/aptos_account.dart';
 import 'package:aptos/aptos_client.dart';
-import 'package:aptos/hex_string.dart';
 import 'package:aptos/transaction_builder/builder.dart';
 
 class CoinClient {
@@ -33,9 +31,12 @@ class CoinClient {
     BigInt? maxGasAmount,
     BigInt? gasUnitPrice,
     BigInt? expireTimestamp,
-    String? coinType
+    String? coinType,
+    bool createReceiverIfMissing = false
   }) async {
     coinType ??= AptosClient.APTOS_COIN;
+
+    final func = createReceiverIfMissing ? "0x1::aptos_account::transfer_coins" : "0x1::coin::transfer";
 
     final config = ABIBuilderConfig(
       sender: from.address,
@@ -43,9 +44,10 @@ class CoinClient {
       gasUnitPrice: gasUnitPrice,
       expSecFromNow: expireTimestamp
     );
+    
     final builder = TransactionBuilderRemoteABI(aptosClient, config);
     final rawTxn = await builder.build(
-      "0x1::coin::transfer",
+      func,
       [coinType],
       [to, amount],
     );

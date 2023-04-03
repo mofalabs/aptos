@@ -97,6 +97,17 @@ class Serializer {
     serializeU64(high);
   }
 
+  void serializeU256(BigInt value) {
+    checkNumberRange(value, BigInt.zero, MAX_U256_BIG_INT);
+
+    final low = value & MAX_U128_BIG_INT;
+    final high = value >> 128;
+
+    // write little endian number
+    serializeU128(low);
+    serializeU128(high);
+  }
+
   void serializeU32AsUleb128(int val) {
     checkNumberRange(
       BigInt.from(val), 

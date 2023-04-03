@@ -74,6 +74,14 @@ class Deserializer {
     return (high << 64) | low;
   }
 
+  BigInt deserializeU256() {
+    final low = deserializeU128();
+    final high = deserializeU128();
+
+    // combine the two 128-bit values and return (little endian)
+    return (high << 128) | low;
+  }
+
   int deserializeUleb128AsU32() {
     var value = BigInt.zero;
     var shift = 0;
