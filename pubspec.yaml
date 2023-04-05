@@ -1,6 +1,6 @@
 name: aptos
 description: Aptos Dart SDK.
-version: 0.0.2
+version: 0.0.3
 repository: https://github.com/0xmove/aptos
 
 environment:

@@ -29,6 +29,18 @@ void main() {
     expect(txHash.isNotEmpty, true);
   });
 
+  test('transfer aptos coin with create account', () async {
+    final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
+    final coinClient = CoinClient(client);
+
+    final privateArray = HexString("9e2dc8c01845a5b68d2abfb8e08cfb627325a9741b0041818076ce0910fce82b").toUint8Array();
+    final account1 =  AptosAccount(privateArray);
+    final account2 = AptosAccount();
+
+    final txHash = await coinClient.transfer(account1, account2.address, BigInt.from(333), createReceiverIfMissing: true);
+    expect(txHash.isNotEmpty, true);
+  });
+
   test('test all', () async {
     // Generate Aptos Account
     final mnemonics = AptosAccount.generateMnemonic();
