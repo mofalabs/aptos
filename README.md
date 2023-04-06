@@ -29,7 +29,6 @@ bool isExists = await aptosClient.accountExist(sender.address);
 if (!isExists) {
   final faucetClient = FaucetClient(Constants.faucetDevAPI);
   await faucetClient.fundAccount(sender.address, amount.toString());
-  await faucetClient.fundAccount(receiver.address, "0");
   await Future.delayed(const Duration(seconds: 2));
 }
 
@@ -40,6 +39,10 @@ final balance = await coinClient.checkBalance(sender.address);
 print(balance);
 
 // Transfer Aptos Coin
-final txHash = await coinClient.transfer(sender, receiver.address, BigInt.from(10000));
+final txHash = await coinClient.transfer(
+  sender, 
+  receiver.address, 
+  BigInt.from(10000),
+  createReceiverIfMissing: true);
 print(txHash);
 ```
