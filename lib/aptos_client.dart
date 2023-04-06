@@ -6,7 +6,7 @@ import 'package:aptos/constants.dart';
 import 'package:aptos/http/http.dart';
 import 'package:aptos/models/entry_function_payload.dart';
 import 'package:aptos/models/payload.dart';
-import 'package:aptos/models/response/account_data.dart';
+import 'package:aptos/models/account_data.dart';
 import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';

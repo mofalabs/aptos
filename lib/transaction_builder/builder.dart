@@ -12,7 +12,7 @@ import 'package:aptos/bcs/deserializer.dart';
 import 'package:aptos/bcs/helper.dart';
 import 'package:aptos/bcs/serializer.dart';
 import 'package:aptos/hex_string.dart';
-import 'package:aptos/models/response/account_data.dart';
+import 'package:aptos/models/account_data.dart';
 import 'package:aptos/transaction_builder/builder_utils.dart';
 import 'package:aptos/utils/sha.dart';
 

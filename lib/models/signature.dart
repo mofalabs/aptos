@@ -1,16 +1,17 @@
 
-class Signature {
-  Signature(this.type, this.publicKey, this.signature);
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String type;
-  final String publicKey;
-  final String signature;
+part 'signature.freezed.dart';
+part 'signature.g.dart';
 
-  Map<String, String> toJson() {
-    return <String, String>{
-      "type": type,
-      "public_key": publicKey,
-      "signature": signature
-    };
-  }
+@freezed
+class Signature with _$Signature{
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory Signature({
+    required String type,
+    required String publicKey,
+    required String signature
+  }) = _Signature;
+
+  factory Signature.fromJson(Map<String, dynamic> json) => _$SignatureFromJson(json);
 }

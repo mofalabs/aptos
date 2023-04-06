@@ -64,10 +64,10 @@ class _MyHomePageState extends State<MyHomePage> {
       gasUnitPrice: gasPrice.toString(),
       expirationTimestampSecs: expirationTimestamp.toString(),
       payload: Payload(
-          "entry_function_payload",
-          "0x1::coin::transfer",
-          ["0x1::aptos_coin::AptosCoin"],
-          [receiverAddress, amount.toString()]
+          type: "entry_function_payload",
+          function: "0x1::coin::transfer",
+          typeArguments: ["0x1::aptos_coin::AptosCoin"],
+          arguments: [receiverAddress, amount.toString()]
       )
     );
 
@@ -85,7 +85,12 @@ class _MyHomePageState extends State<MyHomePage> {
         gasUnitPrice: txSubmission.gasUnitPrice.toString(),
         expirationTimestampSecs: txSubmission.expirationTimestampSecs.toString(),
         payload: txSubmission.payload,
-        signature: Signature("ed25519_signature", account.pubKey().hex(), "0x"+HEX.encode(signEncode)));
+        signature: Signature(
+          type: "ed25519_signature",
+          publicKey: account.pubKey().hex(), 
+          signature: "0x"+HEX.encode(signEncode)
+        )
+    );
 
     final result = await aptos.submitTransaction(tx);
     debugPrint(result.toString());
@@ -146,11 +151,16 @@ class _MyHomePageState extends State<MyHomePage> {
         gasUnitPrice: gasPrice.toString(),
         expirationTimestampSecs: expirationTimestamp.toString(),
         payload: Payload(
-            "entry_function_payload",
-            "$moduleId::$moduleFunc",
-            ["0x1::aptos_coin::AptosCoin"],
-            [receiverAddress, amount.toString()]),
-        signature: Signature("ed25519_signature", account.pubKey().hex(), "0x"+HEX.encode(signature)));
+            type: "entry_function_payload",
+            function: "$moduleId::$moduleFunc",
+            typeArguments: ["0x1::aptos_coin::AptosCoin"],
+            arguments: [receiverAddress, amount.toString()]),
+        signature: Signature(
+          type: "ed25519_signature",
+          publicKey: account.pubKey().hex(), 
+          signature: "0x"+HEX.encode(signature)
+        )
+    );
 
     final result = await aptos.submitTransaction(tx);
     debugPrint(result.toString());

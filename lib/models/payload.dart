@@ -1,18 +1,17 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class Payload {
-  Payload(this.type, this.function, this.typeArguments, this.arguments);
+part 'payload.freezed.dart';
+part 'payload.g.dart';
 
-  final String type;
-  final String function;
-  final List<String> typeArguments;
-  final List<dynamic> arguments;
+@freezed
+class Payload with _$Payload{
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory Payload({
+    required String type,
+    required String function,
+    required List<String> typeArguments,
+    required List<dynamic> arguments
+  }) = _Payload;
 
-  Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      "type": type,
-      "function": function,
-      "type_arguments": typeArguments,
-      "arguments": arguments
-    };
-  }
+  factory Payload.fromJson(Map<String, dynamic> json) => _$PayloadFromJson(json);
 }
