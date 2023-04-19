@@ -155,6 +155,8 @@ class MultiSigTransactionPayload {
   }
 
   static MultiSigTransactionPayload deserialize(Deserializer deserializer) {
+    /// The enum value indicating which type of payload the multisig tx contains.
+    deserializer.deserializeUleb128AsU32();
     return MultiSigTransactionPayload(EntryFunction.deserialize(deserializer));
   }
 }

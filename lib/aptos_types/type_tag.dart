@@ -199,17 +199,14 @@ class StructTag with Serializable {
   final List<TypeTag> typeArgs;
 
   static StructTag fromString(String structTag) {
-    // Type args are not supported in string literal
-    if (structTag.contains("<")) {
-      throw ArgumentError("Not implemented");
-    }
+    final typeTagStruct = TypeTagParser(structTag).parseTypeTag() as TypeTagStruct;
 
-    final parts = structTag.split("::");
-    if (parts.length != 3) {
-      throw ArgumentError("Invalid struct tag string literal.");
-    }
-
-    return StructTag(AccountAddress.fromHex(parts[0]), Identifier(parts[1]), Identifier(parts[2]), []);
+    return StructTag(
+      typeTagStruct.value.address,
+      typeTagStruct.value.moduleName,
+      typeTagStruct.value.name,
+      typeTagStruct.value.typeArgs,
+    );
   }
 
   @override

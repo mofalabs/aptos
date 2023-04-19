@@ -145,11 +145,20 @@ class TypeTagParser {
     if (tokenVal == "u8") {
       return TypeTagU8();
     }
+    if (tokenVal == "u16") {
+      return TypeTagU16();
+    }
+    if (tokenVal == "u32") {
+      return TypeTagU32();
+    }
     if (tokenVal == "u64") {
       return TypeTagU64();
     }
     if (tokenVal == "u128") {
       return TypeTagU128();
+    }
+    if (tokenVal == "u256") {
+      return TypeTagU256();
     }
     if (tokenVal == "bool") {
       return TypeTagBool();
