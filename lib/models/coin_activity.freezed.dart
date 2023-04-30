@@ -30,7 +30,7 @@ mixin _$CoinActivity {
   String get eventAccountAddress => throw _privateConstructorUsedError;
   int get eventCreationNumber => throw _privateConstructorUsedError;
   int get eventSequenceNumber => throw _privateConstructorUsedError;
-  String get entryFunctionIdStr => throw _privateConstructorUsedError;
+  String? get entryFunctionIdStr => throw _privateConstructorUsedError;
   int get blockHeight => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -51,7 +51,7 @@ class _$_CoinActivity implements _CoinActivity {
       required this.eventAccountAddress,
       required this.eventCreationNumber,
       required this.eventSequenceNumber,
-      required this.entryFunctionIdStr,
+      this.entryFunctionIdStr,
       required this.blockHeight});
 
   factory _$_CoinActivity.fromJson(Map<String, dynamic> json) =>
@@ -78,7 +78,7 @@ class _$_CoinActivity implements _CoinActivity {
   @override
   final int eventSequenceNumber;
   @override
-  final String entryFunctionIdStr;
+  final String? entryFunctionIdStr;
   @override
   final int blockHeight;
 
@@ -107,7 +107,7 @@ abstract class _CoinActivity implements CoinActivity {
       required final String eventAccountAddress,
       required final int eventCreationNumber,
       required final int eventSequenceNumber,
-      required final String entryFunctionIdStr,
+      final String? entryFunctionIdStr,
       required final int blockHeight}) = _$_CoinActivity;
 
   factory _CoinActivity.fromJson(Map<String, dynamic> json) =
@@ -134,7 +134,7 @@ abstract class _CoinActivity implements CoinActivity {
   @override
   int get eventSequenceNumber;
   @override
-  String get entryFunctionIdStr;
+  String? get entryFunctionIdStr;
   @override
   int get blockHeight;
 }

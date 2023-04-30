@@ -18,8 +18,8 @@ class CoinActivity with _$CoinActivity{
     required String eventAccountAddress,
     required int eventCreationNumber,
     required int eventSequenceNumber,
-    required String entryFunctionIdStr,
-    required int blockHeight
+    String? entryFunctionIdStr,
+    required int blockHeight,
   }) = _CoinActivity;
 
   factory CoinActivity.fromJson(Map<String, dynamic> json) => _$CoinActivityFromJson(json);

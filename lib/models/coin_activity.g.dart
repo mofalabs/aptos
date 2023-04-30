@@ -18,7 +18,7 @@ _$_CoinActivity _$$_CoinActivityFromJson(Map<String, dynamic> json) =>
       eventAccountAddress: json['event_account_address'] as String,
       eventCreationNumber: json['event_creation_number'] as int,
       eventSequenceNumber: json['event_sequence_number'] as int,
-      entryFunctionIdStr: json['entry_function_id_str'] as String,
+      entryFunctionIdStr: json['entry_function_id_str'] as String?,
       blockHeight: json['block_height'] as int,
     );
 
