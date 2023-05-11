@@ -319,7 +319,7 @@ class AptosClient with AptosClientInterface {
     final txInfo = txData[0];
     bool isSuccess = txInfo["success"];
     if (!isSuccess) throw Exception({txInfo["vm_status"]});
-    final gasUsed = txInfo["gas_used"].toString();
+    final gasUsed = txInfo["max_gas_amount"].toString();
     return BigInt.parse(gasUsed);
   }
 
@@ -330,10 +330,8 @@ class AptosClient with AptosClientInterface {
       estimateMaxGasAmount: true
     );
     final txInfo = txData[0];
-    bool isSuccess = txInfo["success"];
-    if (!isSuccess) throw Exception({txInfo["vm_status"]});
     final gasUnitPrice = txInfo["gas_unit_price"].toString();
-    final gasUsed = txInfo["gas_used"].toString();
+    final gasUsed = txInfo["max_gas_amount"].toString();
     return Tuple2(BigInt.parse(gasUnitPrice), BigInt.parse(gasUsed));
   }
 
