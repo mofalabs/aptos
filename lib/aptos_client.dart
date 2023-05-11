@@ -11,6 +11,7 @@ import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';
 import 'package:dio/dio.dart';
+import 'package:tuple/tuple.dart';
 
 class AptosClient with AptosClientInterface {
 
@@ -309,8 +310,8 @@ class AptosClient with AptosClientInterface {
     final txInfo = txData[0];
     bool isSuccess = txInfo["success"];
     if (!isSuccess) throw Exception({txInfo["vm_status"]});
-    final maxGasAmount = txInfo["gas_unit_price"].toString();
-    return BigInt.parse(maxGasAmount);
+    final gasUnitPrice = txInfo["gas_unit_price"].toString();
+    return BigInt.parse(gasUnitPrice);
   }
 
   Future<BigInt> estimateGasAmount(TransactionRequest transaction) async {
@@ -318,8 +319,22 @@ class AptosClient with AptosClientInterface {
     final txInfo = txData[0];
     bool isSuccess = txInfo["success"];
     if (!isSuccess) throw Exception({txInfo["vm_status"]});
-    final maxGasAmount = txInfo["gas_used"].toString();
-    return BigInt.parse(maxGasAmount);
+    final gasUsed = txInfo["gas_used"].toString();
+    return BigInt.parse(gasUsed);
+  }
+
+  Future<Tuple2<BigInt, BigInt>> estimateGas(TransactionRequest transaction) async {
+    final txData = await simulateTransaction(
+      transaction, 
+      estimateGasUnitPrice: true, 
+      estimateMaxGasAmount: true
+    );
+    final txInfo = txData[0];
+    bool isSuccess = txInfo["success"];
+    if (!isSuccess) throw Exception({txInfo["vm_status"]});
+    final gasUnitPrice = txInfo["gas_unit_price"].toString();
+    final gasUsed = txInfo["gas_used"].toString();
+    return Tuple2(BigInt.parse(gasUnitPrice), BigInt.parse(gasUsed));
   }
 
   Future<bool> transactionPending(String txnHash) async {
