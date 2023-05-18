@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dio/browser_imp.dart';
+import 'package:dio/browser.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -18,8 +18,8 @@ class Http extends DioForBrowser {
   Http._();
 
   _init() {
-    options.connectTimeout = 5000;
-    options.receiveTimeout = 10000;
+    options.connectTimeout = const Duration(seconds: 5);
+    options.receiveTimeout = const Duration(seconds: 10);
 
     options.headers["Content-Type"] = "application/json";
 
