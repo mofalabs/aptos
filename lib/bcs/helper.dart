@@ -103,6 +103,12 @@ Uint8List bcsSerializeU128(BigInt value) {
   return serializer.getBytes();
 }
 
+Uint8List bcsSerializeU256(BigInt value) {
+  final serializer = Serializer();
+  serializer.serializeU256(value);
+  return serializer.getBytes();
+}
+
 Uint8List bcsSerializeBool(bool value) {
   final serializer = Serializer();
   serializer.serializeBool(value);

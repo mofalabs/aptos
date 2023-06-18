@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'coin_activity.dart';
+part of 'coin_activities.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,6 +13,59 @@ T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+
+CoinActivities _$CoinActivitiesFromJson(Map<String, dynamic> json) {
+  return _CoinActivities.fromJson(json);
+}
+
+/// @nodoc
+mixin _$CoinActivities {
+  List<CoinActivity> get coinActivities => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class _$_CoinActivities implements _CoinActivities {
+  const _$_CoinActivities({required final List<CoinActivity> coinActivities})
+      : _coinActivities = coinActivities;
+
+  factory _$_CoinActivities.fromJson(Map<String, dynamic> json) =>
+      _$$_CoinActivitiesFromJson(json);
+
+  final List<CoinActivity> _coinActivities;
+  @override
+  List<CoinActivity> get coinActivities {
+    if (_coinActivities is EqualUnmodifiableListView) return _coinActivities;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_coinActivities);
+  }
+
+  @override
+  String toString() {
+    return 'CoinActivities(coinActivities: $coinActivities)';
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_CoinActivitiesToJson(
+      this,
+    );
+  }
+}
+
+abstract class _CoinActivities implements CoinActivities {
+  const factory _CoinActivities(
+      {required final List<CoinActivity> coinActivities}) = _$_CoinActivities;
+
+  factory _CoinActivities.fromJson(Map<String, dynamic> json) =
+      _$_CoinActivities.fromJson;
+
+  @override
+  List<CoinActivity> get coinActivities;
+}
 
 CoinActivity _$CoinActivityFromJson(Map<String, dynamic> json) {
   return _CoinActivity.fromJson(json);

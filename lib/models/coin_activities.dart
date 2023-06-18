@@ -1,8 +1,19 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'coin_activity.freezed.dart';
-part 'coin_activity.g.dart';
+part 'coin_activities.freezed.dart';
+part 'coin_activities.g.dart';
+
+
+@freezed
+class CoinActivities with _$CoinActivities{
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory CoinActivities({
+    required List<CoinActivity> coinActivities
+  }) = _CoinActivities;
+
+  factory CoinActivities.fromJson(Map<String, dynamic> json) => _$CoinActivitiesFromJson(json);
+}
 
 @freezed
 class CoinActivity with _$CoinActivity{

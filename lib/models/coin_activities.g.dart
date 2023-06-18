@@ -1,10 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'coin_activity.dart';
+part of 'coin_activities.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
+
+_$_CoinActivities _$$_CoinActivitiesFromJson(Map<String, dynamic> json) =>
+    _$_CoinActivities(
+      coinActivities: (json['coin_activities'] as List<dynamic>)
+          .map((e) => CoinActivity.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$$_CoinActivitiesToJson(_$_CoinActivities instance) =>
+    <String, dynamic>{
+      'coin_activities': instance.coinActivities,
+    };
 
 _$_CoinActivity _$$_CoinActivityFromJson(Map<String, dynamic> json) =>
     _$_CoinActivity(

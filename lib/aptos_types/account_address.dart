@@ -77,4 +77,11 @@ class AccountAddress with Serializable {
   static AccountAddress deserialize(Deserializer deserializer) {
     return AccountAddress(deserializer.deserializeFixedBytes(AccountAddress.LENGTH));
   }
+
+  static standardizeAddress(String address) {
+    final lowercaseAddress = address.toLowerCase();
+    final addressWithoutPrefix = lowercaseAddress.startsWith("0x") ? lowercaseAddress.substring(2) : lowercaseAddress;
+    final addressWithPadding = addressWithoutPrefix.padLeft(64, "0");
+    return "0x$addressWithPadding";
+  }
 }

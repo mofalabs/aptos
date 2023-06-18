@@ -1,5 +1,6 @@
 import 'package:aptos/hex_string.dart';
-import 'package:aptos/models/coin_activity.dart';
+import 'package:aptos/models/account_coins.dart';
+import 'package:aptos/models/coin_activities.dart';
 import 'package:graphql/client.dart';
 
 import 'indexer/queries.dart';
@@ -73,7 +74,7 @@ class IndexerClient {
     return queryIndexer(document: GetTokenActivities, variables: variables);
   }
 
-  Future<dynamic> getAccountCoinsData({
+  Future<List<CoinBalance>> getAccountCoinsData({
     required String ownerAddress, 
     int? offset, 
     int? limit
@@ -85,7 +86,8 @@ class IndexerClient {
       "offset": offset,
       "limit": limit
     };
-    return queryIndexer(document: GetAccountCoinsData, variables: variables);
+    final data = await queryIndexer(document: GetAccountCoinsData, variables: variables);
+    return AccountCoins.fromJson(data).currentCoinBalances;
   }
 
   /// Gets the count of tokens owned by an account
@@ -212,9 +214,7 @@ class IndexerClient {
       "limit": limit
     };
     final data = await queryIndexer(document: GetAccountCoinActivity, variables: variables);
-    final activities = data['coin_activities'] as List;
-    if (activities.isEmpty) return [];
-    return activities.map((e) => CoinActivity.fromJson(e)).toList();
+    return CoinActivities.fromJson(data).coinActivities;
   }
 
 }

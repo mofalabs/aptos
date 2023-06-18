@@ -1,3 +1,43 @@
+const CurrentTokenOwnershipFieldsFragmentDoc = '''
+    fragment CurrentTokenOwnershipFields on current_token_ownerships_v2 {
+  token_standard
+  is_fungible_v2
+  is_soulbound_v2
+  property_version_v1
+  table_type_v1
+  token_properties_mutated_v1
+  amount
+  last_transaction_timestamp
+  last_transaction_version
+  storage_id
+  owner_address
+  current_token_data {
+    token_name
+    token_data_id
+    token_uri
+    token_properties
+    supply
+    maximum
+    last_transaction_version
+    last_transaction_timestamp
+    largest_property_version_v1
+    current_collection {
+      collection_name
+      creator_address
+      description
+      uri
+      collection_id
+      last_transaction_version
+      current_supply
+      mutable_description
+      total_minted_v2
+      table_handle_v1
+      mutable_uri
+    }
+  }
+}
+    ''';
+
 const TokenDataFieldsFragmentDoc = '''
     fragment TokenDataFields on current_token_datas {
   creator_address
@@ -111,6 +151,45 @@ const GetCurrentDelegatorBalancesCount = r'''
 }
     ''';
 
+const GetCollectionData = r'''
+    query getCollectionData($where_condition: current_collections_v2_bool_exp!, $offset: Int, $limit: Int) {
+  current_collections_v2(where: $where_condition, offset: $offset, limit: $limit) {
+    collection_id
+    token_standard
+    collection_name
+    creator_address
+    current_supply
+    description
+    uri
+  }
+}
+    ''';
+
+const GetCollectionsWithOwnedTokens = r'''
+    query getCollectionsWithOwnedTokens($where_condition: current_collection_ownership_v2_view_bool_exp!, $offset: Int, $limit: Int) {
+  current_collection_ownership_v2_view(
+    where: $where_condition
+    order_by: {last_transaction_version: desc}
+    offset: $offset
+    limit: $limit
+  ) {
+    current_collection {
+      creator_address
+      collection_name
+      token_standard
+      collection_id
+      description
+      table_handle_v1
+      uri
+      total_minted_v2
+      max_supply
+    }
+    distinct_tokens
+    last_transaction_version
+  }
+}
+    ''';
+
 const GetDelegatedStakingActivities = r'''
     query getDelegatedStakingActivities($delegatorAddress: String, $poolAddress: String) {
   delegated_staking_activities(
@@ -167,6 +246,17 @@ const GetTokenActivitiesCount = r'''
   }
 }
     ''';
+
+const GetTokenOwnedFromCollection = r'''
+    query getTokenOwnedFromCollection($where_condition: current_token_ownerships_v2_bool_exp!, $offset: Int, $limit: Int) {
+  current_token_ownerships_v2(
+    where: $where_condition
+    offset: $offset
+    limit: $limit
+  ) {
+    ...CurrentTokenOwnershipFields
+  }
+}''' + CurrentTokenOwnershipFieldsFragmentDoc;
 
 const GetTokenData = r'''
     query getTokenData($token_id: String) {
