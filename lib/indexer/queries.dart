@@ -335,3 +335,47 @@ const GetAccountCoinActivity = r'''
     block_height
   }
 ''';
+
+const GetAccountSpecifiedCoinActivity = r'''
+  query getAccountSpecifiedCoinActivity($coin: String!, $address: String!, $offset: Int, $limit: Int) {
+    coin_activities(
+      where: {coin_type: {_eq: $coin}, owner_address: {_eq: $address}}
+      limit: $limit
+      offset: $offset
+      order_by: [{transaction_version: desc}, {event_account_address: desc}, {event_creation_number: desc}, {event_sequence_number: desc}]
+    ) {
+      ...CoinActivityFields
+    }
+  }
+
+  fragment CoinActivityFields on coin_activities {
+    transaction_timestamp
+    transaction_version
+    amount
+    activity_type
+    coin_type
+    is_gas_fee
+    is_transaction_success
+    event_account_address
+    event_creation_number
+    event_sequence_number
+    entry_function_id_str
+    block_height
+  }
+''';
+
+const GetCoinInfo = r'''
+  query getCoinInfo($coin: String!) {
+    coin_infos(
+      where: {coin_type: {_eq: $coin}}
+    ) {
+      ...CoinInfoFields
+    }
+  }
+
+  fragment CoinInfoFields on coin_infos {
+    name
+    decimals
+    symbol
+  }
+''';

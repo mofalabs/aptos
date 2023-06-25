@@ -217,4 +217,35 @@ class IndexerClient {
     return CoinActivities.fromJson(data).coinActivities;
   }
 
+  /// Queries an account specified coin activity
+  Future<List<CoinActivity>> getAccountSpecifiedCoinActivity({
+    required String coinType,
+    required String accountAddress,
+    int? offset,
+    int? limit
+  }) async {
+    final address = HexString.ensure(accountAddress).hex();
+    IndexerClient.validateAddress(address);
+    final variables = {
+      "coin": coinType,
+      "address": address,
+      "offset": offset,
+      "limit": limit
+    };
+    final data = await queryIndexer(document: GetAccountSpecifiedCoinActivity, variables: variables);
+    return CoinActivities.fromJson(data).coinActivities;
+  }
+
+  Future<CoinInfo> getCoinInfo({
+    required String coinType,
+  }) async {
+    final variables = {"coin": coinType};
+    final data = await queryIndexer(
+        document: GetCoinInfo, variables: variables);
+    var infos = data['coin_infos'] as List;
+    if(infos.isEmpty) {
+      return const CoinInfo(name: '',symbol: '',decimals: 8);
+    }
+    return CoinInfo.fromJson(infos.first);
+  }
 }
