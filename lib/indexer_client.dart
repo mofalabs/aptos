@@ -1,5 +1,6 @@
 import 'package:aptos/hex_string.dart';
 import 'package:aptos/models/account_coins.dart';
+import 'package:aptos/models/account_nfts.dart';
 import 'package:aptos/models/coin_activities.dart';
 import 'package:graphql/client.dart';
 
@@ -46,7 +47,7 @@ class IndexerClient {
     return data;
   }
 
-  Future<dynamic> getAccountNFTs({
+  Future<List<AccountNFT>> getAccountNFTs({
     required String ownerAddress, 
     int? offset, 
     int? limit
@@ -58,7 +59,8 @@ class IndexerClient {
       "offset": offset,
       "limit": limit
     };
-    return queryIndexer(document: GetAccountCurrentTokens, variables: variables);
+    final data = await queryIndexer(document: GetAccountCurrentTokens, variables: variables);
+    return AccountNFTs.fromJson(data).currentTokenOwnerships;
   }
 
   Future<dynamic> getTokenActivities({
