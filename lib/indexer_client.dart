@@ -2,10 +2,15 @@ import 'package:aptos/hex_string.dart';
 import 'package:aptos/models/account_coins.dart';
 import 'package:aptos/models/account_nfts.dart';
 import 'package:aptos/models/coin_activities.dart';
+import 'package:aptos/models/current_token_datas.dart';
 import 'package:graphql/client.dart';
 
 import 'indexer/queries.dart';
 
+enum TokenStandard {
+  v1,
+  v2
+}
 
 /// Provides methods for retrieving data from Aptos Indexer.
 /// For more detailed Queries specification see
@@ -154,11 +159,32 @@ class IndexerClient {
   }
 
   /// Queries token data
-  Future<dynamic> getTokenData(String tokenId) async {
-    final variables = {
-      "token_id": tokenId
+  // Future<dynamic> getTokenData(String tokenId) async {
+  //   final variables = {
+  //     "token_id": tokenId
+  //   };
+  //   return queryIndexer(document: GetTokenData, variables: variables);
+  // }
+
+  /// Queries token data by [tokenId]
+  Future<List<CurrentTokenData>> getTokenData(
+    String tokenId,
+    {TokenStandard? tokenStandard}
+  ) async {
+    final tokenAddress = HexString.ensure(tokenId).hex();
+    IndexerClient.validateAddress(tokenAddress);
+
+    final whereCondition = {
+      "token_data_id": { "_eq": tokenAddress },
     };
-    return queryIndexer(document: GetTokenData, variables: variables);
+
+    if (tokenStandard != null) {
+      whereCondition["token_standard"] = { "_eq": tokenStandard.toString() };
+    }
+
+    final variables = { "where_condition": whereCondition };
+    final data = await queryIndexer(document: GetTokenData, variables: variables);
+    return CurrentTokenDatas.fromJson(data).currentTokenDatasV2;
   }
 
   /// Queries token owners data

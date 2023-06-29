@@ -27,7 +27,7 @@ void main() {
   test('test getAccountCoinsData', () async {
     final coinBalances = await client.getAccountCoinsData(ownerAddress: address);
     coinBalances.forEach((element) { 
-      debugPrint("${element.coinInfo.symbol} : ${element.amount}");
+      debugPrint(element.toString());
     });
   });
 
@@ -56,5 +56,12 @@ void main() {
     result.forEach((element) { 
       debugPrint(element.toJson().toString());
     });
+  });
+
+  test('test getTokenData', () async {
+    final accountNFTs = await client.getAccountNFTs(ownerAddress: address);
+    final tokenId = accountNFTs.first.currentTokenData.tokenDataIdHash;
+    final result = await client.getTokenData(tokenId);
+    print(result);
   });
 }
