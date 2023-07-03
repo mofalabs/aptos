@@ -23,7 +23,7 @@ const DEFAULT_MAX_GAS_AMOUNT = 20000;
 // Transaction expire timestamp
 const DEFAULT_TXN_EXP_SEC_FROM_NOW = 20;
 
-// @return Ed25519Signature | MultiEd25519Signature
+// return [Ed25519Signature] | [MultiEd25519Signature]
 typedef SigningFn = dynamic Function(Uint8List txn);
 
 class TransactionBuilder<F extends SigningFn> {

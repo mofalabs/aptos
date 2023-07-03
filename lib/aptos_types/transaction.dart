@@ -7,21 +7,19 @@ import 'package:aptos/utils/sha.dart';
 import 'package:pointycastle/digests/sha3.dart';
 
 class RawTransaction with Serializable {
-  /**
-   * RawTransactions contain the metadata and payloads that can be submitted to Aptos chain for execution.
-   * RawTransactions must be signed before Aptos chain can execute them.
-   *
-   * @param sender Account address of the sender.
-   * @param sequence_number Sequence number of this transaction. This must match the sequence number stored in
-   *   the sender's account at the time the transaction executes.
-   * @param payload Instructions for the Aptos Blockchain, including publishing a module,
-   *   execute a entry function or execute a script payload.
-   * @param max_gas_amount Maximum total gas to spend for this transaction. The account must have more
-   *   than this gas or the transaction will be discarded during validation.
-   * @param gas_unit_price Price to be paid per gas unit.
-   * @param expiration_timestamp_secs The blockchain timestamp at which the blockchain would discard this transaction.
-   * @param chain_id The chain ID of the blockchain that this transaction is intended to be run on.
-   */
+  /// RawTransactions contain the metadata and payloads that can be submitted to Aptos chain for execution.
+  /// RawTransactions must be signed before Aptos chain can execute them.
+  ///
+  /// [sender] Account address of the sender.
+  /// [sequenceNumber] Sequence number of this transaction. This must match the sequence number stored in
+  ///   the sender's account at the time the transaction executes.
+  /// [payload] Instructions for the Aptos Blockchain, including publishing a module,
+  ///   execute a entry function or execute a script payload.
+  /// [maxGasAmount] Maximum total gas to spend for this transaction. The account must have more
+  ///   than this gas or the transaction will be discarded during validation.
+  /// [gasUnitPrice] Price to be paid per gas unit.
+  /// [expirationTimestampSecs] The blockchain timestamp at which the blockchain would discard this transaction.
+  /// [chainId] The chain ID of the blockchain that this transaction is intended to be run on.
   RawTransaction(
     this.sender, 
     this.sequenceNumber, 

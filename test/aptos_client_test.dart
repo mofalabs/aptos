@@ -12,8 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   String address =
-      "0x9d36a1531f1ac2fc0e9d0a78105357c38e55f1a97a504d98b547f2f62fbbe3c6";
-  AptosClient aptos = AptosClient(Constants.devnetAPI, enableDebugLog: true);
+      "0xa19ad3e576eb3001394dccae2ce0bcb3486a822853506b93e84b4b1b39cce9eb";
+  AptosClient aptos = AptosClient(Constants.mainnetAPI, enableDebugLog: true);
 
   const aptosCoinStore = "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>";
 
@@ -47,14 +47,14 @@ void main() {
       expect(result.length > 0, true);
     });
 
-    test('aptos get account resouce by type', () async {
-      // final result = await aptos.getAccountResouce(address, "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
-      // expect(result["type"] , "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
+    test('aptos get account resouce by resource type', () async {
+      final result = await aptos.getAccountResource(address, "0x3::token::TokenStore");
+      expect(result.length > 0, true);
+    });
 
-      final result1 = await aptos.getAccountResource(
-          "0xfaf52ae1b48f945014ab1ba2798f85498995848cedfb0fbd167fada7ccb2d66e",
-          "0xfaf52ae1b48f945014ab1ba2798f85498995848cedfb0fbd167fada7ccb2d66e::chat::MessageStore");
-      print(result1);
+    test('aptos get account aptos coin', () async {
+      final result = await aptos.getAccountResource(address, "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
+      expect(result["type"] , "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
     });
 
     test('aptos get account modules', () async {

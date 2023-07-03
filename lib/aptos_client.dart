@@ -5,9 +5,7 @@ import 'package:aptos/aptos_types/rotation_proof_challenge.dart';
 import 'package:aptos/constants.dart';
 import 'package:aptos/http/http.dart';
 import 'package:aptos/models/entry_function_payload.dart';
-import 'package:aptos/models/payload.dart';
 import 'package:aptos/models/account_data.dart';
-import 'package:aptos/models/signature.dart';
 import 'package:aptos/models/table_item.dart';
 import 'package:aptos/models/transaction.dart';
 import 'package:dio/dio.dart';
@@ -555,6 +553,15 @@ static Future<Uint8List> generateBCSSimulation(AptosAccount accountFrom, RawTran
     );
     final builder = TransactionBuilderRemoteABI(this, builderConfig);
     return await builder.build(payload.functionId, payload.typeArguments, payload.arguments);
+  }
+
+  /// Converts a transaction request produced by [generateTransaction] into a properly
+  /// signed transaction, which can then be submitted to the blockchain.
+  Uint8List signTransaction(
+    AptosAccount accountFrom, 
+    RawTransaction rawTransaction
+  ) {
+    return AptosClient.generateBCSTransaction(accountFrom, rawTransaction);
   }
 
   /// Rotate an account's auth key. After rotation, only the new private key can be used to sign txns for

@@ -1,6 +1,7 @@
 
 import 'package:aptos/aptos_account.dart';
 import 'package:aptos/aptos_client.dart';
+import 'package:aptos/models/entry_function_payload.dart';
 import 'package:aptos/transaction_builder/builder.dart';
 
 class CoinClient {
@@ -49,7 +50,7 @@ class CoinClient {
     final rawTxn = await builder.build(
       func,
       [coinType],
-      [to, amount],
+      [to, amount]
     );
 
     final bcsTxn = AptosClient.generateBCSTransaction(from, rawTxn);
@@ -63,4 +64,16 @@ class CoinClient {
     final accountResource = await aptosClient.getAccountResource(address, typeTag);
     return BigInt.parse(accountResource["data"]["coin"]["value"]);
   }
+
+  Future<String> register(AptosAccount coinReceiver, String coinType) async {
+    final payload = EntryFunctionPayload(
+      functionId: "0x1::managed_coin::register",
+      typeArguments: [coinType], 
+      arguments: []);
+    final rawTxn = await aptosClient.generateTransaction(coinReceiver, payload);
+    final bcsTxn = aptosClient.signTransaction(coinReceiver, rawTxn);
+    final txn = await aptosClient.submitSignedBCSTransaction(bcsTxn);
+    return txn["hash"];
+  }
+
 }
