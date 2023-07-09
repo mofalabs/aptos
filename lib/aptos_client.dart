@@ -37,7 +37,7 @@ class AptosClient with AptosClientInterface {
       return true;
     } catch (e) {
       dynamic err = e;
-      if (err.response.statusCode == 404) {
+      if (err.response?.statusCode == 404) {
         return false;
       }
       rethrow;
