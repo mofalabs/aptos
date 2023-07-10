@@ -231,9 +231,9 @@ void main() {
                   "0x2b3a30c47712b5eddabfed336a9f22d2f12573d9ee6da20e1fe3c84b6f3e6a8c",
               signature:
                   "0xe11cd7d7dd6bf4d8d1900e5473def694c5483023aeca934dcf58d7e01b9fcd9a6bbeb212d4ddaca0b46d995253069fd3c7105118584b6b7ec746cf327224d504"));
-      final result = await aptos.estimateGas(tx);
-      expect(result.item1 > BigInt.zero, true);
-      expect(result.item2 > BigInt.zero, true);
+      final (gasUnitPrice, gasUsed) = await aptos.estimateGas(tx);
+      expect(gasUnitPrice > BigInt.zero, true);
+      expect(gasUsed > BigInt.zero, true);
     });
 
     test('aptos get transaction by hash', () async {

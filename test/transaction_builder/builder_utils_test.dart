@@ -20,12 +20,24 @@ void main() {
       expect(TypeTagParser("u8").parseTypeTag() is TypeTagU8, true);
     });
 
+    test("parses a u16 TypeTag", () {
+      expect(TypeTagParser("u16").parseTypeTag() is TypeTagU16, true);
+    });
+
+    test("parses a u32 TypeTag", () {
+      expect(TypeTagParser("u32").parseTypeTag() is TypeTagU32, true);
+    });
+
     test("parses a u64 TypeTag", () {
       expect(TypeTagParser("u64").parseTypeTag() is TypeTagU64, true);
     });
 
     test("parses a u128 TypeTag", () {
       expect(TypeTagParser("u128").parseTypeTag() is TypeTagU128, true);
+    });
+
+    test("parses a u256 TypeTag", () {
+      expect(TypeTagParser("u256").parseTypeTag() is TypeTagU256, true);
     });
 
     test("parses a address TypeTag", () {
@@ -121,10 +133,6 @@ void main() {
 
       expect(() {
         TypeTagParser("0x1::test_coin::><0x1::test_coin::AptosCoin,").parseTypeTag();
-      }, throwsArgumentError);
-
-      expect(() {
-        TypeTagParser("u32").parseTypeTag();
       }, throwsArgumentError);
 
     });

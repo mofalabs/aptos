@@ -6,7 +6,6 @@ import 'package:aptos/aptos_types/transaction.dart';
 import 'package:aptos/aptos_types/type_tag.dart';
 import 'package:aptos/bcs/serializer.dart';
 import 'package:aptos/hex_string.dart';
-import 'package:tuple/tuple.dart';
 
 final stringStructTag = StructTag(
   AccountAddress.fromHex("0x1"),
@@ -34,24 +33,33 @@ bool isValidAlphabetic(String c) {
   return RegExp(r"[_A-Za-z0-9]").hasMatch(c);
 }
 
+// Generic format is T<digits> - for example T1, T2, T10
+bool isGeneric(String c) {
+  if (RegExp(r"T\d+").hasMatch(c)) {
+    return true;
+  }
+  return false;
+}
+
+
 typedef TokenType = String;
 typedef TokenValue = String;
-typedef Token = Tuple2<String, String>;
+typedef Token = (String, String);
 
 // Returns Token and Token byte size
-Tuple2<Tuple2<String, String>, int> nextToken(String tagStr, int pos) {
+((String, String) token, int size) nextToken(String tagStr, int pos) {
   final c = tagStr[pos];
   if (c == ":") {
     if (tagStr.substring(pos, pos + 2) == "::") {
-      return const Tuple2(Tuple2("COLON", "::"), 2);
+      return (("COLON", "::"), 2);
     }
     bail("Unrecognized token.");
   } else if (c == "<") {
-    return const Tuple2(Tuple2("LT", "<"), 1);
+    return (("LT", "<"), 1);
   } else if (c == ">") {
-    return const Tuple2(Tuple2("GT", ">"), 1);
+    return (("GT", ">"), 1);
   } else if (c == ",") {
-    return const Tuple2(Tuple2("COMMA", ","), 1);
+    return (("COMMA", ","), 1);
   } else if (isWhiteSpace(c)) {
     var res = "";
     for (int i = pos; i < tagStr.length; i += 1) {
@@ -62,7 +70,7 @@ Tuple2<Tuple2<String, String>, int> nextToken(String tagStr, int pos) {
         break;
       }
     }
-    return Tuple2(Tuple2("SPACE", res), res.length);
+    return (("SPACE", res), res.length);
   } else if (isValidAlphabetic(c)) {
     var res = "";
     for (int i = pos; i < tagStr.length; i += 1) {
@@ -73,7 +81,10 @@ Tuple2<Tuple2<String, String>, int> nextToken(String tagStr, int pos) {
         break;
       }
     }
-    return Tuple2(Tuple2("IDENT", res), res.length);
+    if (isGeneric(res)) {
+      return (("GENERIC", res), res.length);
+    }
+    return (("IDENT", res), res.length);
   }
   throw ArgumentError("Unrecognized token.");
 }
@@ -82,26 +93,28 @@ List<Token> tokenize(String tagStr) {
   int pos = 0;
   final tokens = <Token>[];
   while (pos < tagStr.length) {
-    final result = nextToken(tagStr, pos);
-    if (result.item1.item1 != "SPACE") {
-      tokens.add(result.item1);
+    final (token, size) = nextToken(tagStr, pos);
+    if (token.$1 != "SPACE") {
+      tokens.add(token);
     }
-    pos += result.item2;
+    pos += size;
   }
   return tokens;
 }
 
 class TypeTagParser {
-  TypeTagParser(this.tagStr) {
-    this.tokens = tokenize(tagStr);
+  TypeTagParser(this.tagStr, [List<String>? typeTags]) {
+    tokens = tokenize(tagStr);
+    _typeTags = typeTags ?? <String>[];
   }
 
   final String tagStr;
   late final List<Token> tokens;
+  late List<String> _typeTags = <String>[];
 
   void _consume(String targetToken) {
     final token = tokens.removeAt(0);
-    if (token.item2 != targetToken) {
+    if (token.$2 != targetToken) {
       bail("Invalid type tag.");
     }
   }
@@ -112,16 +125,16 @@ class TypeTagParser {
       bail("Invalid type tag.");
     }
 
-    while (tokens[0].item2 != endToken) {
+    while (tokens[0].$2 != endToken) {
       res.add(parseTypeTag());
 
-      if (tokens.isNotEmpty && tokens[0].item2 == endToken) {
+      if (tokens.isNotEmpty && tokens[0].$2 == endToken) {
         break;
       }
 
       _consume(",");
       if (tokens.isNotEmpty &&
-          tokens[0].item2 == endToken &&
+          tokens[0].$2 == endToken &&
           allowTraillingComma) {
         break;
       }
@@ -140,8 +153,7 @@ class TypeTagParser {
 
     final item = tokens.removeAt(0);
 
-    String tokenTy = item.item1;
-    String tokenVal = item.item2;
+    final (tokenTy, tokenVal) = item;
     if (tokenVal == "u8") {
       return TypeTagU8();
     }
@@ -172,27 +184,37 @@ class TypeTagParser {
       _consume(">");
       return TypeTagVector(res);
     }
+    if (tokenVal == "string") {
+      return TypeTagStruct(StructTag(AccountAddress.fromHex("0x1"), Identifier("string"), Identifier("String"), []));
+    }
     if (tokenTy == "IDENT" &&
         (tokenVal.startsWith("0x") || tokenVal.startsWith("0X"))) {
       String address = tokenVal;
       _consume("::");
       var item = tokens.removeAt(0);
-      String moduleTokenTy = item.item1;
-      String module = item.item2;
+      final (moduleTokenTy, module) = item;
       if (moduleTokenTy != "IDENT") {
         bail("Invalid type tag.");
       }
       _consume("::");
       item = tokens.removeAt(0);
-      String nameTokenTy = item.item1;
-      String name = item.item2;
+      final (nameTokenTy, name) = item;
       if (nameTokenTy != "IDENT") {
         bail("Invalid type tag.");
       }
 
+      // an Object `0x1::object::Object<T>` doesn't hold a real type, it points to an address
+      // therefore, we parse it as an address and dont need to care/parse the `T` type
+      if (module == "object" && name == "Object") {
+        // to support a nested type tag, i.e 0x1::some_module::SomeResource<0x1::object::Object<T>>, we want
+        // to remove the `<T>` part from the tokens list so we don't parse it and can keep parse the type tag.
+        tokens = tokens.skip(3).toList();
+        return TypeTagAddress();
+      }
+
       var tyTags = <TypeTag>[];
       // Check if the struct has ty args
-      if (tokens.isNotEmpty && tokens[0].item2 == "<") {
+      if (tokens.isNotEmpty && tokens[0].$2 == "<") {
         _consume("<");
         tyTags = _parseCommaList(">", true);
         _consume(">");
@@ -205,6 +227,17 @@ class TypeTagParser {
         tyTags,
       );
       return TypeTagStruct(structTag);
+    }
+
+    if (tokenTy == "GENERIC") {
+      if (_typeTags.isEmpty) {
+        bail("Can't convert generic type since no typeTags were specified.");
+      }
+      // a generic tokenVal has the format of `T<digit>`, for example `T1`.
+      // The digit (i.e 1) indicates the the index of this type in the typeTags array.
+      // For a tokenVal == T1, should be parsed as the type in typeTags[1]
+      final idx = int.parse(tokenVal.substring(1), radix: 10);
+      return TypeTagParser(_typeTags[idx]).parseTypeTag();
     }
 
     throw ArgumentError("Invalid type tag.");
@@ -255,12 +288,24 @@ void serializeArg(dynamic argVal, TypeTag argType, Serializer serializer) {
     serializer.serializeU8(ensureNumber(argVal));
     return;
   }
+  if (argType is TypeTagU16) {
+    serializer.serializeU16(ensureNumber(argVal));
+    return;
+  }
+  if (argType is TypeTagU32) {
+    serializer.serializeU32(ensureNumber(argVal));
+    return;
+  }
   if (argType is TypeTagU64) {
     serializer.serializeU64(ensureBigInt(argVal));
     return;
   }
   if (argType is TypeTagU128) {
     serializer.serializeU128(ensureBigInt(argVal));
+    return;
+  }
+  if (argType is TypeTagU256) {
+    serializer.serializeU256(ensureBigInt(argVal));
     return;
   }
   if (argType is TypeTagAddress) {
@@ -321,11 +366,20 @@ TransactionArgument argToTransactionArgument(dynamic argVal, TypeTag argType) {
   if (argType is TypeTagU8) {
     return TransactionArgumentU8(ensureNumber(argVal));
   }
+  if (argType is TypeTagU16) {
+    return TransactionArgumentU16(ensureNumber(argVal));
+  }
+  if (argType is TypeTagU32) {
+    return TransactionArgumentU32(ensureNumber(argVal));
+  }
   if (argType is TypeTagU64) {
     return TransactionArgumentU64(ensureBigInt(argVal));
   }
   if (argType is TypeTagU128) {
     return TransactionArgumentU128(ensureBigInt(argVal));
+  }
+  if (argType is TypeTagU256) {
+    return TransactionArgumentU256(ensureBigInt(argVal));
   }
   if (argType is TypeTagAddress) {
     AccountAddress addr;
