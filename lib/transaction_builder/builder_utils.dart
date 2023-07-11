@@ -109,7 +109,7 @@ class TypeTagParser {
   }
 
   final String tagStr;
-  late final List<Token> tokens;
+  late List<Token> tokens;
   late List<String> _typeTags = <String>[];
 
   void _consume(String targetToken) {

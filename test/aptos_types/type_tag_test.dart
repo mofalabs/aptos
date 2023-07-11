@@ -1,6 +1,5 @@
 
-import 'package:aptos/aptos_types/type_tag.dart';
-import 'package:aptos/transaction_builder/builder_utils.dart';
+import 'package:aptos/aptos.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 
@@ -87,5 +86,157 @@ void main() {
       }
     });
   });
+
+  group("parse Object type", () {
+    test("TypeTagParser successfully parses an Object type", () {
+      const typeTag = "0x1::object::Object<T>";
+      final parser = TypeTagParser(typeTag);
+      final result = parser.parseTypeTag();
+      expect(result is TypeTagAddress, true);
+    });
+
+    test("TypeTagParser successfully parses a strcut with a nested Object type", () {
+      const typeTag = "0x1::some_module::SomeResource<0x1::object::Object<T>>";
+      final parser = TypeTagParser(typeTag);
+      final result = parser.parseTypeTag() as TypeTagStruct;
+      expect(result.value.address.hexAddress(), ExpectedTypeTag.address);
+      expect(result.value.moduleName.value, "some_module");
+      expect(result.value.name.value, "SomeResource");
+      expect(result.value.typeArgs[0] is TypeTagAddress, true);
+    });
+
+    test("TypeTagParser successfully parses a strcut with a nested Object and Struct types", () {
+      const typeTag = "0x1::some_module::SomeResource<0x4::object::Object<T>, 0x1::some_module::SomeResource>";
+      final parser = TypeTagParser(typeTag);
+      final result = parser.parseTypeTag() as TypeTagStruct;
+      expect(result.value.address.hexAddress(), ExpectedTypeTag.address);
+      expect(result.value.moduleName.value, "some_module");
+      expect(result.value.name.value, "SomeResource");
+      expect(result.value.typeArgs.length, 2);
+      expect(result.value.typeArgs[0] is TypeTagAddress, true);
+      expect(result.value.typeArgs[1] is TypeTagStruct, true);
+    });
+  });
+
+  group("supports generic types", () {
+    test("throws an error when the type to use is not provided", () {
+      const typeTag = "T0";
+      final parser = TypeTagParser(typeTag);
+      expect(() {
+        parser.parseTypeTag();
+      }, throwsArgumentError);
+    });
+
+    test("successfully parses a generic type tag to the provided type", () {
+      const typeTag = "T0";
+      final parser = TypeTagParser(typeTag, ["bool"]);
+      final result = parser.parseTypeTag();
+      expect(result is TypeTagBool, true);
+    });
+  });
+
+group("Deserialize TypeTags", () {
+  test("deserializes a TypeTagBool correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagBool();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagBool, true);
+  });
+
+  test("deserializes a TypeTagU8 correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagU8();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagU8, true);
+  });
+
+  test("deserializes a TypeTagU16 correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagU16();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagU16, true);
+  });
+
+  test("deserializes a TypeTagU32 correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagU32();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagU32, true);
+  });
+
+  test("deserializes a TypeTagU64 correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagU64();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagU64, true);
+  });
+
+  test("deserializes a TypeTagU128 correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagU128();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagU128, true);
+  });
+
+  test("deserializes a TypeTagU256 correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagU256();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagU256, true);
+  });
+
+  test("deserializes a TypeTagAddress correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagAddress();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagAddress, true);
+  });
+
+  test("deserializes a TypeTagSigner correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagSigner();
+
+    tag.serialize(serializer);
+
+    expect(TypeTag.deserialize(Deserializer(serializer.getBytes())) is TypeTagSigner, true);
+  });
+
+  test("deserializes a TypeTagVector correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagVector(TypeTagU32());
+
+    tag.serialize(serializer);
+    final deserialized = TypeTag.deserialize(Deserializer(serializer.getBytes())) as TypeTagVector;
+    expect(deserialized.value is TypeTagU32, true);
+  });
+
+  test("deserializes a TypeTagStruct correctly", () {
+    final serializer = Serializer();
+    final tag = TypeTagStruct(StructTag.fromString(ExpectedTypeTag.string));
+
+    tag.serialize(serializer);
+    final deserialized = TypeTag.deserialize(Deserializer(serializer.getBytes())) as TypeTagStruct;
+    expect(deserialized.value.address.hexAddress(), ExpectedTypeTag.address);
+    expect(deserialized.value.moduleName.value, ExpectedTypeTag.moduleName);
+    expect(deserialized.value.name.value, ExpectedTypeTag.name);
+    expect(deserialized.value.typeArgs.length, 0);
+  });
+});
 
 }

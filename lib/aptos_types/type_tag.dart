@@ -65,7 +65,7 @@ class TypeTagU16 extends TypeTag {
 
   @override
   void serialize(Serializer serializer) {
-    serializer.serializeU32AsUleb128(1);
+    serializer.serializeU32AsUleb128(8);
   }
 
   static TypeTagU16 load(Deserializer deserializer) {
@@ -77,7 +77,7 @@ class TypeTagU32 extends TypeTag {
 
   @override
   void serialize(Serializer serializer) {
-    serializer.serializeU32AsUleb128(1);
+    serializer.serializeU32AsUleb128(9);
   }
 
   static TypeTagU32 load(Deserializer deserializer) {
@@ -113,7 +113,7 @@ class TypeTagU256 extends TypeTag {
 
   @override
   void serialize(Serializer serializer) {
-    serializer.serializeU32AsUleb128(1);
+    serializer.serializeU32AsUleb128(10);
   }
 
   static TypeTagU256 load(Deserializer deserializer) {
