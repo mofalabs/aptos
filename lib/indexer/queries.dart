@@ -404,3 +404,21 @@ const GetCoinInfo = r'''
     symbol
   }
 ''';
+
+const GetCurrentTokenPendingClaims = r'''
+  query getCurrentTokenPendingClaims($address: String!, $offset: Int, $limit: Int) {
+    current_token_pending_claims(
+        where: {from_address: {_eq: $address}}
+        offset: $offset
+        limit: $limit
+      ) {
+        from_address
+        creator_address
+        collection_name
+        name
+        property_version
+
+    }
+  }
+''';
+

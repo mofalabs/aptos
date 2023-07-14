@@ -3,6 +3,7 @@ import 'package:aptos/models/account_coins.dart';
 import 'package:aptos/models/account_nfts.dart';
 import 'package:aptos/models/coin_activities.dart';
 import 'package:aptos/models/current_token_datas.dart';
+import 'package:aptos/models/current_token_pending_claims.dart';
 import 'package:graphql/client.dart';
 
 import 'indexer/queries.dart';
@@ -275,5 +276,20 @@ class IndexerClient {
       return const CoinInfo(name: '',symbol: '',decimals: 8);
     }
     return CoinInfo.fromJson(infos.first);
+  }
+
+  Future<List<CurrentTokenPending>> getCurrentTokenPendingClaims({
+    required String ownerAddress,
+    int? offset,
+    int? limit
+  }) async {
+    final variables = {
+      "address": ownerAddress,
+      "offset": offset,
+      "limit": limit
+    };
+    final data = await queryIndexer(
+        document: GetCurrentTokenPendingClaims, variables: variables);
+    return CurrentTokenPendingClaims.fromJson(data).currentTokenPendingClaims;
   }
 }

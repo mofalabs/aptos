@@ -64,4 +64,9 @@ void main() {
     final result = await client.getTokenData(tokenId);
     print(result);
   });
+
+  test('test getCurrentTokenPendingClaims', () async {
+    final data = await client.getCurrentTokenPendingClaims(ownerAddress: address);
+    print(data);
+  });
 }
