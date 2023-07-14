@@ -417,7 +417,14 @@ const GetCurrentTokenPendingClaims = r'''
         collection_name
         name
         property_version
-
+        current_collection_data {
+          collection_data_id_hash
+          collection_name
+          description
+          last_transaction_version
+          metadata_uri
+          supply
+        }
     }
   }
 ''';
