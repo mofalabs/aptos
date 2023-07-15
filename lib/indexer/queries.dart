@@ -408,15 +408,17 @@ const GetCoinInfo = r'''
 const GetCurrentTokenPendingClaims = r'''
   query getCurrentTokenPendingClaims($address: String!, $offset: Int, $limit: Int) {
     current_token_pending_claims(
-        where: {from_address: {_eq: $address}}
+        where: {to_address: {_eq: $address}, amount: {_gt: "0"}}
         offset: $offset
         limit: $limit
       ) {
         from_address
+        to_address
         creator_address
         collection_name
         name
         property_version
+        amount
         current_collection_data {
           collection_data_id_hash
           collection_name

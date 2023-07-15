@@ -79,10 +79,12 @@ CurrentTokenPending _$CurrentTokenPendingFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$CurrentTokenPending {
   String get fromAddress => throw _privateConstructorUsedError;
+  String get toAddress => throw _privateConstructorUsedError;
   String get creatorAddress => throw _privateConstructorUsedError;
   String get collectionName => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   int get propertyVersion => throw _privateConstructorUsedError;
+  int get amount => throw _privateConstructorUsedError;
   CurrentCollectionData get currentCollectionData =>
       throw _privateConstructorUsedError;
 
@@ -95,10 +97,12 @@ mixin _$CurrentTokenPending {
 class _$_CurrentTokenPending implements _CurrentTokenPending {
   const _$_CurrentTokenPending(
       {required this.fromAddress,
+      required this.toAddress,
       required this.creatorAddress,
       required this.collectionName,
       required this.name,
       required this.propertyVersion,
+      required this.amount,
       required this.currentCollectionData});
 
   factory _$_CurrentTokenPending.fromJson(Map<String, dynamic> json) =>
@@ -106,6 +110,8 @@ class _$_CurrentTokenPending implements _CurrentTokenPending {
 
   @override
   final String fromAddress;
+  @override
+  final String toAddress;
   @override
   final String creatorAddress;
   @override
@@ -115,11 +121,13 @@ class _$_CurrentTokenPending implements _CurrentTokenPending {
   @override
   final int propertyVersion;
   @override
+  final int amount;
+  @override
   final CurrentCollectionData currentCollectionData;
 
   @override
   String toString() {
-    return 'CurrentTokenPending(fromAddress: $fromAddress, creatorAddress: $creatorAddress, collectionName: $collectionName, name: $name, propertyVersion: $propertyVersion, currentCollectionData: $currentCollectionData)';
+    return 'CurrentTokenPending(fromAddress: $fromAddress, toAddress: $toAddress, creatorAddress: $creatorAddress, collectionName: $collectionName, name: $name, propertyVersion: $propertyVersion, amount: $amount, currentCollectionData: $currentCollectionData)';
   }
 
   @override
@@ -133,10 +141,12 @@ class _$_CurrentTokenPending implements _CurrentTokenPending {
 abstract class _CurrentTokenPending implements CurrentTokenPending {
   const factory _CurrentTokenPending(
           {required final String fromAddress,
+          required final String toAddress,
           required final String creatorAddress,
           required final String collectionName,
           required final String name,
           required final int propertyVersion,
+          required final int amount,
           required final CurrentCollectionData currentCollectionData}) =
       _$_CurrentTokenPending;
 
@@ -146,6 +156,8 @@ abstract class _CurrentTokenPending implements CurrentTokenPending {
   @override
   String get fromAddress;
   @override
+  String get toAddress;
+  @override
   String get creatorAddress;
   @override
   String get collectionName;
@@ -153,6 +165,8 @@ abstract class _CurrentTokenPending implements CurrentTokenPending {
   String get name;
   @override
   int get propertyVersion;
+  @override
+  int get amount;
   @override
   CurrentCollectionData get currentCollectionData;
 }

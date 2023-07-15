@@ -25,10 +25,12 @@ _$_CurrentTokenPending _$$_CurrentTokenPendingFromJson(
         Map<String, dynamic> json) =>
     _$_CurrentTokenPending(
       fromAddress: json['from_address'] as String,
+      toAddress: json['to_address'] as String,
       creatorAddress: json['creator_address'] as String,
       collectionName: json['collection_name'] as String,
       name: json['name'] as String,
       propertyVersion: json['property_version'] as int,
+      amount: json['amount'] as int,
       currentCollectionData: CurrentCollectionData.fromJson(
           json['current_collection_data'] as Map<String, dynamic>),
     );
@@ -37,10 +39,12 @@ Map<String, dynamic> _$$_CurrentTokenPendingToJson(
         _$_CurrentTokenPending instance) =>
     <String, dynamic>{
       'from_address': instance.fromAddress,
+      'to_address': instance.toAddress,
       'creator_address': instance.creatorAddress,
       'collection_name': instance.collectionName,
       'name': instance.name,
       'property_version': instance.propertyVersion,
+      'amount': instance.amount,
       'current_collection_data': instance.currentCollectionData,
     };
 

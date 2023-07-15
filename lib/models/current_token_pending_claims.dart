@@ -20,10 +20,12 @@ class CurrentTokenPending with _$CurrentTokenPending{
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory CurrentTokenPending({
     required String fromAddress,
+    required String toAddress,
     required String creatorAddress,
     required String collectionName,
     required String name,
     required int propertyVersion,
+    required int amount,
     required CurrentCollectionData currentCollectionData
   }) = _CurrentTokenPending;
 
