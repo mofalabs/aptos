@@ -12,3 +12,7 @@ abstract class Constants {
 
   static bool enableDebugLog = false;
 }
+
+enum Network {
+  mainnet, testnet, devnet
+}
