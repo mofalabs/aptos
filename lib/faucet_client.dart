@@ -7,9 +7,17 @@ class FaucetClient {
   late final AptosClient aptosClient;
   final String endpoint;
 
-  FaucetClient(this.endpoint, {AptosClient? client, String? clientEndpoint, bool? enableDebugLog}) {
+  FaucetClient._(this.endpoint, {AptosClient? client, String? clientEndpoint, bool enableDebugLog = false}) {
     if (client == null && clientEndpoint == null) throw ArgumentError("client or clientEndpoint cannot be null at the same time.");
-    aptosClient = client ?? AptosClient(clientEndpoint!, enableDebugLog: enableDebugLog ?? false);
+    aptosClient = client ?? AptosClient(clientEndpoint!, enableDebugLog: enableDebugLog);
+  }
+
+  factory FaucetClient.fromEndpoint(String endpoint, String clientEndpoint, {bool enableDebugLog = false}) {
+    return FaucetClient._(endpoint, clientEndpoint: clientEndpoint, enableDebugLog: enableDebugLog);
+  }
+
+  factory FaucetClient.fromClient(String endpoint, AptosClient client, {bool enableDebugLog = false}) {
+    return FaucetClient._(endpoint, client: client, enableDebugLog: enableDebugLog);
   }
 
   Future<List<String>> fundAccount(String address, String amount, {int timeoutSecs = 20}) async {

@@ -21,7 +21,7 @@ void main() {
     setUpAll(() async {
       final exist = await aptos.accountExist(address);
       if (!exist) {
-        final faucetClient = FaucetClient(Constants.faucetDevAPI, client: aptos);
+        final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI, aptos);
         faucetClient.fundAccount(address, '10000');
         await Future.delayed(const Duration(seconds: 3));
       }
@@ -286,7 +286,7 @@ void main() {
 
     test("submit transaction with remote ABI", () async {
       final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
-      final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
+      final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI, client);
 
       final account1 = AptosAccount();
       await faucetClient.fundAccount(account1.address, "10000000");
@@ -316,7 +316,7 @@ void main() {
 
     test('submits bcs transaction', () async {
       final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
-      final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
+      final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI, client);
 
       final account1 = AptosAccount();
       await faucetClient.fundAccount(account1.address, "10000000");
@@ -356,7 +356,7 @@ void main() {
 
     test("submit multisig transaction simulation", () async {
       final client = AptosClient(Constants.devnetAPI);
-      final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
+      final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI, client);
 
       final account1 = AptosAccount();
       final account2 = AptosAccount();
@@ -448,8 +448,8 @@ void main() {
 
     test("rotates auth key ed25519", () async {
       final client = AptosClient(Constants.devnetAPI);
-      final faucetClient = FaucetClient(Constants.faucetDevAPI,
-          client: client, enableDebugLog: true);
+      final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI,
+          client, enableDebugLog: true);
 
       final alice = AptosAccount();
       await faucetClient.fundAccount(alice.address, "100000000");
@@ -478,7 +478,7 @@ void main() {
 
     test("view function", () async {
       final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
-      final faucet = FaucetClient(Constants.faucetDevAPI, client: client);
+      final faucet = FaucetClient.fromClient(Constants.faucetDevAPI, client);
 
       final alice = AptosAccount();
       await faucet.fundAccount(alice.address, "10000000");

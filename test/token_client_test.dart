@@ -13,7 +13,7 @@ void main() {
     "full tutorial nft token flow",
     () async {
       final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
-      final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
+      final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI, client);
       final tokenClient = TokenClient(client);
 
       final alice = AptosAccount();

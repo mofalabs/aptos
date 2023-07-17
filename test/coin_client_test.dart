@@ -15,7 +15,7 @@ void main() {
 
   test('transfer aptos coin', () async {
     final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
-    final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
+    final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI, client);
     final coinClient = CoinClient(client);
 
     final privateArray = HexString("9e2dc8c01845a5b68d2abfb8e08cfb627325a9741b0041818076ce0910fce82b").toUint8Array();
@@ -42,7 +42,6 @@ void main() {
 
   test('register coin', () async {
     final client = AptosClient(Constants.devnetAPI, enableDebugLog: true);
-    // final faucetClient = FaucetClient(Constants.faucetDevAPI, client: client);
     final coinClient = CoinClient(client);
 
     final privateArray = HexString("9e2dc8c01845a5b68d2abfb8e08cfb627325a9741b0041818076ce0910fce82b").toUint8Array();
@@ -74,7 +73,7 @@ void main() {
     final amount = BigInt.from(10000000);
     bool isExists = await aptosClient.accountExist(sender.address);
     if (!isExists) {
-      final faucetClient = FaucetClient(Constants.faucetDevAPI);
+      final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI, aptosClient);
       await faucetClient.fundAccount(sender.address, amount.toString());
       await faucetClient.fundAccount(receiver.address, "0");
       await Future.delayed(const Duration(seconds: 2));

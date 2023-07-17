@@ -27,7 +27,7 @@ final aptosClient = AptosClient(Constants.devnetAPI, enableDebugLog: true);
 final amount = BigInt.from(10000000);
 bool isExists = await aptosClient.accountExist(sender.address);
 if (!isExists) {
-  final faucetClient = FaucetClient(Constants.faucetDevAPI);
+  final faucetClient = FaucetClient.fromClient(Constants.faucetDevAPI, aptosClient);
   await faucetClient.fundAccount(sender.address, amount.toString());
   await Future.delayed(const Duration(seconds: 2));
 }

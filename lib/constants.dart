@@ -5,6 +5,7 @@ abstract class Constants {
   static const String devnetAPI = "https://fullnode.devnet.aptoslabs.com/v1";
   
   static const String faucetDevAPI = "https://faucet.devnet.aptoslabs.com";
+  static const String faucetTestAPI = "https://faucet.testnet.aptoslabs.com";
 
   static const String mainnetIndexer = "https://indexer.mainnet.aptoslabs.com/v1/graphql";
   static const String testnetIndexer = "https://indexer-testnet.staging.gcp.aptosdev.com/v1/graphql";
