@@ -305,83 +305,109 @@ BigInt ensureBigInt(dynamic val) {
 }
 
 void serializeArg(dynamic argVal, TypeTag argType, Serializer serializer) {
+  serializeArgInner(argVal, argType, serializer, 0);
+}
+
+void serializeArgInner(dynamic argVal, TypeTag argType, Serializer serializer, int depth) {
   if (argType is TypeTagBool) {
     serializer.serializeBool(ensureBoolean(argVal));
-    return;
-  }
-  if (argType is TypeTagU8) {
+  } else if (argType is TypeTagU8) {
     serializer.serializeU8(ensureNumber(argVal));
-    return;
-  }
-  if (argType is TypeTagU16) {
+  } else if (argType is TypeTagU16) {
     serializer.serializeU16(ensureNumber(argVal));
-    return;
-  }
-  if (argType is TypeTagU32) {
+  } else if (argType is TypeTagU32) {
     serializer.serializeU32(ensureNumber(argVal));
-    return;
-  }
-  if (argType is TypeTagU64) {
+  } else if (argType is TypeTagU64) {
     serializer.serializeU64(ensureBigInt(argVal));
-    return;
-  }
-  if (argType is TypeTagU128) {
+  } else if (argType is TypeTagU128) {
     serializer.serializeU128(ensureBigInt(argVal));
-    return;
-  }
-  if (argType is TypeTagU256) {
+  } else if (argType is TypeTagU256) {
     serializer.serializeU256(ensureBigInt(argVal));
-    return;
+  } else if (argType is TypeTagAddress) {
+    _serializeAddress(argVal, serializer);
+  } else if (argType is TypeTagVector) {
+    _serializeVector(argVal, argType, serializer, depth);
+  } else if (argType is TypeTagStruct) {
+    _serializeStruct(argVal, argType, serializer, depth);
+  } else {
+    throw ArgumentError("Unsupported arg type.");
   }
-  if (argType is TypeTagAddress) {
-    AccountAddress addr;
-    if (argVal is String || argVal is HexString) {
-      addr = AccountAddress.fromHex(argVal);
-    } else if (argVal is AccountAddress) {
-      addr = argVal;
-    } else {
-      throw ArgumentError("Invalid account address.");
-    }
-    addr.serialize(serializer);
-    return;
+}
+
+void _serializeAddress(dynamic argVal, Serializer serializer) {
+  AccountAddress addr;
+  if (argVal is String || argVal is HexString) {
+    addr = AccountAddress.fromHex(argVal);
+  } else if (argVal is AccountAddress) {
+    addr = argVal;
+  } else {
+    throw ArgumentError("Invalid account address.");
   }
-  if (argType is TypeTagVector) {
-    // We are serializing a vector<u8>
-    if (argType.value is TypeTagU8) {
-      if (argVal is Uint8List) {
-        serializer.serializeBytes(argVal);
-        return;
-      }
+  addr.serialize(serializer);
+}
 
-      if (argVal is String) {
-        serializer.serializeStr(argVal);
-        return;
-      }
+void _serializeVector(dynamic argVal, TypeTagVector argType, Serializer serializer, int depth) {
+  if (argType.value is TypeTagU8) {
+    if (argVal is Uint8List) {
+      serializer.serializeBytes(argVal);
+      return;
     }
 
-    if (argVal is! Iterable) {
-      throw ArgumentError("Invalid vector args $argVal.");
+    if (argVal is HexString) {
+      serializer.serializeBytes(argVal.toUint8Array());
+      return;
     }
 
-    serializer.serializeU32AsUleb128(argVal.length);
-
-    argVal.forEach((arg) => serializeArg(arg, argType.value, serializer));
-    return;
+    if (argVal is String) {
+      serializer.serializeStr(argVal);
+      return;
+    }
   }
 
-  if (argType is TypeTagStruct) {
-    StructTag val = argType.value;
-    if ("${HexString.fromUint8Array(val.address.address).toShortString()}::${val.moduleName.value}::${val.name.value}" !=
-        "0x1::string::String") {
-      throw ArgumentError(
-          "The only supported struct arg is of type 0x1::string::String");
-    }
+  if (argVal is! Iterable) {
+    throw ArgumentError("Invalid vector args $argVal.");
+  }
+
+  serializer.serializeU32AsUleb128(argVal.length);
+
+  argVal.forEach((arg) => serializeArgInner(arg, argType.value, serializer, depth + 1));
+}
+
+void _serializeStruct(dynamic argVal, TypeTag argType, Serializer serializer, int depth) {
+  final tagStruct = (argType as TypeTagStruct).value;
+  final address = tagStruct.address;
+  final moduleName = tagStruct.moduleName;
+  final name = tagStruct.name;
+  final typeArgs = tagStruct.typeArgs;
+
+  final structType = "${HexString.fromUint8Array(address.address).toShortString()}::${moduleName.value}::${name.value}";
+  if (structType == "0x1::string::String") {
     assertType(argVal, ["string"]);
-
     serializer.serializeStr(argVal);
-    return;
+  } else if (structType == "0x1::object::Object") {
+    _serializeAddress(argVal, serializer);
+  } else if (structType == "0x1::option::Option") {
+    if (typeArgs.length != 1) {
+      throw ArgumentError("Option has the wrong number of type arguments ${typeArgs.length}");
+    }
+    _serializeOption(argVal, typeArgs[0], serializer, depth);
+  } else {
+    throw ArgumentError("Unsupported struct type in function argument");
   }
-  throw ArgumentError("Unsupported arg type.");
+}
+
+void _serializeOption(dynamic argVal, TypeTag argType, Serializer serializer, int depth) {
+  // For option, we determine if it's empty or not empty first
+  // empty option is nothing, we specifically check for undefined to prevent fuzzy matching
+  if (argVal == null) {
+    serializer.serializeU32AsUleb128(0);
+  } else {
+    // Something means we need an array of 1
+    serializer.serializeU32AsUleb128(1);
+
+    // Serialize the inner type arg, ensuring that depth is tracked
+    serializeArgInner(argVal, argType, serializer, depth + 1);
+  }
 }
 
 TransactionArgument argToTransactionArgument(dynamic argVal, TypeTag argType) {
