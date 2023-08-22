@@ -17,7 +17,7 @@ class FaucetClient {
     return FaucetClient._(endpoint, clientEndpoint: clientEndpoint, enableDebugLog: enableDebugLog);
   }
 
-  factory FaucetClient.fromClient(String endpoint, AptosClient client) {
+  factory FaucetClient.fromClient(String endpoint, AptosClient client, {bool enableDebugLog = false}) {
     return FaucetClient._(endpoint, client: client, enableDebugLog: client.enableDebugLog);
   }
 

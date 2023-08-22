@@ -95,6 +95,39 @@ void main() {
       expect(result is TypeTagAddress, true);
     });
 
+    test("TypeTagParser successfully parses complex Object types", () {
+      const typeTag = "0x1::object::Object<T>";
+      final parser = TypeTagParser(typeTag);
+      final result = parser.parseTypeTag();
+      expect(result is TypeTagAddress, true);
+
+      const typeTag2 = "0x1::object::Object<0x1::coin::Fun<A, B<C>>>";
+      final parser2 = TypeTagParser(typeTag2);
+      final result2 = parser2.parseTypeTag();
+      expect(result2 is TypeTagAddress, true);
+    });
+
+    test("TypeTagParser does not parse unofficial objects", () {
+      const typeTag = "0x12345::object::Object<T>";
+      final parser = TypeTagParser(typeTag);
+      expect(() => parser.parseTypeTag(), throwsArgumentError);
+    });
+
+    test("TypeTagParser successfully parses an Option type", () {
+      const typeTag = "0x1::option::Option<u8>";
+      final parser = TypeTagParser(typeTag);
+      final result = parser.parseTypeTag();
+
+      if (result is TypeTagStruct) {
+        final u8TypeTag = optionStructTag(TypeTagU8());
+        expect(result.value.address.hexAddress(), equals(u8TypeTag.address.hexAddress()));
+        expect(result.value.moduleName.value, equals(u8TypeTag.moduleName.value));
+        expect(result.value.name.value, equals(u8TypeTag.name.value));
+      } else {
+        fail("Not an option $result");
+      }
+    });
+
     test("TypeTagParser successfully parses a strcut with a nested Object type", () {
       const typeTag = "0x1::some_module::SomeResource<0x1::object::Object<T>>";
       final parser = TypeTagParser(typeTag);
@@ -106,7 +139,7 @@ void main() {
     });
 
     test("TypeTagParser successfully parses a strcut with a nested Object and Struct types", () {
-      const typeTag = "0x1::some_module::SomeResource<0x4::object::Object<T>, 0x1::some_module::SomeResource>";
+      const typeTag = "0x1::some_module::SomeResource<0x1::object::Object<T>, 0x1::some_module::SomeResource>";
       final parser = TypeTagParser(typeTag);
       final result = parser.parseTypeTag() as TypeTagStruct;
       expect(result.value.address.hexAddress(), ExpectedTypeTag.address);

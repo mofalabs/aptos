@@ -21,6 +21,14 @@ void assertType(dynamic val, List<dynamic> types, {String? message}) {
   }
 }
 
+StructTag optionStructTag(TypeTag typeArg) {
+  return StructTag(AccountAddress.fromHex("0x1"), Identifier("option"), Identifier("Option"), [typeArg]);
+}
+
+StructTag objectStructTag(TypeTag typeArg) {
+  return StructTag(AccountAddress.fromHex("0x1"), Identifier("object"), Identifier("Object"), [typeArg]);
+}
+
 void bail(String message) {
   throw ArgumentError(message);
 }
@@ -113,10 +121,28 @@ class TypeTagParser {
   late List<String> _typeTags = <String>[];
 
   void _consume(String targetToken) {
+    if (tokens.isEmpty) return;
     final token = tokens.removeAt(0);
     if (token.$2 != targetToken) {
       bail("Invalid type tag.");
     }
+  }
+
+  /// Consumes all of an unused generic field, mostly applicable to object
+  ///
+  /// Note: This is recursive.  it can be problematic if there's bad input
+  void _consumeWholeGeneric() {
+    _consume("<");
+    while (tokens.isNotEmpty && tokens[0].$2 != ">") {
+      // If it is nested, we have to consume another nested generic
+      if (tokens[0].$2 == "<") {
+        _consumeWholeGeneric();
+      }
+      if (tokens.isNotEmpty) {
+        tokens.removeAt(0);
+      }
+    }
+    _consume(">");
   }
 
   List<TypeTag> _parseCommaList(TokenValue endToken, bool allowTraillingComma) {
@@ -185,7 +211,7 @@ class TypeTagParser {
       return TypeTagVector(res);
     }
     if (tokenVal == "string") {
-      return TypeTagStruct(StructTag(AccountAddress.fromHex("0x1"), Identifier("string"), Identifier("String"), []));
+      return TypeTagStruct(stringStructTag);
     }
     if (tokenTy == "IDENT" &&
         (tokenVal.startsWith("0x") || tokenVal.startsWith("0X"))) {
@@ -203,12 +229,11 @@ class TypeTagParser {
         bail("Invalid type tag.");
       }
 
-      // an Object `0x1::object::Object<T>` doesn't hold a real type, it points to an address
-      // therefore, we parse it as an address and dont need to care/parse the `T` type
-      if (module == "object" && name == "Object") {
-        // to support a nested type tag, i.e 0x1::some_module::SomeResource<0x1::object::Object<T>>, we want
-        // to remove the `<T>` part from the tokens list so we don't parse it and can keep parse the type tag.
-        tokens = tokens.skip(3).toList();
+      // Objects can contain either concrete types e.g. 0x1::object::ObjectCore or generics e.g. T
+      // Neither matter as we can't do type checks, so just the address applies and we consume the entire generic.
+      // TODO: Support parsing structs that don't come from core code address
+      if (address == AccountAddress.CORE_CODE_ADDRESS && module == "object" && name == "Object") {
+        _consumeWholeGeneric();
         return TypeTagAddress();
       }
 

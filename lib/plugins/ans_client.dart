@@ -50,6 +50,10 @@ class AnsClient {
     }
   }
 
+  // static bool isValidANS(String ans) {
+
+  // }
+
   /// Returns the primary name for the given account [address].
   Future<String?> getPrimaryNameByAddress(String address) async {
     final ansResource = await aptosClient.getAccountResource(
