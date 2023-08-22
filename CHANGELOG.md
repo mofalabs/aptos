@@ -10,3 +10,8 @@
 ## 0.0.3
 
 * Add typeTag and multiSig
+
+## 0.0.4
+
+* Add query pending tokens
+* Add AnsClient
