@@ -20,7 +20,7 @@ class CoinBalance with _$CoinBalance{
   const factory CoinBalance({
     required int amount,
     required String coinType,
-    required CoinInfo coinInfo
+    CoinInfo? coinInfo
   }) = _CoinBalance;
 
   factory CoinBalance.fromJson(Map<String, dynamic> json) => _$CoinBalanceFromJson(json);

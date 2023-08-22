@@ -77,7 +77,7 @@ CoinBalance _$CoinBalanceFromJson(Map<String, dynamic> json) {
 mixin _$CoinBalance {
   int get amount => throw _privateConstructorUsedError;
   String get coinType => throw _privateConstructorUsedError;
-  CoinInfo get coinInfo => throw _privateConstructorUsedError;
+  CoinInfo? get coinInfo => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 }
@@ -87,7 +87,7 @@ mixin _$CoinBalance {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _$_CoinBalance implements _CoinBalance {
   const _$_CoinBalance(
-      {required this.amount, required this.coinType, required this.coinInfo});
+      {required this.amount, required this.coinType, this.coinInfo});
 
   factory _$_CoinBalance.fromJson(Map<String, dynamic> json) =>
       _$$_CoinBalanceFromJson(json);
@@ -97,7 +97,7 @@ class _$_CoinBalance implements _CoinBalance {
   @override
   final String coinType;
   @override
-  final CoinInfo coinInfo;
+  final CoinInfo? coinInfo;
 
   @override
   String toString() {
@@ -116,7 +116,7 @@ abstract class _CoinBalance implements CoinBalance {
   const factory _CoinBalance(
       {required final int amount,
       required final String coinType,
-      required final CoinInfo coinInfo}) = _$_CoinBalance;
+      final CoinInfo? coinInfo}) = _$_CoinBalance;
 
   factory _CoinBalance.fromJson(Map<String, dynamic> json) =
       _$_CoinBalance.fromJson;
@@ -126,7 +126,7 @@ abstract class _CoinBalance implements CoinBalance {
   @override
   String get coinType;
   @override
-  CoinInfo get coinInfo;
+  CoinInfo? get coinInfo;
 }
 
 CoinInfo _$CoinInfoFromJson(Map<String, dynamic> json) {

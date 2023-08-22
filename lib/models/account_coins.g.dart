@@ -22,7 +22,9 @@ _$_CoinBalance _$$_CoinBalanceFromJson(Map<String, dynamic> json) =>
     _$_CoinBalance(
       amount: json['amount'] as int,
       coinType: json['coin_type'] as String,
-      coinInfo: CoinInfo.fromJson(json['coin_info'] as Map<String, dynamic>),
+      coinInfo: json['coin_info'] == null
+          ? null
+          : CoinInfo.fromJson(json['coin_info'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$_CoinBalanceToJson(_$_CoinBalance instance) =>
