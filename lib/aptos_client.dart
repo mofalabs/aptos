@@ -171,7 +171,10 @@ class AptosClient with AptosClientInterface {
   Future<dynamic> submitSignedBCSTransaction(Uint8List signedTxn) async {
     final path = "$endpoint/transactions";
     final file = MultipartFile.fromBytes(signedTxn).finalize();
-    final options = Options(contentType: "application/x.aptos.signed_transaction+bcs");
+    final options = Options(
+      contentType: "application/x.aptos.signed_transaction+bcs",
+      headers: {"content-length": signedTxn.length},
+    );
     final resp = await http.post(path, data: file, options: options);
     return resp.data;
   }
@@ -191,8 +194,12 @@ class AptosClient with AptosClientInterface {
     };
     final path = "$endpoint/transactions/simulate";
     final file = MultipartFile.fromBytes(signedTxn).finalize();
-    final options = Options(contentType: "application/x.aptos.signed_transaction+bcs");
-    final resp = await http.post(path, data: file, options: options, queryParameters: params);
+    final options = Options(
+      contentType: "application/x.aptos.signed_transaction+bcs",
+      headers: {"content-length": signedTxn.length},
+    );
+    final resp = await http.post(path,
+        data: file, options: options, queryParameters: params);
     return resp.data;
   }
 
