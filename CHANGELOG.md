@@ -15,3 +15,7 @@
 
 * Add query pending tokens
 * Add AnsClient
+
+## 0.0.5
+
+* Fix bcs simulate
