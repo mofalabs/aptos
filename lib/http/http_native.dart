@@ -23,11 +23,6 @@ class Http extends DioForNative {
 
     options.headers["Content-Type"] = "application/json";
 
-    (transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
     interceptors.add(ApiInterceptor());
   }
 }
-
-_parseAndDecode(String response) => jsonDecode(response);
-
-parseJson(String text) => compute(_parseAndDecode, text);
