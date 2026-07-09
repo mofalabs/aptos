@@ -520,6 +520,13 @@ class G1Bytes extends Serializable {
 
   /// Decodes the compressed bytes into an affine BN254 G1 point.
   G1Point toProjectivePoint() => G1Point.fromAptosCompressed(data);
+
+  /// The point as snarkjs-style projective coordinate strings `[x, y, z]`.
+  List<String> toArray() {
+    final p = toProjectivePoint();
+    final (x, y) = p.toAffine();
+    return [x.toString(), y.toString(), p.isInfinity ? '0' : '1'];
+  }
 }
 
 /// Represents a 64-byte G2 element in a cryptographic context.
@@ -547,6 +554,18 @@ class G2Bytes extends Serializable {
 
   /// Decodes the compressed bytes into an affine BN254 G2 point.
   G2Point toProjectivePoint() => G2Point.fromAptosCompressed(data);
+
+  /// The point as snarkjs-style projective coordinate string pairs
+  /// `[[x.c0, x.c1], [y.c0, y.c1], [z.c0, z.c1]]`.
+  List<List<String>> toArray() {
+    final p = toProjectivePoint();
+    final (x, y) = p.toAffine();
+    return [
+      [x.c0.toString(), x.c1.toString()],
+      [y.c0.toString(), y.c1.toString()],
+      p.isInfinity ? ['0', '0'] : ['1', '0'],
+    ];
+  }
 }
 
 /// Represents a Groth16 zero-knowledge proof, consisting of three proof points
@@ -584,8 +603,14 @@ class Groth16Zkp extends Proof {
     return Groth16Zkp(a: a, b: b, c: c);
   }
 
-  // TODO: `toSnarkJsJson` depends on G1Bytes/G2Bytes.toArray which
-  // require BN254 curve arithmetic; not implemented.
+  /// The proof as a snarkjs-compatible JSON map.
+  Map<String, dynamic> toSnarkJsJson() => {
+        'protocol': 'groth16',
+        'curve': 'bn128',
+        'pi_a': a.toArray(),
+        'pi_b': b.toArray(),
+        'pi_c': c.toArray(),
+      };
 }
 
 /// Represents a Groth16 proof and statement, consisting of a Groth16 proof and
@@ -903,8 +928,17 @@ class Groth16VerificationKey {
     return pairingAb.eql(product);
   }
 
-  // TODO: `toSnarkJsJson` depends on G1Bytes/G2Bytes.toArray which
-  // require BN254 curve arithmetic; not implemented.
+  /// The verification key as a snarkjs-compatible JSON map.
+  Map<String, dynamic> toSnarkJsJson() => {
+        'protocol': 'groth16',
+        'curve': 'bn128',
+        'nPublic': 1,
+        'vk_alpha_1': alphaG1.toArray(),
+        'vk_beta_2': betaG2.toArray(),
+        'vk_gamma_2': gammaG2.toArray(),
+        'vk_delta_2': deltaG2.toArray(),
+        'IC': gammaAbcG1.map((g1) => g1.toArray()).toList(),
+      };
 }
 
 /// Parses a JWT and returns the 'iss', 'aud', and 'uid' values.

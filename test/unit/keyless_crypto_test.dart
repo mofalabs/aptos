@@ -263,6 +263,37 @@ void main() {
         false,
       );
     });
+
+    test('toSnarkJsJson exposes the verification key in snarkjs format', () {
+      final config = keylessTestConfig();
+      final j = config.verificationKey.toSnarkJsJson();
+      expect(j['protocol'], 'groth16');
+      expect(j['curve'], 'bn128');
+      expect(j['nPublic'], 1);
+      // G1 point => [x, y, "1"]; G2 point => [[..],[..],["1","0"]].
+      expect((j['vk_alpha_1'] as List).length, 3);
+      expect((j['vk_alpha_1'] as List)[2], '1');
+      expect((j['vk_gamma_2'] as List)[2], ['1', '0']);
+      expect((j['IC'] as List).length, 2);
+    });
+  });
+
+  group('Groth16Zkp', () {
+    test('toSnarkJsJson exposes the proof in snarkjs format', () {
+      final signature = KeylessSignature.deserialize(Deserializer(
+        Hex.fromHexInput(keylessTestObject.signatureHex).toUint8List(),
+      ));
+      final proof =
+          (signature.ephemeralCertificate.signature as ZeroKnowledgeSig)
+              .proof
+              .proof as Groth16Zkp;
+      final j = proof.toSnarkJsJson();
+      expect(j['protocol'], 'groth16');
+      expect((j['pi_a'] as List).length, 3); // G1: [x, y, z]
+      expect((j['pi_b'] as List).length, 3); // G2: 3 Fp2 pairs
+      expect((j['pi_b'] as List)[0], isA<List>());
+      expect((j['pi_c'] as List).length, 3);
+    });
   });
 
   group('G1Bytes/G2Bytes', () {
