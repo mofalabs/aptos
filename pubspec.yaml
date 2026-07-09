@@ -8,9 +8,12 @@ environment:
 
 dependencies:
   dio: ^5.4.0
-  ed25519_edwards: ^0.3.1
-  pointycastle: ^3.9.1
-  bip39: ^1.0.6
+  # Security-critical cryptography dependencies are pinned to exact versions
+  # for reproducibility and auditability. The BIP-39 mnemonic-to-seed routine
+  # is implemented inline (see lib/src/core/crypto/hd_key.dart) so the package
+  # no longer needs the `bip39` package, which pins pointycastle to 3.x.
+  ed25519_edwards: 0.3.1
+  pointycastle: 4.0.0
 
 dev_dependencies:
   lints: ^4.0.0

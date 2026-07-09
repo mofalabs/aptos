@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:pointycastle/digests/sha512.dart';
 import 'package:pointycastle/ecc/curves/secp256k1.dart';
+import 'package:pointycastle/key_derivators/api.dart' show Pbkdf2Parameters;
+import 'package:pointycastle/key_derivators/pbkdf2.dart';
 import 'package:pointycastle/macs/hmac.dart';
 import 'package:pointycastle/pointycastle.dart' show KeyParameter;
 
@@ -90,14 +91,23 @@ List<String> splitPath(String path) =>
     path.split('/').sublist(1).map((el) => el.replaceAll("'", '')).toList();
 
 /// Normalizes the mnemonic by removing extra whitespace and making it
-/// lowercase, then converts it to a BIP-39 seed.
+/// lowercase, then derives the BIP-39 seed.
+///
+/// The seed is `PBKDF2(HMAC-SHA512, password = mnemonic, salt = "mnemonic",
+/// c = 2048, dkLen = 64)`, per the BIP-39 specification.
 Uint8List mnemonicToSeed(String mnemonic) {
   final normalizedMnemonic = mnemonic
       .trim()
       .split(RegExp(r'\s+'))
       .map((part) => part.toLowerCase())
       .join(' ');
-  return bip39.mnemonicToSeed(normalizedMnemonic);
+  final derivator = PBKDF2KeyDerivator(HMac(SHA512Digest(), 128))
+    ..init(Pbkdf2Parameters(
+      Uint8List.fromList(utf8.encode('mnemonic')),
+      2048,
+      64,
+    ));
+  return derivator.process(Uint8List.fromList(utf8.encode(normalizedMnemonic)));
 }
 
 // ===
