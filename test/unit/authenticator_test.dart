@@ -77,8 +77,7 @@ void main() {
       final original = makeEd25519AccountAuthenticator();
 
       final bytes = serializeToBytes(original);
-      final restored =
-          AccountAuthenticator.deserialize(Deserializer(bytes));
+      final restored = AccountAuthenticator.deserialize(Deserializer(bytes));
 
       expect(restored, isA<AccountAuthenticatorEd25519>());
       expect(restored.isEd25519(), isTrue);
@@ -97,7 +96,9 @@ void main() {
         threshold: 1,
       );
       final signature = MultiEd25519Signature(
-        signatures: [k1.sign(Uint8List.fromList([1, 2, 3]))],
+        signatures: [
+          k1.sign(Uint8List.fromList([1, 2, 3]))
+        ],
         bitmap: [0],
       );
       final original = AccountAuthenticatorMultiEd25519(publicKey, signature);
@@ -234,7 +235,9 @@ void main() {
         threshold: 1,
       );
       final signature = MultiEd25519Signature(
-        signatures: [k2.sign(Uint8List.fromList([4, 5, 6]))],
+        signatures: [
+          k2.sign(Uint8List.fromList([4, 5, 6]))
+        ],
         bitmap: [1],
       );
       final original =

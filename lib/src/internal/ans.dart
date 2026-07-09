@@ -557,8 +557,7 @@ AnsNamesResult _parseNamesResult({
             gracePeriod: gracePeriod,
           ))
       .toList();
-  final aggregate =
-      (data['current_aptos_names_aggregate'] as Map)['aggregate'];
+  final aggregate = (data['current_aptos_names_aggregate'] as Map)['aggregate'];
   final total = aggregate is Map ? (aggregate['count'] as int? ?? 0) : 0;
   return (names: names, total: total);
 }

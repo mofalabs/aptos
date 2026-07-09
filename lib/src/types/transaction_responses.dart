@@ -711,8 +711,8 @@ class ScriptWriteSet extends WriteSet {
   factory ScriptWriteSet.fromJson(Map<String, dynamic> json) => ScriptWriteSet(
         type: json['type'] as String,
         executeAs: json['execute_as'] as String,
-        script:
-            ScriptPayloadResponse.fromJson(json['script'] as Map<String, dynamic>),
+        script: ScriptPayloadResponse.fromJson(
+            json['script'] as Map<String, dynamic>),
       );
 
   @override
@@ -921,8 +921,10 @@ class TransactionSingleSenderSignature extends TransactionSignature {
           Map<String, dynamic> json) =>
       TransactionSingleSenderSignature(
         type: json['type'] as String,
-        publicKey: TypedValue.fromJson(json['public_key'] as Map<String, dynamic>),
-        signature: TypedValue.fromJson(json['signature'] as Map<String, dynamic>),
+        publicKey:
+            TypedValue.fromJson(json['public_key'] as Map<String, dynamic>),
+        signature:
+            TypedValue.fromJson(json['signature'] as Map<String, dynamic>),
       );
 
   @override
@@ -993,7 +995,8 @@ class TransactionMultiAgentSignature extends TransactionSignature {
   factory TransactionMultiAgentSignature.fromJson(Map<String, dynamic> json) =>
       TransactionMultiAgentSignature(
         type: json['type'] as String,
-        sender: AccountSignature.fromJson(json['sender'] as Map<String, dynamic>),
+        sender:
+            AccountSignature.fromJson(json['sender'] as Map<String, dynamic>),
         secondarySignerAddresses:
             (json['secondary_signer_addresses'] as List).cast<String>(),
         secondarySigners: (json['secondary_signers'] as List)
@@ -1034,7 +1037,8 @@ class TransactionFeePayerSignature extends TransactionSignature {
   factory TransactionFeePayerSignature.fromJson(Map<String, dynamic> json) =>
       TransactionFeePayerSignature(
         type: json['type'] as String,
-        sender: AccountSignature.fromJson(json['sender'] as Map<String, dynamic>),
+        sender:
+            AccountSignature.fromJson(json['sender'] as Map<String, dynamic>),
         secondarySignerAddresses:
             (json['secondary_signer_addresses'] as List).cast<String>(),
         secondarySigners: (json['secondary_signers'] as List)

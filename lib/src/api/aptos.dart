@@ -1101,15 +1101,14 @@ class Aptos {
       );
 
   /// See [FungibleAsset.getFungibleAssetMetadataByCreatorAddress].
-  Future<List<FungibleAssetMetadata>>
-      getFungibleAssetMetadataByCreatorAddress({
+  Future<List<FungibleAssetMetadata>> getFungibleAssetMetadataByCreatorAddress({
     required AccountAddressInput creatorAddress,
     AnyNumber? minimumLedgerVersion,
   }) =>
-          fungibleAsset.getFungibleAssetMetadataByCreatorAddress(
-            creatorAddress: creatorAddress,
-            minimumLedgerVersion: minimumLedgerVersion,
-          );
+      fungibleAsset.getFungibleAssetMetadataByCreatorAddress(
+        creatorAddress: creatorAddress,
+        minimumLedgerVersion: minimumLedgerVersion,
+      );
 
   /// See [FungibleAsset.getFungibleAssetActivities].
   Future<List<FungibleAssetActivity>> getFungibleAssetActivities({

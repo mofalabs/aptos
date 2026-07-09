@@ -24,8 +24,7 @@ class FakeClient implements Client {
   FakeClient(this.responses);
 
   @override
-  Future<ClientResponse<dynamic>> provider(
-      ClientRequest requestOptions) async {
+  Future<ClientResponse<dynamic>> provider(ClientRequest requestOptions) async {
     requests.add(requestOptions);
     final response = responses[_index];
     if (_index < responses.length - 1) _index += 1;

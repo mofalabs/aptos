@@ -62,10 +62,10 @@ class Serializer {
       return;
     }
 
-    final growthSize = (_buffer.length * 1.5).floor() >
-            requiredSize + _minBufferGrowth
-        ? (_buffer.length * 1.5).floor()
-        : requiredSize + _minBufferGrowth;
+    final growthSize =
+        (_buffer.length * 1.5).floor() > requiredSize + _minBufferGrowth
+            ? (_buffer.length * 1.5).floor()
+            : requiredSize + _minBufferGrowth;
 
     final newBuffer = Uint8List(growthSize);
     newBuffer.setRange(0, _offset, _buffer);
@@ -233,8 +233,7 @@ class Serializer {
   void serializeI64(BigInt value) {
     validateBigIntInRange(value, minI64BigInt, maxI64BigInt);
     // Convert to unsigned representation using two's complement
-    final unsigned =
-        value.isNegative ? (BigInt.one << 64) + value : value;
+    final unsigned = value.isNegative ? (BigInt.one << 64) + value : value;
     final low = unsigned & BigInt.from(maxU32Number);
     final high = unsigned >> 32;
 
@@ -247,8 +246,7 @@ class Serializer {
   void serializeI128(BigInt value) {
     validateBigIntInRange(value, minI128BigInt, maxI128BigInt);
     // Convert to unsigned representation using two's complement
-    final unsigned =
-        value.isNegative ? (BigInt.one << 128) + value : value;
+    final unsigned = value.isNegative ? (BigInt.one << 128) + value : value;
     final low = unsigned & maxU64BigInt;
     final high = unsigned >> 64;
 
@@ -261,8 +259,7 @@ class Serializer {
   void serializeI256(BigInt value) {
     validateBigIntInRange(value, minI256BigInt, maxI256BigInt);
     // Convert to unsigned representation using two's complement
-    final unsigned =
-        value.isNegative ? (BigInt.one << 256) + value : value;
+    final unsigned = value.isNegative ? (BigInt.one << 256) + value : value;
     final low = unsigned & maxU128BigInt;
     final high = unsigned >> 128;
 

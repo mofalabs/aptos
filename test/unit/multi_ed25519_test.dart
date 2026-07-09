@@ -37,9 +37,8 @@ const multiEd25519AuthKey =
 
 MultiEd25519PublicKey buildTestPublicKey({int? threshold}) {
   return MultiEd25519PublicKey(
-    publicKeys: multiEd25519PkTestObject.publicKeys
-        .map(Ed25519PublicKey.new)
-        .toList(),
+    publicKeys:
+        multiEd25519PkTestObject.publicKeys.map(Ed25519PublicKey.new).toList(),
     threshold: threshold ?? multiEd25519PkTestObject.threshold,
   );
 }

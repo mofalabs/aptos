@@ -62,8 +62,8 @@ Future<AptosResponse<dynamic>> postAptosFullNode({
     body: body,
     overrides: AptosRequestOverrides(
       apiKey: overrides?.apiKey ?? aptosConfig.clientConfig.apiKey,
-      withCredentials:
-          overrides?.withCredentials ?? aptosConfig.clientConfig.withCredentials,
+      withCredentials: overrides?.withCredentials ??
+          aptosConfig.clientConfig.withCredentials,
       headers: {
         ...?aptosConfig.clientConfig.headers,
         ...?aptosConfig.fullnodeConfig.headers,
@@ -96,8 +96,8 @@ Future<AptosResponse<dynamic>> postAptosIndexer({
     body: body,
     overrides: AptosRequestOverrides(
       apiKey: overrides?.apiKey ?? aptosConfig.clientConfig.apiKey,
-      withCredentials:
-          overrides?.withCredentials ?? aptosConfig.clientConfig.withCredentials,
+      withCredentials: overrides?.withCredentials ??
+          aptosConfig.clientConfig.withCredentials,
       headers: {
         ...?aptosConfig.clientConfig.headers,
         ...?aptosConfig.indexerConfig.headers,
@@ -134,8 +134,8 @@ Future<AptosResponse<dynamic>> postAptosFaucet({
     body: body,
     overrides: AptosRequestOverrides(
       // Faucet does not support API_KEY.
-      withCredentials:
-          overrides?.withCredentials ?? aptosConfig.clientConfig.withCredentials,
+      withCredentials: overrides?.withCredentials ??
+          aptosConfig.clientConfig.withCredentials,
       headers: {
         ...?aptosConfig.clientConfig.headers,
         ...?aptosConfig.faucetConfig.headers,

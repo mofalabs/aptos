@@ -349,7 +349,8 @@ void main() {
     test('struct tag helper functions', () {
       expect(TypeTagStruct(aptosCoinStructTag()).toString(),
           '0x1::aptos_coin::AptosCoin');
-      expect(TypeTagStruct(stringStructTag()).toString(), '0x1::string::String');
+      expect(
+          TypeTagStruct(stringStructTag()).toString(), '0x1::string::String');
       expect(TypeTagStruct(optionStructTag(TypeTagU8())).toString(),
           '0x1::option::Option<u8>');
       expect(TypeTagStruct(objectStructTag(TypeTagU8())).toString(),

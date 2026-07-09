@@ -1,7 +1,17 @@
 name: aptos
-description: Aptos Dart SDK — a pure-Dart client library for the Aptos blockchain.
+description: >-
+  A pure-Dart SDK for the Aptos blockchain: accounts, keys, transactions,
+  keyless, and indexer queries. Works on Dart VM, Flutter, and the web.
 version: 1.0.0
-repository: https://github.com/0xmove/aptos
+repository: https://github.com/mofalabs/aptos
+homepage: https://github.com/mofalabs/aptos
+issue_tracker: https://github.com/mofalabs/aptos/issues
+topics:
+  - aptos
+  - blockchain
+  - web3
+  - cryptography
+  - wallet
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

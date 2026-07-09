@@ -41,10 +41,8 @@ const ed25519 = (
       'ed25519-priv-0xc5338cd251c22daa8c9c9cc94f498cc8a5c7e1d2e75287a5dda91096fe64efa5',
   publicKey:
       '0xde19e5d1880cac87d57484ce9ed2e84cf0f9599f12e7cc3a52e4e7657a763f2c',
-  authKey:
-      '0x978c213990c4833df71548df7ce49d54c759d6b6d932de22b24d56060b7af2aa',
-  address:
-      '0x978c213990c4833df71548df7ce49d54c759d6b6d932de22b24d56060b7af2aa',
+  authKey: '0x978c213990c4833df71548df7ce49d54c759d6b6d932de22b24d56060b7af2aa',
+  address: '0x978c213990c4833df71548df7ce49d54c759d6b6d932de22b24d56060b7af2aa',
   messageEncoded: '68656c6c6f20776f726c64',
   stringMessage: 'hello world',
   signatureHex:
@@ -56,10 +54,8 @@ const secp256k1TestObject = (
       'secp256k1-priv-0xd107155adf816a0a94c6db3c9489c13ad8a1eda7ada2e558ba3bfa47c020347e',
   publicKey:
       '0x04acdd16651b839c24665b7e2033b55225f384554949fef46c397b5275f37f6ee95554d70fb5d9f93c5831ebf695c7206e7477ce708f03ae9bb2862dc6c9e033ea',
-  address:
-      '0x5792c985bc96f436270bd2a3c692210b09c7febb8889345ceefdbae4bacfe498',
-  authKey:
-      '0x5792c985bc96f436270bd2a3c692210b09c7febb8889345ceefdbae4bacfe498',
+  address: '0x5792c985bc96f436270bd2a3c692210b09c7febb8889345ceefdbae4bacfe498',
+  authKey: '0x5792c985bc96f436270bd2a3c692210b09c7febb8889345ceefdbae4bacfe498',
   messageEncoded: '68656c6c6f20776f726c64',
   stringMessage: 'hello world',
   signatureHex:
@@ -71,10 +67,8 @@ const singleSignerED25519 = (
       '0xe425451a5dc888ac871976c3c724dec6118910e7d11d344b4b07a22cd94e8c2e',
   privateKey:
       'ed25519-priv-0xf508cbef4e0fe463204aab724a90791c9a9dbe60a53b4978bbddbc712b55f2fd',
-  address:
-      '0x5bdf77d5bf826c8c04273d4e7323f7bc4a85ee7ee34b37bd7458b7aed3639dd3',
-  authKey:
-      '0x5bdf77d5bf826c8c04273d4e7323f7bc4a85ee7ee34b37bd7458b7aed3639dd3',
+  address: '0x5bdf77d5bf826c8c04273d4e7323f7bc4a85ee7ee34b37bd7458b7aed3639dd3',
+  authKey: '0x5bdf77d5bf826c8c04273d4e7323f7bc4a85ee7ee34b37bd7458b7aed3639dd3',
   messageEncoded: '68656c6c6f20776f726c64',
   signatureHex:
       '0xc6f50f4e0cb1961f6f7b28be1a1d80e3ece240dfbb7bd8a8b03cc26bfd144fc176295d7c322c5bf3d9669d2ad49d8bdbfe77254b4a6393d8c49da04b40cee600',
@@ -85,10 +79,8 @@ const singleSignerSecp256r1 = (
       '0x046c761075b12769e9d0cc9995706275352e1bfb8e0085420625aa9cf849e6d62c2c140f0b3b7c53faf78c16648343966d769ccbc8f2fd14bb2c38f6befb91c77b',
   privateKey:
       'secp256r1-priv-0xa814fde3edc91aedf78c0e75bacbcf5e479cd4b27746961cfa1dc8e9b0e4481c',
-  address:
-      '0x9a5f9a9614e34f77295791db551e7072ff48d9801b19be97b38db1c05dfde817',
-  authKey:
-      '0x9a5f9a9614e34f77295791db551e7072ff48d9801b19be97b38db1c05dfde817',
+  address: '0x9a5f9a9614e34f77295791db551e7072ff48d9801b19be97b38db1c05dfde817',
+  authKey: '0x9a5f9a9614e34f77295791db551e7072ff48d9801b19be97b38db1c05dfde817',
   messageEncoded: '68656c6c6f20776f726c64',
   signatureHex:
       '0x4fc4bc5f8ed851aec68c64499fa56360b11ea0c8b73fe3f93279e97b700582e55cb9e2ada7ae38951c2bc33d7755529fffc6201504180405c7960715ae0d4ff5',
@@ -228,8 +220,7 @@ void main() {
     });
 
     group('fromPrivateKey', () {
-      test('derives the correct account from a legacy ed25519 private key',
-          () {
+      test('derives the correct account from a legacy ed25519 private key', () {
         final privateKey = Ed25519PrivateKey(ed25519.privateKey);
         final newAccount = Account.fromPrivateKey(privateKey: privateKey);
         expect(newAccount, isA<Ed25519Account>());
@@ -355,15 +346,13 @@ void main() {
           'signs a message with single signer Secp256k1 scheme and verifies '
           'successfully', () {
         final privateKey = Secp256k1PrivateKey(secp256k1TestObject.privateKey);
-        final accountAddress =
-            AccountAddress.from(secp256k1TestObject.address);
+        final accountAddress = AccountAddress.from(secp256k1TestObject.address);
         final secpAccount = Account.fromPrivateKey(
           privateKey: privateKey,
           address: accountAddress,
         );
         // Verifies an encoded message.
-        final signature1 =
-            secpAccount.sign(secp256k1TestObject.messageEncoded);
+        final signature1 = secpAccount.sign(secp256k1TestObject.messageEncoded);
         signature1 as AnySignature;
         expect(
           signature1.signature.toString(),
@@ -396,15 +385,13 @@ void main() {
           'signs a message with single signer ed25519 scheme and verifies '
           'successfully', () {
         final privateKey = Ed25519PrivateKey(singleSignerED25519.privateKey);
-        final accountAddress =
-            AccountAddress.from(singleSignerED25519.address);
+        final accountAddress = AccountAddress.from(singleSignerED25519.address);
         final edAccount = Account.fromPrivateKey(
           privateKey: privateKey,
           address: accountAddress,
           legacy: false,
         );
-        final signature =
-            edAccount.sign(singleSignerED25519.messageEncoded);
+        final signature = edAccount.sign(singleSignerED25519.messageEncoded);
         signature as AnySignature;
         expect(
           signature.signature.toString(),
@@ -434,8 +421,7 @@ void main() {
         );
         expect(authKey.toString(), singleSignerSecp256r1.authKey);
         expect(publicKey.toString(), singleSignerSecp256r1.publicKey);
-        final signature =
-            privateKey.sign(singleSignerSecp256r1.messageEncoded);
+        final signature = privateKey.sign(singleSignerSecp256r1.messageEncoded);
         expect(signature.toString(), singleSignerSecp256r1.signatureHex);
         expect(
           publicKey.verifySignature(
@@ -557,7 +543,8 @@ void main() {
           );
         });
 
-        test('constructing a multi key account with insufficient signers '
+        test(
+            'constructing a multi key account with insufficient signers '
             'fails', () {
           expect(
             () => MultiKeyAccount(
@@ -568,8 +555,7 @@ void main() {
           );
         });
 
-        test('2-of-3 multikey account signs and verifies (mixed signers)',
-            () {
+        test('2-of-3 multikey account signs and verifies (mixed signers)', () {
           final edAccount = Account.generate();
           final singleKeyEd = Account.generate(
             scheme: SigningSchemeInput.ed25519,
@@ -658,8 +644,7 @@ void main() {
     });
 
     group('transaction signing', () {
-      test('Ed25519Account signs a transaction and verifies successfully',
-          () {
+      test('Ed25519Account signs a transaction and verifies successfully', () {
         final account = Ed25519Account.generate();
         final transaction = makeSimpleTransaction(account.accountAddress);
         final signature = account.signTransaction(transaction);
@@ -673,14 +658,15 @@ void main() {
         final authenticator =
             account.signTransactionWithAuthenticator(transaction);
         expect(authenticator, isA<AccountAuthenticatorEd25519>());
-        expect(authenticator.publicKey.toString(), account.publicKey.toString());
+        expect(
+            authenticator.publicKey.toString(), account.publicKey.toString());
         expect(authenticator.signature.toString(), signature.toString());
       });
 
       test('SingleKeyAccount signs a transaction and verifies successfully',
           () {
-        final account =
-            SingleKeyAccount.generate(scheme: SigningSchemeInput.secp256k1Ecdsa);
+        final account = SingleKeyAccount.generate(
+            scheme: SigningSchemeInput.secp256k1Ecdsa);
         final transaction = makeSimpleTransaction(account.accountAddress);
         final signature = account.signTransaction(transaction);
         expect(
@@ -719,8 +705,7 @@ void main() {
         expect(authenticator, isA<AccountAuthenticatorMultiEd25519>());
       });
 
-      test('MultiKeyAccount signs a transaction and verifies successfully',
-          () {
+      test('MultiKeyAccount signs a transaction and verifies successfully', () {
         final signer1 = Account.generate(
           scheme: SigningSchemeInput.ed25519,
           legacy: false,
@@ -1049,8 +1034,7 @@ void main() {
         final ed25519Account = Ed25519Account.generate();
         final abstracted =
             AbstractedAccount.fromPermissionedSigner(signer: ed25519Account);
-        final transaction =
-            makeSimpleTransaction(abstracted.accountAddress);
+        final transaction = makeSimpleTransaction(abstracted.accountAddress);
 
         final authenticator =
             abstracted.signTransactionWithAuthenticator(transaction);
@@ -1160,8 +1144,8 @@ void main() {
         expect(authenticator.accountIdentity, abstractPublicKey);
         // DAA uses the raw signature value (not BCS-encoded bytes).
         expect(authenticator.abstractionSignature, signerOutput);
-        final expectedDigest = SHA3Digest(256)
-            .process(Hex.fromHexInput(message).toUint8List());
+        final expectedDigest =
+            SHA3Digest(256).process(Hex.fromHexInput(message).toUint8List());
         expect(
           authenticator.signingMessageDigest.toUint8List(),
           expectedDigest,

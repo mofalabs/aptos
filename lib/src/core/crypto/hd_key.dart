@@ -20,7 +20,8 @@ class DerivedKeys {
 final RegExp aptosHardenedRegex =
     RegExp(r"^m\/44'\/637'\/[0-9]+'\/[0-9]+'\/[0-9]+'?$");
 
-final RegExp aptosBip44Regex = RegExp(r"^m\/44'\/637'\/[0-9]+'\/[0-9]+\/[0-9]+$");
+final RegExp aptosBip44Regex =
+    RegExp(r"^m\/44'\/637'\/[0-9]+'\/[0-9]+\/[0-9]+$");
 
 /// Supported key types and their associated seeds.
 enum KeyType {
@@ -156,8 +157,8 @@ Uint8List bip32DerivePrivateKey(Uint8List seed, String path) {
   final segments = path.split('/').sublist(1);
   for (final segment in segments) {
     final hardened = segment.endsWith("'");
-    final index =
-        int.parse(hardened ? segment.substring(0, segment.length - 1) : segment);
+    final index = int.parse(
+        hardened ? segment.substring(0, segment.length - 1) : segment);
     final childIndex = hardened ? index + hardenedOffset : index;
 
     final Uint8List data;

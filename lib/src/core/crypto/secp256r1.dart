@@ -142,7 +142,8 @@ class Secp256r1PublicKey extends PublicKey {
   /// input; both are unambiguous. See [convertSigningMessage] for the full
   /// legacy rule.
   @override
-  bool verifySignature({required HexInput message, required Signature signature}) {
+  bool verifySignature(
+      {required HexInput message, required Signature signature}) {
     final messageToVerify = convertSigningMessage(message);
     final msgBytes = Hex.fromHexInput(messageToVerify).toUint8List();
     return verifyBytes(message: msgBytes, signature: signature);

@@ -14,7 +14,8 @@ import 'signature.dart';
 abstract class PublicKey extends Serializable {
   /// Verifies that the private key associated with this public key signed the
   /// [message] with the given [signature].
-  bool verifySignature({required HexInput message, required Signature signature});
+  bool verifySignature(
+      {required HexInput message, required Signature signature});
 
   /// Verifies signature with the public key and makes any network calls
   /// required to get state required to verify the signature.

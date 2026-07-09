@@ -107,7 +107,8 @@ void main() {
       );
     });
 
-    test('SingleKey Ed25519 Account should serialize and deserialize '
+    test(
+        'SingleKey Ed25519 Account should serialize and deserialize '
         'properly', () {
       testAccountSerializationDeserialization(singleSignerEdAccount);
       final accountAsHex = AccountUtils.toHexString(singleSignerEdAccount);
@@ -119,7 +120,8 @@ void main() {
       );
     });
 
-    test('SingleKey Secp256k1 Account should serialize and deserialize '
+    test(
+        'SingleKey Secp256k1 Account should serialize and deserialize '
         'properly', () {
       testAccountSerializationDeserialization(secp256k1Account);
       final accountAsHex = AccountUtils.toHexString(secp256k1Account);
@@ -150,7 +152,8 @@ void main() {
       );
     });
 
-    test('Keyless Account with verification key should serialize and '
+    test(
+        'Keyless Account with verification key should serialize and '
         'deserialize properly', () {
       testAccountSerializationDeserialization(
         keylessAccountWithVerificationKey,
@@ -161,7 +164,8 @@ void main() {
       expect(restored.verificationKeyHash, verificationKey.hash());
     });
 
-    test('FederatedKeyless Account should serialize and deserialize '
+    test(
+        'FederatedKeyless Account should serialize and deserialize '
         'properly', () {
       testAccountSerializationDeserialization(federatedKeylessAccount);
       final accountAsHex = AccountUtils.toHexString(federatedKeylessAccount);
@@ -192,7 +196,8 @@ void main() {
       expect(restored.signerIndicies, multiKeyAccount.signerIndicies);
     });
 
-    test('MultiKey Account with backup signer should serialize and '
+    test(
+        'MultiKey Account with backup signer should serialize and '
         'deserialize properly', () {
       testAccountSerializationDeserialization(keylessAccountWithBackupSigner);
       final accountAsHex =

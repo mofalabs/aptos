@@ -149,8 +149,11 @@ class TransactionWorker {
 
   /// Transaction payloads waiting to be generated and signed.
   final AsyncQueue<
-          (InputGenerateTransactionPayloadData, InputGenerateTransactionOptions?)>
-      transactionsQueue = AsyncQueue<
+          (
+            InputGenerateTransactionPayloadData,
+            InputGenerateTransactionOptions?
+          )> transactionsQueue =
+      AsyncQueue<
           (
             InputGenerateTransactionPayloadData,
             InputGenerateTransactionOptions?
@@ -312,8 +315,7 @@ class TransactionWorker {
             _emit(
               TransactionWorkerEventsEnum.transactionSent,
               SuccessEventData(
-                message:
-                    'transaction hash ${value.hash} has been committed to '
+                message: 'transaction hash ${value.hash} has been committed to '
                     'chain',
                 transactionHash: value.hash,
               ),

@@ -137,7 +137,8 @@ class Secp256k1PublicKey extends PublicKey {
   /// input; both are unambiguous. See [convertSigningMessage] for the full
   /// legacy rule.
   @override
-  bool verifySignature({required HexInput message, required Signature signature}) {
+  bool verifySignature(
+      {required HexInput message, required Signature signature}) {
     if (signature is! Secp256k1Signature) return false;
     final messageToVerify = convertSigningMessage(message);
     final messageBytes = Hex.fromHexInput(messageToVerify).toUint8List();
@@ -293,8 +294,7 @@ class Secp256k1PrivateKey extends Serializable implements PrivateKey {
     final d = _bytesToBigInt(_key.toUint8List());
     final signer = ECDSASigner(null, HMac(SHA256Digest(), 64))
       ..init(true, PrivateKeyParameter(ECPrivateKey(d, _domain)));
-    final signature =
-        signer.generateSignature(messageHashBytes) as ECSignature;
+    final signature = signer.generateSignature(messageHashBytes) as ECSignature;
     var s = signature.s;
     // Low-S normalization (secp256k1 half-order).
     if (s > (_domain.n >> 1)) {

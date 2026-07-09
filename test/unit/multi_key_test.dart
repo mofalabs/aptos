@@ -86,8 +86,8 @@ void main() {
       final deserialized =
           MultiKey.deserialize(Deserializer(multiKey.toUint8Array()));
       expect(deserialized.bcsToBytes(), equals(multiKey.bcsToBytes()));
-      expect(deserialized.signaturesRequired,
-          equals(multiKey.signaturesRequired));
+      expect(
+          deserialized.signaturesRequired, equals(multiKey.signaturesRequired));
       expect(deserialized.publicKeys.length, equals(3));
       expect(deserialized.publicKeys[0].variant,
           equals(AnyPublicKeyVariant.secp256k1));
@@ -95,7 +95,8 @@ void main() {
           equals(AnyPublicKeyVariant.ed25519));
     });
 
-    test('should throw when signatures in bitmap greater than public keys amount',
+    test(
+        'should throw when signatures in bitmap greater than public keys amount',
         () {
       final multiKey = buildTestMultiKey();
       expect(
@@ -195,7 +196,8 @@ void main() {
 
     test('returns true for a valid 2-of-3 signature', () {
       expect(
-        multiKey.verifySignature(message: message, signature: signWith(message)),
+        multiKey.verifySignature(
+            message: message, signature: signWith(message)),
         isTrue,
       );
     });
@@ -266,7 +268,8 @@ void main() {
         multiKey.verifySignatureAsync(
           message: message,
           signature: wrongSignature,
-          options: const VerifySignatureAsyncOptions(throwErrorWithReason: true),
+          options:
+              const VerifySignatureAsyncOptions(throwErrorWithReason: true),
         ),
         throwsA(isA<ArgumentError>().having(
           (e) => e.message,

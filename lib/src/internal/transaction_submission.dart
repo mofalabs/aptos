@@ -209,8 +209,7 @@ Future<List<UserTransactionResponse>> simulateTransaction({
   // max_gas_amount is used.
   if ((options?.estimateMaxGasAmount ?? false) &&
       data.isNotEmpty &&
-      data.first.vmStatus ==
-          'MAX_GAS_UNITS_BELOW_MIN_TRANSACTION_GAS_UNITS') {
+      data.first.vmStatus == 'MAX_GAS_UNITS_BELOW_MIN_TRANSACTION_GAS_UNITS') {
     return post(estimateMaxGasAmount: false);
   }
 

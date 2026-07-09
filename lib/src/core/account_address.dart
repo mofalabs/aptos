@@ -137,9 +137,8 @@ class AccountAddress extends Serializable implements TransactionArgument {
   /// Returns a lossless short string representation of the address by trimming
   /// leading zeros. If the address consists of all zeros, returns "0".
   String toStringShortWithoutPrefix() {
-    final hex = Hex(data)
-        .toStringWithoutPrefix()
-        .replaceFirst(RegExp(r'^0+'), '');
+    final hex =
+        Hex(data).toStringWithoutPrefix().replaceFirst(RegExp(r'^0+'), '');
     return hex.isEmpty ? '0' : hex;
   }
 
@@ -389,8 +388,7 @@ class AccountAddress extends Serializable implements TransactionArgument {
   }
 
   @override
-  bool operator ==(Object other) =>
-      other is AccountAddress && equals(other);
+  bool operator ==(Object other) => other is AccountAddress && equals(other);
 
   @override
   int get hashCode => toStringLong().hashCode;

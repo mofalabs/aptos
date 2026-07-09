@@ -152,8 +152,8 @@ void main() {
       final module = MoveModuleBytecode.fromJson(fixture);
       final abi = module.abi!;
       expect(abi.name, 'aptos_account');
-      expect(abi.exposedFunctions.first.visibility,
-          MoveFunctionVisibility.public);
+      expect(
+          abi.exposedFunctions.first.visibility, MoveFunctionVisibility.public);
       expect(abi.exposedFunctions.first.isEntry, isTrue);
       expect(abi.exposedFunctions[1].genericTypeParams.first.constraints,
           [MoveAbility.key]);
@@ -281,7 +281,8 @@ void main() {
               '0x0619dc29a0aac8fa146714058e8dd6d2d0f3bdf5f6331907bf91f3acd81e6935',
           'value': '0x712d69a4c9d51d9e28e9c00000000000',
           'data': {
-            'key': '0x619dc29a0aac8fa146714058e8dd6d2d0f3bdf5f6331907bf91f3acd81e6935',
+            'key':
+                '0x619dc29a0aac8fa146714058e8dd6d2d0f3bdf5f6331907bf91f3acd81e6935',
             'key_type': 'address',
             'value': '58389060450029130914457',
             'value_type': 'u128',
@@ -529,8 +530,8 @@ void main() {
 
       final writeSet = genesis.payload.writeSet as DirectWriteSet;
       expect(writeSet.changes.single, isA<WriteSetChangeWriteResource>());
-      expect(writeSet.events.single.type,
-          '0x1::reconfiguration::NewEpochEvent');
+      expect(
+          writeSet.events.single.type, '0x1::reconfiguration::NewEpochEvent');
 
       final writeModule = genesis.changes.single as WriteSetChangeWriteModule;
       expect(writeModule.data.abi!.name, 'acl');
@@ -596,8 +597,8 @@ void main() {
 
       final block = Block.fromJson(blockFixture);
       expect(block.blockHeight, '244134793');
-      expect(block.transactions!.single,
-          isA<BlockMetadataTransactionResponse>());
+      expect(
+          block.transactions!.single, isA<BlockMetadataTransactionResponse>());
       expect(block.toJson(), equals(blockFixture));
     });
 
@@ -669,8 +670,8 @@ void main() {
         'timestamp': '1719522395048723',
       });
 
-      final response = TransactionResponse.fromJson(fixture)
-          as ValidatorTransactionResponse;
+      final response =
+          TransactionResponse.fromJson(fixture) as ValidatorTransactionResponse;
       expect(response.type, TransactionResponseType.validator);
       expect(response.events.single.type, '0x1::jwks::ObservedJWKsUpdated');
       expect(response.toJson(), equals(fixture));
@@ -741,8 +742,8 @@ void main() {
         'arguments': ['100', true],
       });
 
-      final payload = TransactionPayloadResponse.fromJson(fixture)
-          as ScriptPayloadResponse;
+      final payload =
+          TransactionPayloadResponse.fromJson(fixture) as ScriptPayloadResponse;
       expect(payload.code.bytecode, '0xa11ceb0b060000000701');
       expect(payload.code.abi, isNull);
       expect(payload.toJson(), equals(fixture));
@@ -763,8 +764,8 @@ void main() {
 
       final payload = TransactionPayloadResponse.fromJson(fixture)
           as MultisigPayloadResponse;
-      expect(payload.transactionPayload!.function,
-          '0x1::aptos_account::transfer');
+      expect(
+          payload.transactionPayload!.function, '0x1::aptos_account::transfer');
       expect(payload.toJson(), equals(fixture));
     });
 
@@ -818,7 +819,8 @@ void main() {
       final fixture = normalize({
         'key_type': 'address',
         'value_type': 'u128',
-        'key': '0x619dc29a0aac8fa146714058e8dd6d2d0f3bdf5f6331907bf91f3acd81e6935',
+        'key':
+            '0x619dc29a0aac8fa146714058e8dd6d2d0f3bdf5f6331907bf91f3acd81e6935',
       });
 
       final request = TableItemRequest.fromJson(fixture);

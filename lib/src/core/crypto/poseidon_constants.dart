@@ -14,7 +14,22 @@ const int poseidonNRoundsF = 8;
 
 /// The number of partial rounds per state width t = index + 2.
 const List<int> poseidonNRoundsP = [
-  56, 57, 56, 60, 60, 63, 64, 63, 60, 66, 60, 65, 70, 60, 64, 68,
+  56,
+  57,
+  56,
+  60,
+  60,
+  63,
+  64,
+  63,
+  60,
+  66,
+  60,
+  65,
+  70,
+  60,
+  64,
+  68,
 ];
 
 /// Parsed Poseidon constants for a single arity.
@@ -7247,9 +7262,39 @@ const String _m16 =
     'b0eV+q6uOw3kjTCAxiU=';
 
 const List<String> _cBlobs = [
-  _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8, _c9, _c10, _c11, _c12, _c13, _c14, _c15, _c16,
+  _c1,
+  _c2,
+  _c3,
+  _c4,
+  _c5,
+  _c6,
+  _c7,
+  _c8,
+  _c9,
+  _c10,
+  _c11,
+  _c12,
+  _c13,
+  _c14,
+  _c15,
+  _c16,
 ];
 
 const List<String> _mBlobs = [
-  _m1, _m2, _m3, _m4, _m5, _m6, _m7, _m8, _m9, _m10, _m11, _m12, _m13, _m14, _m15, _m16,
+  _m1,
+  _m2,
+  _m3,
+  _m4,
+  _m5,
+  _m6,
+  _m7,
+  _m8,
+  _m9,
+  _m10,
+  _m11,
+  _m12,
+  _m13,
+  _m14,
+  _m15,
+  _m16,
 ];

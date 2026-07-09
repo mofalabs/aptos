@@ -188,8 +188,7 @@ void main() {
 
     test('should sign the message correctly', () {
       final privateKey = Secp256k1PrivateKey(secp256k1TestObject.privateKey);
-      final signedMessage =
-          privateKey.sign(secp256k1TestObject.messageEncoded);
+      final signedMessage = privateKey.sign(secp256k1TestObject.messageEncoded);
       expect(
           signedMessage.toString(), equals(secp256k1TestObject.signatureHex));
     });
@@ -262,8 +261,7 @@ void main() {
         final privateKey = Secp256k1PrivateKey.generate();
         final publicKey = privateKey.publicKey();
         final sig = privateKey.signText('hello');
-        expect(
-            publicKey.verifyText(message: 'hello', signature: sig), isTrue);
+        expect(publicKey.verifyText(message: 'hello', signature: sig), isTrue);
       });
 
       test(
@@ -330,8 +328,7 @@ void main() {
     test('should create an instance correctly without error', () {
       // Create from string.
       final signatureStr = Secp256k1Signature(secp256k1TestObject.signatureHex);
-      expect(
-          signatureStr.toString(), equals(secp256k1TestObject.signatureHex));
+      expect(signatureStr.toString(), equals(secp256k1TestObject.signatureHex));
 
       // Create from Uint8List.
       final signatureValue = Uint8List(Secp256k1Signature.length);

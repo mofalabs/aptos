@@ -114,7 +114,8 @@ class Ed25519PublicKey extends AccountPublicKey {
   /// input; both are unambiguous. See [convertSigningMessage] for the full
   /// legacy rule.
   @override
-  bool verifySignature({required HexInput message, required Signature signature}) {
+  bool verifySignature(
+      {required HexInput message, required Signature signature}) {
     final messageToVerify = convertSigningMessage(message);
     final messageBytes = Hex.fromHexInput(messageToVerify).toUint8List();
     return verifyBytes(message: messageBytes, signature: signature);
@@ -175,8 +176,8 @@ class Ed25519PrivateKey extends Serializable implements PrivateKey {
   /// [hexInput] is a HexInput (string or bytes).
   /// If [strict] is true, the private key must be AIP-80 compliant.
   Ed25519PrivateKey(HexInput hexInput, [bool? strict])
-      : _signingKey =
-            PrivateKey.parseHexInput(hexInput, PrivateKeyVariants.ed25519, strict) {
+      : _signingKey = PrivateKey.parseHexInput(
+            hexInput, PrivateKeyVariants.ed25519, strict) {
     if (_signingKey.toUint8List().length != Ed25519PrivateKey.length) {
       throw ArgumentError(
         'PrivateKey length should be ${Ed25519PrivateKey.length}',
@@ -287,8 +288,7 @@ class Ed25519PrivateKey extends Serializable implements PrivateKey {
   @override
   Ed25519PublicKey publicKey() {
     _ensureNotCleared();
-    final bytes =
-        ed.public(ed.newKeyFromSeed(_signingKey.toUint8List())).bytes;
+    final bytes = ed.public(ed.newKeyFromSeed(_signingKey.toUint8List())).bytes;
     return Ed25519PublicKey(Uint8List.fromList(bytes));
   }
 

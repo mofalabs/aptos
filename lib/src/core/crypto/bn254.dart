@@ -120,7 +120,8 @@ class Fp2 {
     final t1 = _fpMul(c0, o.c0);
     final t2 = _fpMul(c1, o.c1);
     final o0 = _fpSub(t1, t2);
-    final o1 = _fpSub(_fpMul(_fpAdd(c0, c1), _fpAdd(o.c0, o.c1)), _fpAdd(t1, t2));
+    final o1 =
+        _fpSub(_fpMul(_fpAdd(c0, c1), _fpAdd(o.c0, o.c1)), _fpAdd(t1, t2));
     return Fp2._(o0, o1);
   }
 
@@ -172,7 +173,8 @@ class Fp2 {
       return Fp2._(BigInt.zero, _fpSqrt(_fpNeg(c0)));
     }
     // a = sqrt(c0² - c1² * Fp_NONRESIDUE) = sqrt(c0² + c1²)
-    final a = _fpSqrt(_fpSub(_fpMul(c0, c0), _fpMul(_fpMul(c1, c1), _fpNeg(BigInt.one))));
+    final a = _fpSqrt(
+        _fpSub(_fpMul(c0, c0), _fpMul(_fpMul(c1, c1), _fpNeg(BigInt.one))));
     var d = _fpMul(_fpAdd(a, c0), _inv2);
     if (_fpLegendre(d) == -1) d = _fpSub(d, a);
     final a0 = _fpSqrt(d);
@@ -220,8 +222,10 @@ BigInt _beToBigInt(List<int> bytes) {
 
 /// G2 twist constant b = 3/(9+u), in noble's internal (c0, c1) order.
 final Fp2 _fp2B = Fp2(
-  BigInt.parse('19485874751759354771024239261021720505790618469301721065564631296452457478373'),
-  BigInt.parse('266929791119991161246907387137283842545076965332900288569378510910307636690'),
+  BigInt.parse(
+      '19485874751759354771024239261021720505790618469301721065564631296452457478373'),
+  BigInt.parse(
+      '266929791119991161246907387137283842545076965332900288569378510910307636690'),
 );
 
 Fp2 _fp2MulByB(Fp2 num) => num.mul(_fp2B);
@@ -232,7 +236,8 @@ Fp2 _fp2MulByB(Fp2 num) => num.mul(_fp2B);
 
 /// Fp6 c1 coefficients: ξ^((p^j - 1)/3), j = 0..5.
 final List<Fp2> _frob6C1 = List.unmodifiable(<Fp2>[
-  for (var j = 0; j < 6; j++) Fp2.nonresidue.pow((_p.pow(j) - BigInt.one) ~/ _three),
+  for (var j = 0; j < 6; j++)
+    Fp2.nonresidue.pow((_p.pow(j) - BigInt.one) ~/ _three),
 ]);
 
 /// Fp6 c2 coefficients: ξ^((2·p^j - 2)/3), j = 0..5.
@@ -323,8 +328,7 @@ class Fp6 {
   Fp6 mulByFp2(Fp2 rhs) => Fp6(c0.mul(rhs), c1.mul(rhs), c2.mul(rhs));
 
   /// Sparse multiplication by (0, b1, 0).
-  Fp6 mul1(Fp2 b1) =>
-      Fp6(c2.mul(b1).mulByNonresidue(), c0.mul(b1), c1.mul(b1));
+  Fp6 mul1(Fp2 b1) => Fp6(c2.mul(b1).mulByNonresidue(), c0.mul(b1), c1.mul(b1));
 
   /// Sparse multiplication by (b0, b1, 0).
   Fp6 mul01(Fp2 b0, Fp2 b1) {
@@ -381,7 +385,12 @@ class Fp12 {
     final ab = c0.mul(c1);
     return Fp12(
       // (c1·v + c0) * (c0 + c1) - ab - ab·v
-      c1.mulByNonresidue().add(c0).mul(c0.add(c1)).sub(ab).sub(ab.mulByNonresidue()),
+      c1
+          .mulByNonresidue()
+          .add(c0)
+          .mul(c0.add(c1))
+          .sub(ab)
+          .sub(ab.mulByNonresidue()),
       ab.add(ab),
     );
   }
@@ -463,11 +472,7 @@ class Fp12 {
     final y6 = powMinusX(y4.cyclotomicSquare());
     final y8 = y6.conjugate().mul(y4).mul(y2.conjugate());
     final y9 = y8.mul(y1);
-    return r
-        .conjugate()
-        .mul(y9)
-        .frobeniusMap(3)
-        .mul(
+    return r.conjugate().mul(y9).frobeniusMap(3).mul(
           y8.frobeniusMap(2).mul(
                 y9.frobeniusMap(1).mul(y8.mul(y4).mul(r)),
               ),
@@ -601,12 +606,16 @@ class G2Point {
   /// G2 generator, in noble's (c0, c1) coordinate order.
   static final G2Point base = G2Point._(
     Fp2.fromBigTuple([
-      BigInt.parse('10857046999023057135944570762232829481370756359578518086990519993285655852781'),
-      BigInt.parse('11559732032986387107991004021392285783925812861821192530917403151452391805634'),
+      BigInt.parse(
+          '10857046999023057135944570762232829481370756359578518086990519993285655852781'),
+      BigInt.parse(
+          '11559732032986387107991004021392285783925812861821192530917403151452391805634'),
     ]),
     Fp2.fromBigTuple([
-      BigInt.parse('8495653923123431417604973247489272438418190587263600148770280649306958101930'),
-      BigInt.parse('4082367875863433681332203403145435568316851327593401208105741076214120093531'),
+      BigInt.parse(
+          '8495653923123431417604973247489272438418190587263600148770280649306958101930'),
+      BigInt.parse(
+          '4082367875863433681332203403145435568316851327593401208105741076214120093531'),
     ]),
     false,
   );
@@ -632,8 +641,7 @@ class G2Point {
     final x = Fp2(d0.coord, d1.coord);
     final y = x.pow(BigInt.from(3)).add(_fp2B).sqrt();
     final negY = y.neg();
-    final isYGreater =
-        y.c1 > negY.c1 || (y.c1 == negY.c1 && y.c0 > negY.c0);
+    final isYGreater = y.c1 > negY.c1 || (y.c1 == negY.c1 && y.c0 > negY.c0);
     final yToUse = isYGreater == (yFlag == 1) ? y : negY;
     return G2Point.fromAffine(x, yToUse);
   }

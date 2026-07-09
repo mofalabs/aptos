@@ -88,7 +88,8 @@ enum TypeTagParserErrorType {
   unexpectedTypeArgumentClose("unexpected '>'"),
   unexpectedWhitespaceCharacter('unexpected whitespace character'),
   unexpectedComma("unexpected ','"),
-  typeArgumentCountMismatch("type argument count doesn't match expected amount"),
+  typeArgumentCountMismatch(
+      "type argument count doesn't match expected amount"),
   missingTypeArgumentClose("no matching '>' for '<'"),
   missingTypeArgument("no type argument before ','"),
   unexpectedPrimitiveTypeArguments(
@@ -181,7 +182,8 @@ TypeTag parseTypeTag(String typeStr, {bool allowGenerics = false}) {
     } else if (char == '>') {
       // Process last type, if there is no type string, then don't parse it
       if (currentStr != '') {
-        final newType = _parseTypeTagInner(currentStr, innerTypes, allowGenerics);
+        final newType =
+            _parseTypeTagInner(currentStr, innerTypes, allowGenerics);
         curTypes.add(newType);
       }
 
@@ -243,7 +245,8 @@ TypeTag parseTypeTag(String typeStr, {bool allowGenerics = false}) {
       // skip until the next
       var parsedTypeTag = false;
       if (currentStr.isNotEmpty) {
-        final newType = _parseTypeTagInner(currentStr, innerTypes, allowGenerics);
+        final newType =
+            _parseTypeTagInner(currentStr, innerTypes, allowGenerics);
 
         // parse type tag and push it on the types
         innerTypes = [];

@@ -73,9 +73,8 @@ Future<List<IndexerEvent>> getAccountEventsByCreationNumber({
   final whereCondition = <String, dynamic>{
     'account_address': {'_eq': address.toStringLong()},
     'creation_number': {
-      '_eq': creationNumber is BigInt
-          ? creationNumber.toString()
-          : creationNumber,
+      '_eq':
+          creationNumber is BigInt ? creationNumber.toString() : creationNumber,
     },
   };
 

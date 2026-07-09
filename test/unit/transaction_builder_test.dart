@@ -219,8 +219,8 @@ void main() {
         conv('[1, 2]', 'vector<u128>'),
         MoveVector<U128>([U128(BigInt.one), U128(BigInt.two)]),
       );
-      expectBcs(conv([-128, 0, 127], 'vector<i8>'),
-          MoveVector.i8([-128, 0, 127]));
+      expectBcs(
+          conv([-128, 0, 127], 'vector<i8>'), MoveVector.i8([-128, 0, 127]));
       expectBcs(conv('[-32768, 0, 32767]', 'vector<i16>'),
           MoveVector.i16([-32768, 0, 32767]));
       // Mixed raw and typed values.
@@ -257,8 +257,8 @@ void main() {
       expectBcs(conv(-5, '0x1::option::Option<i8>'), MoveOption<I8>(I8(-5)));
       expectBcs(conv(null, '0x1::option::Option<i64>'), MoveOption<I64>(null));
       // BCS-encoded values are auto-wrapped in MoveOption.
-      expectBcs(conv(U8(255), '0x1::option::Option<u8>'),
-          MoveOption<U8>(U8(255)));
+      expectBcs(
+          conv(U8(255), '0x1::option::Option<u8>'), MoveOption<U8>(U8(255)));
       expectBcs(conv(AccountAddress.one, '0x1::option::Option<address>'),
           MoveOption<AccountAddress>(AccountAddress.one));
       final opt = MoveOption<U8>(U8(255));
@@ -316,8 +316,7 @@ void main() {
       );
       expectBcs(
         conv([1, 2, 3], 'vector<0x1::option::Option<u8>>'),
-        MoveVector(
-            [MoveOption(U8(1)), MoveOption(U8(2)), MoveOption(U8(3))]),
+        MoveVector([MoveOption(U8(1)), MoveOption(U8(2)), MoveOption(U8(3))]),
       );
       expectBcs(
         conv([BigInt.from(100), null], 'vector<0x1::option::Option<u64>>'),
@@ -337,10 +336,8 @@ void main() {
       expect(() => conv(false, 'i8'), throwsArgumentError);
       expect(() => conv(false, 'i64'), throwsArgumentError);
       expect(() => conv(false, '0x1::string::String'), throwsArgumentError);
-      expect(() => conv(false, '0x1::option::Option<u8>'),
-          throwsArgumentError);
-      expect(() => conv(false, '0x1::object::Object<u8>'),
-          throwsArgumentError);
+      expect(() => conv(false, '0x1::option::Option<u8>'), throwsArgumentError);
+      expect(() => conv(false, '0x1::object::Object<u8>'), throwsArgumentError);
       expect(() => conv(false, 'vector<u8>'), throwsArgumentError);
       expect(() => conv(false, 'vector<i8>'), throwsArgumentError);
       expect(() => conv(false, '0x1::account::Account'), throwsArgumentError);
@@ -361,8 +358,8 @@ void main() {
       expect(() => conv(Bool(true), 'i8'), throwsArgumentError);
       expect(() => conv(I16(5), 'i8'), throwsArgumentError);
       expect(() => conv(I8(5), 'i16'), throwsArgumentError);
-      expect(() => conv(Bool(true), '0x1::string::String'),
-          throwsArgumentError);
+      expect(
+          () => conv(Bool(true), '0x1::string::String'), throwsArgumentError);
       expect(() => conv(Bool(true), 'vector<u8>'), throwsArgumentError);
     });
 
@@ -379,8 +376,8 @@ void main() {
     test('plain-object struct arguments require the async path', () {
       expect(
         () => conv({'x': '1'}, '0x1::account::Account'),
-        throwsA(isA<ArgumentError>().having((e) => e.message, 'message',
-            contains('async conversion'))),
+        throwsA(isA<ArgumentError>()
+            .having((e) => e.message, 'message', contains('async conversion'))),
       );
     });
 
@@ -432,11 +429,11 @@ void main() {
     );
 
     test('resolves parameters positionally from a FunctionABI', () {
-      final arg0 =
-          convertArgument('0x1::aptos_account::transfer', transferAbi, '0x1', 0, []);
+      final arg0 = convertArgument(
+          '0x1::aptos_account::transfer', transferAbi, '0x1', 0, []);
       expectBcs(arg0, AccountAddress.one);
-      final arg1 =
-          convertArgument('0x1::aptos_account::transfer', transferAbi, 1, 1, []);
+      final arg1 = convertArgument(
+          '0x1::aptos_account::transfer', transferAbi, 1, 1, []);
       expectBcs(arg1, U64(BigInt.one));
     });
 
@@ -679,8 +676,8 @@ void main() {
     test('encodes Option::None and Option::Some in enum format', () async {
       final structTag = tt('0x1::option::Option<u64>') as TypeTagStruct;
 
-      final none =
-          await parser.encodeEnumArgument(structTag, {'None': <String, Object?>{}});
+      final none = await parser
+          .encodeEnumArgument(structTag, {'None': <String, Object?>{}});
       expect(none.bcsToBytes(), equals(Uint8List.fromList([0])));
 
       final some = await parser.encodeEnumArgument(structTag, {
@@ -694,8 +691,8 @@ void main() {
       final arg = MoveStructArgument(Uint8List.fromList([1, 2, 3]));
       final serializer = Serializer();
       arg.serializeForEntryFunction(serializer);
-      expect(serializer.toUint8List(),
-          equals(Uint8List.fromList([3, 1, 2, 3])));
+      expect(
+          serializer.toUint8List(), equals(Uint8List.fromList([3, 1, 2, 3])));
     });
   });
 
@@ -744,8 +741,8 @@ void main() {
       expect(entry.functionName.identifier, equals('transfer'));
       expect(entry.moduleName.name.identifier, equals('aptos_account'));
       expect(entry.args, hasLength(2));
-      expect(entry.args[0].bcsToBytes(),
-          equals(AccountAddress.two.bcsToBytes()));
+      expect(
+          entry.args[0].bcsToBytes(), equals(AccountAddress.two.bcsToBytes()));
       expect(entry.args[1].bcsToBytes(),
           equals(U64(BigInt.from(100)).bcsToBytes()));
     });
@@ -924,8 +921,8 @@ void main() {
     });
 
     test('wraps script and multisig payload variants', () {
-      final scriptPayload = TransactionPayloadScript(
-          Script(Uint8List.fromList([1]), [], []));
+      final scriptPayload =
+          TransactionPayloadScript(Script(Uint8List.fromList([1]), [], []));
       final scriptInner =
           convertPayloadToInnerPayload(scriptPayload, BigInt.one);
       expect((scriptInner as TransactionInnerPayloadV1).executable,
@@ -970,8 +967,8 @@ void main() {
     test('throws for unsupported payload instances', () {
       expect(
         () => convertPayloadToInnerPayload(_UnknownPayload()),
-        throwsA(isA<ArgumentError>().having((e) => e.message, 'message',
-            contains('Unsupported payload type'))),
+        throwsA(isA<ArgumentError>().having(
+            (e) => e.message, 'message', contains('Unsupported payload type'))),
       );
     });
   });
@@ -1036,8 +1033,7 @@ void main() {
       expect(txn, isA<MultiAgentTransaction>());
       expect(txn.secondarySignerAddresses, hasLength(1));
       expect(
-        txn.secondarySignerAddresses!.single
-            .equals(AccountAddress.two),
+        txn.secondarySignerAddresses!.single.equals(AccountAddress.two),
         isTrue,
       );
       expect(txn.feePayerAddress?.equals(AccountAddress.zero), isTrue);
@@ -1059,7 +1055,8 @@ void main() {
       expect(txn.feePayerAddress?.equals(AccountAddress.zero), isTrue);
     });
 
-    test('orderless: replayProtectionNonce implies u64::MAX sequence number '
+    test(
+        'orderless: replayProtectionNonce implies u64::MAX sequence number '
         'and a TransactionInnerPayloadV1', () async {
       final txn = await buildTransaction(
         aptosConfig: config,
@@ -1082,7 +1079,8 @@ void main() {
       );
     });
 
-    test('throws when both replayProtectionNonce and accountSequenceNumber '
+    test(
+        'throws when both replayProtectionNonce and accountSequenceNumber '
         'are set', () async {
       await expectLater(
         buildTransaction(
@@ -1148,8 +1146,7 @@ void main() {
       expect(client.requests.single.url, contains('estimate_gas_price'));
     });
 
-    test('fetches the chain id from ledger info on unknown networks',
-        () async {
+    test('fetches the chain id from ledger info on unknown networks', () async {
       final client = FakeClient([
         const ClientResponse(status: 200, data: {
           'chain_id': 4,
@@ -1177,7 +1174,8 @@ void main() {
       expect(raw.chainId.chainId, equals(4));
     });
 
-    test('AIP-52: uses sequence number 0 for sponsored transactions when '
+    test(
+        'AIP-52: uses sequence number 0 for sponsored transactions when '
         'the sender account is missing', () async {
       final client = FakeClient([
         const ClientResponse(
@@ -1217,7 +1215,8 @@ void main() {
 
   group('generateSignedTransaction', () {
     final senderKey = Ed25519PrivateKey(Uint8List.fromList(List.filled(32, 3)));
-    final senderAddress = AccountAddress.fromString('0x123', maxMissingChars: 63);
+    final senderAddress =
+        AccountAddress.fromString('0x123', maxMissingChars: 63);
     final edAuth = AccountAuthenticatorEd25519(
       senderKey.publicKey(),
       senderKey.sign(Uint8List.fromList([2])),
@@ -1328,8 +1327,8 @@ void main() {
     test('produces a deterministic, domain-separated sha3-256 hash', () {
       final senderKey =
           Ed25519PrivateKey(Uint8List.fromList(List.filled(32, 7)));
-      final simple =
-          SimpleTransaction(makeRaw(AccountAddress.fromString('0x123', maxMissingChars: 63)));
+      final simple = SimpleTransaction(
+          makeRaw(AccountAddress.fromString('0x123', maxMissingChars: 63)));
       final auth = AccountAuthenticatorEd25519(
         senderKey.publicKey(),
         senderKey.sign(Uint8List.fromList([1])),
@@ -1356,11 +1355,22 @@ void main() {
     });
 
     test('hashValues concatenates sha3 inputs in order', () {
-      final a = hashValues(['hello', Uint8List.fromList([1, 2])]);
-      final b = hashValues(['hello', Uint8List.fromList([1, 2])]);
+      final a = hashValues([
+        'hello',
+        Uint8List.fromList([1, 2])
+      ]);
+      final b = hashValues([
+        'hello',
+        Uint8List.fromList([1, 2])
+      ]);
       expect(a, equals(b));
       expect(a.length, equals(32));
-      expect(a, isNot(equals(hashValues([Uint8List.fromList([1, 2]), 'hello']))));
+      expect(
+          a,
+          isNot(equals(hashValues([
+            Uint8List.fromList([1, 2]),
+            'hello'
+          ]))));
     });
   });
 
@@ -1474,7 +1484,8 @@ void main() {
       expect(auth.feePayer.address.equals(AccountAddress.a), isTrue);
     });
 
-    test('uses placeholder secondary authenticators when secondary keys are '
+    test(
+        'uses placeholder secondary authenticators when secondary keys are '
         'omitted', () async {
       final multi =
           MultiAgentTransaction(makeRaw(sender), [AccountAddress.two]);

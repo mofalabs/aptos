@@ -99,7 +99,8 @@ abstract class RawTransactionWithData extends Serializable {
     } else if (index == TransactionVariants.feePayerTransaction.value) {
       return FeePayerRawTransaction.load(deserializer);
     }
-    throw StateError('Unknown variant index for RawTransactionWithData: $index');
+    throw StateError(
+        'Unknown variant index for RawTransactionWithData: $index');
   }
 }
 

@@ -8,7 +8,8 @@ import 'package:test/test.dart';
 
 // Known-answer test vectors.
 const ed25519TestObject = (
-  publicKey: '0xde19e5d1880cac87d57484ce9ed2e84cf0f9599f12e7cc3a52e4e7657a763f2c',
+  publicKey:
+      '0xde19e5d1880cac87d57484ce9ed2e84cf0f9599f12e7cc3a52e4e7657a763f2c',
   authKey: '0x978c213990c4833df71548df7ce49d54c759d6b6d932de22b24d56060b7af2aa',
 );
 
@@ -40,7 +41,8 @@ void main() {
     // TODO: "should create AuthenticationKey from MultiPublicKey" is
     // wired in the multi_ed25519 task.
 
-    test('should derive an AccountAddress from AuthenticationKey with same string',
+    test(
+        'should derive an AccountAddress from AuthenticationKey with same string',
         () {
       final authKey = AuthenticationKey(data: ed25519TestObject.authKey);
       final accountAddress = authKey.derivedAddress();

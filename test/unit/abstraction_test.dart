@@ -20,8 +20,7 @@ class FakeClient implements Client {
   FakeClient(this.responses);
 
   @override
-  Future<ClientResponse<dynamic>> provider(
-      ClientRequest requestOptions) async {
+  Future<ClientResponse<dynamic>> provider(ClientRequest requestOptions) async {
     requests.add(requestOptions);
     final response = responses[_index];
     if (_index < responses.length - 1) _index += 1;
@@ -71,7 +70,8 @@ void main() {
   });
 
   group('enable/disable account abstraction transactions', () {
-    test('enableAccountAbstractionTransaction builds add_authentication_'
+    test(
+        'enableAccountAbstractionTransaction builds add_authentication_'
         'function with the function parts as arguments', () async {
       final (abstraction, client) = makeAbstraction([
         const ClientResponse(status: 200, data: {}),
@@ -90,8 +90,8 @@ void main() {
         payloadFunctionId(transaction),
         '0x1::account_abstraction::add_authentication_function',
       );
-      final payload = transaction.rawTransaction.payload
-          as TransactionPayloadEntryFunction;
+      final payload =
+          transaction.rawTransaction.payload as TransactionPayloadEntryFunction;
       // moduleAddress, moduleName, functionName.
       expect(payload.entryFunction.args, hasLength(3));
       expect(
@@ -141,8 +141,8 @@ void main() {
         payloadFunctionId(transaction),
         '0x1::account_abstraction::remove_authenticator',
       );
-      final payload = transaction.rawTransaction.payload
-          as TransactionPayloadEntryFunction;
+      final payload =
+          transaction.rawTransaction.payload as TransactionPayloadEntryFunction;
       expect(payload.entryFunction.args, isEmpty);
     });
   });

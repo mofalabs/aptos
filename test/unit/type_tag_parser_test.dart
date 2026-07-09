@@ -430,8 +430,7 @@ void main() {
       );
       expectTag(
         parseTypeTag('$tagStructName<i16, u16, i32, u32>'),
-        structTagType(
-            [TypeTagI16(), TypeTagU16(), TypeTagI32(), TypeTagU32()]),
+        structTagType([TypeTagI16(), TypeTagU16(), TypeTagI32(), TypeTagU32()]),
       );
       expectTag(
         parseTypeTag('vector<$tagStructName<u64, i64>>'),

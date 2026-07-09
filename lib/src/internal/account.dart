@@ -308,8 +308,7 @@ Future<AccountAddress> lookupOriginalAccountAddress({
     options: options,
   );
 
-  final handle =
-      (resource['address_map'] as Map)['handle'] as String;
+  final handle = (resource['address_map'] as Map)['handle'] as String;
 
   final authKeyAddress = AccountAddress.from(authenticationKey);
 
@@ -387,9 +386,8 @@ Future<int> getBalance({
   required AccountAddressInput accountAddress,
   required Object asset,
 }) async {
-  final assetString = asset is String
-      ? asset
-      : AccountAddress.from(asset).toString();
+  final assetString =
+      asset is String ? asset : AccountAddress.from(asset).toString();
   final response = await getAptosFullNode(
     aptosConfig: aptosConfig,
     originMethod: 'getBalance',
@@ -543,8 +541,7 @@ Future<SimpleTransaction> rotateAuthKeyUnverified({
       functionArguments: [
         U8(accountPublicKeyToSigningScheme(toNewPublicKey).value), // to scheme
         MoveVector.u8(
-          accountPublicKeyToBaseAccountPublicKey(toNewPublicKey)
-              .toUint8Array(),
+          accountPublicKeyToBaseAccountPublicKey(toNewPublicKey).toUint8Array(),
         ),
       ],
       abi: _getRotateAuthKeyUnverifiedAbi(),
@@ -757,7 +754,8 @@ Future<int> getAccountCoinAmount({
     if (coinType == aptosCoin) {
       faAddress = AccountAddress.a.toStringLong();
     } else {
-      faAddress = createObjectAddress(AccountAddress.a, coinType).toStringLong();
+      faAddress =
+          createObjectAddress(AccountAddress.a, coinType).toStringLong();
     }
   } else if (coinType == null && faMetadataAddress != null) {
     final addr = AccountAddress.from(faMetadataAddress);
@@ -1373,7 +1371,8 @@ Future<List<AbstractMultiKey>> _getMultiKeysForPublicKey({
   );
 
   return (data['public_key_auth_keys'] as List)
-      .map((e) => PublicKeyAuthKey.fromJson(Map<String, dynamic>.from(e as Map)))
+      .map(
+          (e) => PublicKeyAuthKey.fromJson(Map<String, dynamic>.from(e as Map)))
       .where((entry) => entry.accountPublicKey != null)
       .map<AbstractMultiKey>((entry) {
     switch (entry.signatureType) {

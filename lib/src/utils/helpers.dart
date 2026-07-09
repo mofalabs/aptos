@@ -41,7 +41,8 @@ void warnIfDevelopment(String message) {
 }
 
 /// Sleep for the specified amount of time in milliseconds.
-Future<void> sleep(int timeMs) => Future.delayed(Duration(milliseconds: timeMs));
+Future<void> sleep(int timeMs) =>
+    Future.delayed(Duration(milliseconds: timeMs));
 
 /// Get the error message from an unknown error.
 String getErrorMessage(Object? error) => error.toString();
@@ -154,8 +155,7 @@ bool isEncodedStruct(Object? structObj) =>
 /// Validates the provided function information.
 bool isValidFunctionInfo(String functionInfo) {
   final parts = functionInfo.split('::');
-  return parts.length == 3 &&
-      AccountAddress.isValid(input: parts[0]).valid;
+  return parts.length == 3 && AccountAddress.isValid(input: parts[0]).valid;
 }
 
 /// Truncates the provided wallet address at the middle with an ellipsis.
@@ -171,9 +171,8 @@ String _standardizeMoveTypeString(String input) {
   final addressRegex = RegExp(r'0x[0-9a-fA-F]+');
   return input.replaceAllMapped(
     addressRegex,
-    (match) =>
-        AccountAddress.from(match.group(0)!, maxMissingChars: 63)
-            .toStringShort(),
+    (match) => AccountAddress.from(match.group(0)!, maxMissingChars: 63)
+        .toStringShort(),
   );
 }
 

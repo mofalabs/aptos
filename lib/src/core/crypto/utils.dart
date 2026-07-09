@@ -79,7 +79,8 @@ AccountPublicKey accountPublicKeyToBaseAccountPublicKey(
 ///
 /// Throws an [ArgumentError] for an unknown account public key type.
 SigningScheme accountPublicKeyToSigningScheme(AccountPublicKey publicKey) {
-  final baseAccountPublicKey = accountPublicKeyToBaseAccountPublicKey(publicKey);
+  final baseAccountPublicKey =
+      accountPublicKeyToBaseAccountPublicKey(publicKey);
   if (baseAccountPublicKey is Ed25519PublicKey) {
     return SigningScheme.ed25519;
   }

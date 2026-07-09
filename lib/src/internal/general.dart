@@ -82,8 +82,8 @@ Future<List<ChainTopUserTransaction>> getChainTopUserTransactions({
   );
 
   return (data['user_transactions'] as List)
-      .map((e) => ChainTopUserTransaction.fromJson(
-          Map<String, dynamic>.from(e as Map)))
+      .map((e) =>
+          ChainTopUserTransaction.fromJson(Map<String, dynamic>.from(e as Map)))
       .toList();
 }
 
@@ -98,8 +98,7 @@ Future<List<ProcessorStatus>> getProcessorStatuses({
   );
 
   return (data['processor_status'] as List)
-      .map((e) =>
-          ProcessorStatus.fromJson(Map<String, dynamic>.from(e as Map)))
+      .map((e) => ProcessorStatus.fromJson(Map<String, dynamic>.from(e as Map)))
       .toList();
 }
 
@@ -174,8 +173,7 @@ Future<Block> getBlockByVersion({
       if (withTransactions != null) 'with_transactions': withTransactions,
     },
   );
-  final block =
-      Block.fromJson(Map<String, dynamic>.from(response.data as Map));
+  final block = Block.fromJson(Map<String, dynamic>.from(response.data as Map));
 
   return _fillBlockTransactions(
     aptosConfig: aptosConfig,
@@ -199,8 +197,7 @@ Future<Block> getBlockByHeight({
       if (withTransactions != null) 'with_transactions': withTransactions,
     },
   );
-  final block =
-      Block.fromJson(Map<String, dynamic>.from(response.data as Map));
+  final block = Block.fromJson(Map<String, dynamic>.from(response.data as Map));
 
   return _fillBlockTransactions(
     aptosConfig: aptosConfig,

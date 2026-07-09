@@ -13,7 +13,8 @@ const ed25519TestObject = (
       'ed25519-priv-0xc5338cd251c22daa8c9c9cc94f498cc8a5c7e1d2e75287a5dda91096fe64efa5',
   privateKeyHex:
       '0xc5338cd251c22daa8c9c9cc94f498cc8a5c7e1d2e75287a5dda91096fe64efa5',
-  publicKey: '0xde19e5d1880cac87d57484ce9ed2e84cf0f9599f12e7cc3a52e4e7657a763f2c',
+  publicKey:
+      '0xde19e5d1880cac87d57484ce9ed2e84cf0f9599f12e7cc3a52e4e7657a763f2c',
   authKey: '0x978c213990c4833df71548df7ce49d54c759d6b6d932de22b24d56060b7af2aa',
   messageEncoded: '68656c6c6f20776f726c64',
   signatureHex:
@@ -27,7 +28,8 @@ const wallet = (
   path: "m/44'/637'/0'/0'/0'",
   privateKey:
       'ed25519-priv-0x5d996aa76b3212142792d9130796cd2e11e3c445a93118c08414df4f66bc60ec',
-  publicKey: '0xea526ba1710343d953461ff68641f1b7df5f23b9042ffa2d2a798d3adb3f3d6c',
+  publicKey:
+      '0xea526ba1710343d953461ff68641f1b7df5f23b9042ffa2d2a798d3adb3f3d6c',
 );
 
 void main() {
@@ -145,7 +147,8 @@ void main() {
     test(
         'should create the instance correctly without error with AIP-80 compliant private key',
         () {
-      final privateKey2 = Ed25519PrivateKey(ed25519TestObject.privateKey, false);
+      final privateKey2 =
+          Ed25519PrivateKey(ed25519TestObject.privateKey, false);
       expect(privateKey2.toString(), equals(ed25519TestObject.privateKey));
     });
 
@@ -235,8 +238,8 @@ void main() {
     test('should generate a random private key correctly', () {
       // Make sure it generates a new PrivateKey successfully.
       final privateKey = Ed25519PrivateKey.generate();
-      expect(privateKey.toUint8Array().length,
-          equals(Ed25519PrivateKey.length));
+      expect(
+          privateKey.toUint8Array().length, equals(Ed25519PrivateKey.length));
 
       // Make sure it generates different private keys.
       final anotherPrivateKey = Ed25519PrivateKey.generate();
@@ -295,8 +298,8 @@ void main() {
         final privateKey = Ed25519PrivateKey.generate();
         final publicKey = privateKey.publicKey();
         final sigText = privateKey.signText('cafe');
-        final sigBytes = privateKey
-            .signBytes(Uint8List.fromList(utf8.encode('cafe')));
+        final sigBytes =
+            privateKey.signBytes(Uint8List.fromList(utf8.encode('cafe')));
         expect(sigText.toString(), equals(sigBytes.toString()));
         // And does NOT match a signature over the hex bytes [0xCA, 0xFE].
         final sigHexBytes =

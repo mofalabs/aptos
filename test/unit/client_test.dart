@@ -53,8 +53,8 @@ void main() {
       );
       expect(config.getRequestUrl(AptosApiType.fullnode),
           equals('http://localhost:8080/v1'));
-      expect(() => config.getRequestUrl(AptosApiType.indexer),
-          throwsStateError);
+      expect(
+          () => config.getRequestUrl(AptosApiType.indexer), throwsStateError);
     });
 
     test('testnet/mainnet have no programmatic faucet', () {
@@ -121,8 +121,8 @@ void main() {
         ),
         throwsA(isA<AptosApiError>()
             .having((e) => e.status, 'status', 404)
-            .having((e) => e.message, 'message',
-                contains('account not found'))),
+            .having(
+                (e) => e.message, 'message', contains('account not found'))),
       );
     });
 
@@ -173,8 +173,8 @@ void main() {
           configWith(errClient),
           AptosApiType.indexer,
         ),
-        throwsA(isA<AptosApiError>().having(
-            (e) => e.message, 'message', contains('field not found'))),
+        throwsA(isA<AptosApiError>()
+            .having((e) => e.message, 'message', contains('field not found'))),
       );
     });
 

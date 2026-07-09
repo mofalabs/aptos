@@ -217,8 +217,8 @@ class MoveStruct {
             .map((e) => _moveAbilityFromJson(e as String))
             .toList(),
         genericTypeParams: (json['generic_type_params'] as List)
-            .map((e) =>
-                MoveFunctionGenericTypeParam.fromJson(e as Map<String, dynamic>))
+            .map((e) => MoveFunctionGenericTypeParam.fromJson(
+                e as Map<String, dynamic>))
             .toList(),
         fields: (json['fields'] as List)
             .map((e) => MoveStructField.fromJson(e as Map<String, dynamic>))
@@ -314,8 +314,8 @@ class MoveFunction {
         isEntry: json['is_entry'] as bool,
         isView: json['is_view'] as bool,
         genericTypeParams: (json['generic_type_params'] as List)
-            .map((e) =>
-                MoveFunctionGenericTypeParam.fromJson(e as Map<String, dynamic>))
+            .map((e) => MoveFunctionGenericTypeParam.fromJson(
+                e as Map<String, dynamic>))
             .toList(),
         params: (json['params'] as List).cast<String>(),
         returnTypes: (json['return'] as List).cast<String>(),

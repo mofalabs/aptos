@@ -60,8 +60,8 @@ class MoveVector<T extends Serializable> extends Serializable
       serialized.serializeForScriptFunction(serializer);
       return;
     }
-    serializer
-        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.u8Vector.value);
+    serializer.serializeU32AsUleb128(
+        ScriptTransactionArgumentVariants.u8Vector.value);
     serializer.serialize(this);
   }
 
@@ -191,8 +191,8 @@ class Serialized extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer
-        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.serialized.value);
+    serializer.serializeU32AsUleb128(
+        ScriptTransactionArgumentVariants.serialized.value);
     serialize(serializer);
   }
 

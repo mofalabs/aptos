@@ -14,8 +14,7 @@ import 'fixed_bytes.dart';
 /// If you wish to convert this class back to a TransactionArgument, you must
 /// know the type of the argument beforehand, and use the appropriate class to
 /// deserialize the bytes within an instance of this class.
-class EntryFunctionBytes extends Serializable
-    implements EntryFunctionArgument {
+class EntryFunctionBytes extends Serializable implements EntryFunctionArgument {
   final FixedBytes value;
 
   EntryFunctionBytes._(HexInput value) : value = FixedBytes(value);

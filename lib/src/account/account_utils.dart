@@ -87,8 +87,7 @@ abstract final class AccountUtils {
           case AnyPublicKeyVariant.federatedKeyless:
             final federatedKeylessAccount = account as FederatedKeylessAccount;
             _serializeKeylessAccountCommon(federatedKeylessAccount, serializer);
-            federatedKeylessAccount.publicKey.jwkAddress
-                .serialize(serializer);
+            federatedKeylessAccount.publicKey.jwkAddress.serialize(serializer);
             serializer.serializeBool(federatedKeylessAccount.audless);
             return serializer.toUint8List();
           case AnyPublicKeyVariant.secp256k1:
@@ -96,8 +95,7 @@ abstract final class AccountUtils {
             final singleKeyAccount = account as SingleKeyAccount;
             // Ed25519PrivateKey and Secp256k1PrivateKey are both
             // BCS-serializable.
-            (singleKeyAccount.privateKey as Serializable)
-                .serialize(serializer);
+            (singleKeyAccount.privateKey as Serializable).serialize(serializer);
             return serializer.toUint8List();
           default:
             throw StateError(
@@ -166,8 +164,7 @@ abstract final class AccountUtils {
             uidVal: claims.uidVal,
             aud: claims.aud,
           );
-        } else if (variantIndex ==
-            AnyPublicKeyVariant.federatedKeyless.value) {
+        } else if (variantIndex == AnyPublicKeyVariant.federatedKeyless.value) {
           final components = _deserializeKeylessAccountCommon(deserializer);
           final jwkAddress = AccountAddress.deserialize(deserializer);
           final audless = deserializer.deserializeBool();

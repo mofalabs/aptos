@@ -35,8 +35,7 @@ class FakeClient implements Client {
   FakeClient(this.responses);
 
   @override
-  Future<ClientResponse<dynamic>> provider(
-      ClientRequest requestOptions) async {
+  Future<ClientResponse<dynamic>> provider(ClientRequest requestOptions) async {
     requests.add(requestOptions);
     final response = responses[_index];
     if (_index < responses.length - 1) _index += 1;
@@ -364,7 +363,8 @@ void main() {
 
       expect(client.requests, hasLength(1));
       expect(client.requests.single.url, contains('/accounts/'));
-      expect(transaction.rawTransaction.sequenceNumber, equals(BigInt.from(11)));
+      expect(
+          transaction.rawTransaction.sequenceNumber, equals(BigInt.from(11)));
     });
   });
 
@@ -393,10 +393,9 @@ void main() {
       expect(client.requests, hasLength(1));
       final request = client.requests.single;
       expect(request.method, equals('POST'));
-      expect(request.url, equals(
-          'https://api.mainnet.aptoslabs.com/v1/transactions'));
-      expect(
-          request.contentType, equals(MimeType.bcsSignedTransaction.value));
+      expect(request.url,
+          equals('https://api.mainnet.aptoslabs.com/v1/transactions'));
+      expect(request.contentType, equals(MimeType.bcsSignedTransaction.value));
       expect(request.headers?['content-type'],
           equals(MimeType.bcsSignedTransaction.value));
       expect(request.body, isA<Uint8List>());
@@ -420,8 +419,7 @@ void main() {
       expect(pending.hash, equals('0xbeef'));
       final request = client.requests.single;
       expect(request.url, endsWith('/transactions'));
-      expect(
-          request.contentType, equals(MimeType.bcsSignedTransaction.value));
+      expect(request.contentType, equals(MimeType.bcsSignedTransaction.value));
     });
 
     test('submit.simple requires feePayerAuthenticator for fee payer txns',
@@ -465,8 +463,7 @@ void main() {
       ]);
       final aptos = Aptos(AptosConfig(network: Network.devnet, client: client));
 
-      final response =
-          await aptos.waitForTransaction(transactionHash: '0xabc');
+      final response = await aptos.waitForTransaction(transactionHash: '0xabc');
 
       expect(response, isA<UserTransactionResponse>());
       expect(response.success, isTrue);
@@ -494,8 +491,7 @@ void main() {
       );
     });
 
-    test('returns the failed transaction when checkSuccess is false',
-        () async {
+    test('returns the failed transaction when checkSuccess is false', () async {
       final client = FakeClient([
         ClientResponse(
           status: 200,
@@ -530,7 +526,8 @@ void main() {
         throwsA(isA<WaitForTransactionError>()
             .having((e) => e.message, 'message',
                 contains('timed out in pending state'))
-            .having((e) => e.lastSubmittedTransaction?.type,
+            .having(
+                (e) => e.lastSubmittedTransaction?.type,
                 'lastSubmittedTransaction.type',
                 equals(TransactionResponseType.pending))),
       );
@@ -567,8 +564,8 @@ void main() {
       expect(client.requests, hasLength(2));
       final fundRequest = client.requests[0];
       expect(fundRequest.method, equals('POST'));
-      expect(fundRequest.url,
-          equals('https://faucet.devnet.aptoslabs.com/fund'));
+      expect(
+          fundRequest.url, equals('https://faucet.devnet.aptoslabs.com/fund'));
       expect(
         fundRequest.body,
         equals({'address': '0x1', 'amount': 100000000}),
@@ -579,7 +576,8 @@ void main() {
   });
 
   group('TransactionSubmitter plugin', () {
-    test('is used when configured and bypassed after '
+    test(
+        'is used when configured and bypassed after '
         'setIgnoreTransactionSubmitter(true)', () async {
       final submitter = FakeTransactionSubmitter();
       final client = FakeClient([

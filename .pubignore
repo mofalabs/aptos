@@ -1,0 +1,6 @@
+# Test fixtures/vectors are large and not needed by consumers of the package.
+test/vectors/
+
+# Local scratch / tooling not part of the published package.
+.agents/
+skills-lock.json

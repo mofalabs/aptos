@@ -28,8 +28,7 @@ class FakeClient implements Client {
   FakeClient(this.responses);
 
   @override
-  Future<ClientResponse<dynamic>> provider(
-      ClientRequest requestOptions) async {
+  Future<ClientResponse<dynamic>> provider(ClientRequest requestOptions) async {
     requests.add(requestOptions);
     final response = responses[_index];
     if (_index < responses.length - 1) _index += 1;
@@ -266,8 +265,7 @@ void main() {
       final config = AptosConfig(network: Network.mainnet, client: client);
       final sender = Account.generate();
 
-      final transaction =
-          await FungibleAsset(config).transferFungibleAsset(
+      final transaction = await FungibleAsset(config).transferFungibleAsset(
         sender: sender,
         fungibleAssetMetadataAddress: '0xa',
         recipient: '0x2',
@@ -300,7 +298,8 @@ void main() {
   });
 
   group('account indexer queries', () {
-    test('getAccountOwnedTokens builds the where/pagination variables and '
+    test(
+        'getAccountOwnedTokens builds the where/pagination variables and '
         'parses ownerships', () async {
       final client = FakeClient([
         graphqlResponse({
@@ -384,16 +383,15 @@ void main() {
     const testnetRouter =
         '0x5f8fd2347449685cf41d4db97926ec3a096eaf381332be4f1318ad4d16a8497c';
 
-    test('isValidANSName splits domains and subdomains and validates them',
-        () {
+    test('isValidANSName splits domains and subdomains and validates them', () {
       expect(internal_ans.isValidANSName('test.apt'),
           equals((domainName: 'test', subdomainName: null)));
       expect(internal_ans.isValidANSName('sub.test.apt'),
           equals((domainName: 'test', subdomainName: 'sub')));
       expect(internal_ans.isValidANSName('sub.test'),
           equals((domainName: 'test', subdomainName: 'sub')));
-      expect(() => internal_ans.isValidANSName('a.b.c.apt'),
-          throwsArgumentError);
+      expect(
+          () => internal_ans.isValidANSName('a.b.c.apt'), throwsArgumentError);
       expect(() => internal_ans.isValidANSName('ab'), throwsArgumentError);
       expect(() => internal_ans.isValidANSName('-bad-'), throwsArgumentError);
     });
@@ -492,16 +490,14 @@ void main() {
           equals(SubdomainExpirationPolicy.followsDomain));
       // Timestamps are normalized to UTC ISO strings.
       expect(name.expirationTimestamp, equals('2030-01-01T00:00:00Z'));
-      expect(
-          name.domainExpirationTimestamp, equals('2031-01-01T00:00:00Z'));
+      expect(name.domainExpirationTimestamp, equals('2031-01-01T00:00:00Z'));
       // The subdomain follows the domain, so the derived expiration is the
       // domain's expiration.
       expect(name.expiration.toUtc().year, equals(2031));
       expect(name.expirationStatus, equals(ExpirationStatus.active));
     });
 
-    test('getName returns null when the indexer has no matching row',
-        () async {
+    test('getName returns null when the indexer has no matching row', () async {
       final client = FakeClient([
         ClientResponse(status: 200, data: {
           'bytecode': '0x',
@@ -595,7 +591,8 @@ void main() {
       }
     });
 
-    test('waits on the aggregate last success version when no processor '
+    test(
+        'waits on the aggregate last success version when no processor '
         'type is given', () async {
       final client = FakeClient([
         processorStatusResponse('99'),

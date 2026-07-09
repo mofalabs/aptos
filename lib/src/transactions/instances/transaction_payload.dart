@@ -55,7 +55,8 @@ TransactionArgument deserializeFromScriptArgument(Deserializer deserializer) {
   } else if (index == ScriptTransactionArgumentVariants.i256.value) {
     return I256.deserialize(deserializer);
   }
-  throw StateError('Unknown variant index for ScriptTransactionArgument: $index');
+  throw StateError(
+      'Unknown variant index for ScriptTransactionArgument: $index');
 }
 
 /// Represents a supported Transaction Payload that can be serialized and
@@ -434,7 +435,8 @@ class MultiSigTransactionPayload extends Serializable {
   static MultiSigTransactionPayload deserialize(Deserializer deserializer) {
     final variant = deserializer.deserializeUleb128AsU32();
     if (variant == MultiSigTransactionPayloadVariants.entryFunction.value) {
-      return MultiSigTransactionPayload(EntryFunction.deserialize(deserializer));
+      return MultiSigTransactionPayload(
+          EntryFunction.deserialize(deserializer));
     } else if (variant == MultiSigTransactionPayloadVariants.script.value) {
       return MultiSigTransactionPayload(Script.deserialize(deserializer));
     }
@@ -454,7 +456,8 @@ abstract class TransactionInnerPayload extends TransactionPayload {
     if (index == TransactionInnerPayloadVariants.v1.value) {
       return TransactionInnerPayloadV1.load(deserializer);
     }
-    throw StateError('Unknown variant index for TransactionInnerPayload: $index');
+    throw StateError(
+        'Unknown variant index for TransactionInnerPayload: $index');
   }
 }
 
@@ -472,8 +475,7 @@ class TransactionInnerPayloadV1 extends TransactionInnerPayload {
     // we add that here.
     serializer.serializeU32AsUleb128(TransactionPayloadVariants.payload.value);
     // V1 is serialized as 0
-    serializer
-        .serializeU32AsUleb128(TransactionInnerPayloadVariants.v1.value);
+    serializer.serializeU32AsUleb128(TransactionInnerPayloadVariants.v1.value);
     executable.serialize(serializer);
     extraConfig.serialize(serializer);
   }
@@ -577,7 +579,8 @@ abstract class TransactionExtraConfig extends Serializable {
     if (index == TransactionExtraConfigVariants.v1.value) {
       return TransactionExtraConfigV1.load(deserializer);
     }
-    throw StateError('Unknown variant index for TransactionExtraConfig: $index');
+    throw StateError(
+        'Unknown variant index for TransactionExtraConfig: $index');
   }
 }
 
@@ -591,8 +594,7 @@ class TransactionExtraConfigV1 extends TransactionExtraConfig {
 
   @override
   void serialize(Serializer serializer) {
-    serializer
-        .serializeU32AsUleb128(TransactionExtraConfigVariants.v1.value);
+    serializer.serializeU32AsUleb128(TransactionExtraConfigVariants.v1.value);
     serializer.serializeOption(multisigAddress);
     serializer.serializeOption(
       replayProtectionNonce != null ? U64(replayProtectionNonce!) : null,

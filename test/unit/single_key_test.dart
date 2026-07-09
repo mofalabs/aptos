@@ -72,7 +72,8 @@ void main() {
     });
 
     test('picks the Secp256r1 variant for a Secp256r1 inner key', () {
-      final pk = AnyPublicKey(Secp256r1PublicKey(singleSignerSecp256r1.publicKey));
+      final pk =
+          AnyPublicKey(Secp256r1PublicKey(singleSignerSecp256r1.publicKey));
       expect(pk.variant, equals(AnyPublicKeyVariant.secp256r1));
     });
 
@@ -110,7 +111,8 @@ void main() {
       final original = AnyPublicKey(edPub);
       final serializer = Serializer();
       original.serialize(serializer);
-      final back = AnyPublicKey.deserialize(Deserializer(serializer.toUint8List()));
+      final back =
+          AnyPublicKey.deserialize(Deserializer(serializer.toUint8List()));
       expect(back.variant, equals(AnyPublicKeyVariant.ed25519));
       expect(back.publicKey.toUint8Array(), equals(edPub.toUint8Array()));
     });
@@ -119,7 +121,8 @@ void main() {
       final original = AnyPublicKey(secpPub);
       final serializer = Serializer();
       original.serialize(serializer);
-      final back = AnyPublicKey.deserialize(Deserializer(serializer.toUint8List()));
+      final back =
+          AnyPublicKey.deserialize(Deserializer(serializer.toUint8List()));
       expect(back.variant, equals(AnyPublicKeyVariant.secp256k1));
       expect(back.publicKey.toUint8Array(), equals(secpPub.toUint8Array()));
     });
@@ -129,7 +132,8 @@ void main() {
           AnyPublicKey(Secp256r1PublicKey(singleSignerSecp256r1.publicKey));
       final serializer = Serializer();
       original.serialize(serializer);
-      final back = AnyPublicKey.deserialize(Deserializer(serializer.toUint8List()));
+      final back =
+          AnyPublicKey.deserialize(Deserializer(serializer.toUint8List()));
       expect(back.variant, equals(AnyPublicKeyVariant.secp256r1));
       expect(back.bcsToBytes(), equals(original.bcsToBytes()));
     });
@@ -180,7 +184,8 @@ void main() {
     });
 
     test('derives the SingleKey auth key for a Secp256k1 inner key', () {
-      final pk = AnyPublicKey(Secp256k1PublicKey(secp256k1TestObject.publicKey));
+      final pk =
+          AnyPublicKey(Secp256k1PublicKey(secp256k1TestObject.publicKey));
       expect(pk.authKey().data.toString(), equals(secp256k1TestObject.authKey));
     });
 
@@ -219,7 +224,8 @@ void main() {
   });
 
   group('AnyPublicKey.verifySignatureAsync', () {
-    test('returns false when the signature is not an AnySignature (silent default)',
+    test(
+        'returns false when the signature is not an AnySignature (silent default)',
         () async {
       final pk = AnyPublicKey(edPub);
       // Pass a non-AnySignature; the function returns false without throwing.
@@ -231,7 +237,8 @@ void main() {
       expect(ok, isFalse);
     });
 
-    test('throws with throwErrorWithReason when the signature is not an AnySignature',
+    test(
+        'throws with throwErrorWithReason when the signature is not an AnySignature',
         () async {
       final pk = AnyPublicKey(edPub);
       final rawSig = Ed25519Signature(Uint8List(64));
@@ -239,7 +246,8 @@ void main() {
         pk.verifySignatureAsync(
           message: '0xfeedface',
           signature: rawSig,
-          options: const VerifySignatureAsyncOptions(throwErrorWithReason: true),
+          options:
+              const VerifySignatureAsyncOptions(throwErrorWithReason: true),
         ),
         throwsA(isA<ArgumentError>().having(
           (e) => e.message,
@@ -293,7 +301,8 @@ void main() {
     test('roundtrips an Ed25519-variant AnySignature', () {
       const message = '0xfeedface';
       final original = AnySignature(edPriv.sign(message));
-      final back = AnySignature.deserialize(Deserializer(original.bcsToBytes()));
+      final back =
+          AnySignature.deserialize(Deserializer(original.bcsToBytes()));
       expect(back.bcsToBytes(), equals(original.bcsToBytes()));
       expect(back.signature, isA<Ed25519Signature>());
     });
@@ -325,8 +334,8 @@ void main() {
     });
 
     test('toUint8Array returns the BCS bytes', () {
-      final sig =
-          AnySignature(Ed25519Signature(Uint8List.fromList(List.filled(64, 7))));
+      final sig = AnySignature(
+          Ed25519Signature(Uint8List.fromList(List.filled(64, 7))));
       expect(sig.toUint8Array(), equals(sig.bcsToBytes()));
     });
   });
@@ -341,7 +350,8 @@ void main() {
 
     test('maps base public key types to their signing schemes', () {
       final ed = Ed25519PublicKey(singleSignerED25519.publicKey);
-      expect(accountPublicKeyToSigningScheme(ed), equals(SigningScheme.ed25519));
+      expect(
+          accountPublicKeyToSigningScheme(ed), equals(SigningScheme.ed25519));
       expect(
         accountPublicKeyToSigningScheme(AnyPublicKey(ed)),
         equals(SigningScheme.singleKey),

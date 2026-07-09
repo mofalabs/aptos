@@ -52,7 +52,8 @@ Future<void> main() async {
   final committed = await aptos.waitForTransaction(
     transactionHash: pending.hash,
   );
-  print('Committed, success: ${(committed as UserTransactionResponse).success}');
+  print(
+      'Committed, success: ${(committed as UserTransactionResponse).success}');
 
   // Check Bob's balance.
   final bobBalance = await aptos.getBalance(

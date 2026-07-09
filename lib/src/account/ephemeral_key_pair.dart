@@ -67,8 +67,8 @@ class EphemeralKeyPair extends Serializable {
     final publicKey = EphemeralPublicKey(privateKey.publicKey());
     // By default, we set the expiry date to be two weeks in the future
     // floored to the nearest hour.
-    final expiry = expiryDateSecs ??
-        floorToWholeHour(nowInSeconds() + _twoWeeksInSeconds);
+    final expiry =
+        expiryDateSecs ?? floorToWholeHour(nowInSeconds() + _twoWeeksInSeconds);
     // Generate the blinder if not provided.
     final blinderBytes = blinder != null
         ? Hex.fromHexInput(blinder).toUint8List()

@@ -106,7 +106,8 @@ class DecryptedPlaintext extends Serializable {
   /// Domain-separated BCS crypto hash (`BCSCryptoHash` in aptos-core):
   /// SHA3-256( SHA3-256("APTOS::DecryptedPlaintext") || BCS(self) ).
   Uint8List hash() {
-    final input = Uint8List.fromList([..._decryptedPlaintextSalt, ...bcsToBytes()]);
+    final input =
+        Uint8List.fromList([..._decryptedPlaintextSalt, ...bcsToBytes()]);
     return _sha3_256(input);
   }
 }

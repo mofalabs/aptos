@@ -508,10 +508,12 @@ Future<SimpleTransaction> mintSoulBoundTransaction({
   InputGenerateTransactionOptions? options,
 }) async {
   if (propertyKeys?.length != propertyValues?.length) {
-    throw ArgumentError('Property keys and property values counts do not match');
+    throw ArgumentError(
+        'Property keys and property values counts do not match');
   }
   if (propertyTypes?.length != propertyValues?.length) {
-    throw ArgumentError('Property types and property values counts do not match');
+    throw ArgumentError(
+        'Property types and property values counts do not match');
   }
   final convertedPropertyType =
       propertyTypes?.map((type) => type.value).toList();

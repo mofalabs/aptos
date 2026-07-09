@@ -191,8 +191,7 @@ Future<CommittedTransactionResponse> waitForTransaction({
     } catch (e) {
       handleAPIError(e);
     }
-    timeElapsed =
-        (DateTime.now().millisecondsSinceEpoch - startTime) / 1000;
+    timeElapsed = (DateTime.now().millisecondsSinceEpoch - startTime) / 1000;
   }
 
   // Now we do polling to see if the transaction is still pending.

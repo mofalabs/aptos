@@ -198,7 +198,8 @@ const String getAccountOwnedTokens = r'''
     ...CurrentTokenOwnershipFields
   }
 }
-    ''' + currentTokenOwnershipFieldsFragment;
+    ''' +
+    currentTokenOwnershipFieldsFragment;
 
 const String getAccountOwnedTokensFromCollection = r'''
     query getAccountOwnedTokensFromCollection($where_condition: current_token_ownerships_v2_bool_exp!, $offset: Int, $limit: Int, $order_by: [current_token_ownerships_v2_order_by!]) {
@@ -211,7 +212,8 @@ const String getAccountOwnedTokensFromCollection = r'''
     ...CurrentTokenOwnershipFields
   }
 }
-    ''' + currentTokenOwnershipFieldsFragment;
+    ''' +
+    currentTokenOwnershipFieldsFragment;
 
 const String getAccountTokensCount = r'''
     query getAccountTokensCount($where_condition: current_token_ownerships_v2_bool_exp, $offset: Int, $limit: Int) {
@@ -400,7 +402,8 @@ const String getNames = r'''
     }
   }
 }
-    ''' + ansTokenFragment;
+    ''' +
+    ansTokenFragment;
 
 const String getNumberOfDelegators = r'''
     query getNumberOfDelegators($where_condition: num_active_delegator_per_pool_bool_exp, $order_by: [num_active_delegator_per_pool_order_by!]) {
@@ -484,7 +487,8 @@ const String getTokenActivity = r'''
     ...TokenActivitiesFields
   }
 }
-    ''' + tokenActivitiesFieldsFragment;
+    ''' +
+    tokenActivitiesFieldsFragment;
 
 const String getCurrentTokenOwnership = r'''
     query getCurrentTokenOwnership($where_condition: current_token_ownerships_v2_bool_exp!, $offset: Int, $limit: Int, $order_by: [current_token_ownerships_v2_order_by!]) {
@@ -497,7 +501,8 @@ const String getCurrentTokenOwnership = r'''
     ...CurrentTokenOwnershipFields
   }
 }
-    ''' + currentTokenOwnershipFieldsFragment;
+    ''' +
+    currentTokenOwnershipFieldsFragment;
 
 const String getTokenData = r'''
     query getTokenData($where_condition: current_token_datas_v2_bool_exp, $offset: Int, $limit: Int, $order_by: [current_token_datas_v2_order_by!]) {

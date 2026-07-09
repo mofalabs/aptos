@@ -52,7 +52,8 @@ class U8 extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer.serializeU32AsUleb128(ScriptTransactionArgumentVariants.u8.value);
+    serializer
+        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.u8.value);
     serializer.serialize(this);
   }
 
@@ -81,7 +82,8 @@ class U16 extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer.serializeU32AsUleb128(ScriptTransactionArgumentVariants.u16.value);
+    serializer
+        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.u16.value);
     serializer.serialize(this);
   }
 
@@ -110,7 +112,8 @@ class U32 extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer.serializeU32AsUleb128(ScriptTransactionArgumentVariants.u32.value);
+    serializer
+        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.u32.value);
     serializer.serialize(this);
   }
 
@@ -141,7 +144,8 @@ class U64 extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer.serializeU32AsUleb128(ScriptTransactionArgumentVariants.u64.value);
+    serializer
+        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.u64.value);
     serializer.serialize(this);
   }
 
@@ -234,7 +238,8 @@ class I8 extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer.serializeU32AsUleb128(ScriptTransactionArgumentVariants.i8.value);
+    serializer
+        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.i8.value);
     serializer.serialize(this);
   }
 
@@ -263,7 +268,8 @@ class I16 extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer.serializeU32AsUleb128(ScriptTransactionArgumentVariants.i16.value);
+    serializer
+        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.i16.value);
     serializer.serialize(this);
   }
 
@@ -292,7 +298,8 @@ class I32 extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer.serializeU32AsUleb128(ScriptTransactionArgumentVariants.i32.value);
+    serializer
+        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.i32.value);
     serializer.serialize(this);
   }
 
@@ -323,7 +330,8 @@ class I64 extends Serializable implements TransactionArgument {
 
   @override
   void serializeForScriptFunction(Serializer serializer) {
-    serializer.serializeU32AsUleb128(ScriptTransactionArgumentVariants.i64.value);
+    serializer
+        .serializeU32AsUleb128(ScriptTransactionArgumentVariants.i64.value);
     serializer.serialize(this);
   }
 

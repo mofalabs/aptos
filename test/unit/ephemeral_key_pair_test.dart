@@ -27,8 +27,7 @@ EphemeralKeyPair makeFreshKeyPair({Ed25519PrivateKey? privateKey}) {
 
 void main() {
   group('EphemeralKeyPair', () {
-    test(
-        'derives a stable nonce from privateKey + expiryDateSecs + blinder',
+    test('derives a stable nonce from privateKey + expiryDateSecs + blinder',
         () {
       final blinder = Uint8List(31)..fillRange(0, 31, 0x22);
       final a = EphemeralKeyPair(
@@ -45,8 +44,7 @@ void main() {
       expect(a.nonce.length, greaterThan(0));
     });
 
-    test('nonce matches the known-answer fixture (EPHEMERAL_KEY_PAIR)',
-        () {
+    test('nonce matches the known-answer fixture (EPHEMERAL_KEY_PAIR)', () {
       // EPHEMERAL_KEY_PAIR fixture: expiry 9876543210,
       // blinder of 31 zero bytes.
       final keyPair = EphemeralKeyPair(

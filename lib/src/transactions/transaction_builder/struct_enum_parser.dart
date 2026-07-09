@@ -36,8 +36,7 @@ const String _moduleSeparator = '::';
 
 /// Represents a BCS-serializable struct argument.
 /// Encodes struct fields in declaration order.
-class MoveStructArgument extends Serializable
-    implements EntryFunctionArgument {
+class MoveStructArgument extends Serializable implements EntryFunctionArgument {
   /// The encoded BCS bytes for this struct.
   final Uint8List _bcsBytes;
 
@@ -323,7 +322,8 @@ class StructEnumArgumentParser {
     // Special handling for Option<T> - uses vector encoding for backward
     // compatibility.
     if (_isOptionType(structTag)) {
-      return _encodeOptionArgument(structTag, variantName, variantFields, depth);
+      return _encodeOptionArgument(
+          structTag, variantName, variantFields, depth);
     }
 
     // Fetch module to get enum definition.
@@ -529,7 +529,8 @@ class StructEnumArgumentParser {
 
     // Handle vector types - recursively substitute the inner type.
     if (fieldType is TypeTagVector) {
-      final substitutedInner = _substituteTypeParams(fieldType.value, structTag);
+      final substitutedInner =
+          _substituteTypeParams(fieldType.value, structTag);
       return TypeTagVector(substitutedInner);
     }
 
@@ -738,8 +739,7 @@ class StructEnumArgumentParser {
           );
           final abi = module.abi;
           if (abi != null) {
-            final structDef =
-                _findStruct(abi, structTag.value.name.identifier);
+            final structDef = _findStruct(abi, structTag.value.name.identifier);
             if (structDef != null && structDef.isEnum) {
               final result = await encodeEnumArgument(structTag, value, depth);
               return result.bcsToBytes();

@@ -75,7 +75,8 @@ abstract class PrivateKey {
         }
 
         // This condition should never be reached.
-        throw ArgumentError('Invalid HexString input while parsing private key.');
+        throw ArgumentError(
+            'Invalid HexString input while parsing private key.');
       }
     } else {
       // The value is a Uint8List.

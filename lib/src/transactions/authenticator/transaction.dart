@@ -172,8 +172,7 @@ class TransactionAuthenticatorFeePayer extends TransactionAuthenticator {
   final List<AccountAuthenticator> secondarySigners;
 
   /// The fee payer's account address and authenticator.
-  final ({AccountAddress address, AccountAuthenticator authenticator})
-      feePayer;
+  final ({AccountAddress address, AccountAuthenticator authenticator}) feePayer;
 
   TransactionAuthenticatorFeePayer(
     this.sender,

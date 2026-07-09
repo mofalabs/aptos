@@ -62,8 +62,7 @@ void main() {
       );
       expect(
         Deserializer(Uint8List.fromList(
-                [0x00, 0xef, 0xcd, 0xab, 0x78, 0x56, 0x34, 0x12]))
-            .deserializeU64(),
+            [0x00, 0xef, 0xcd, 0xab, 0x78, 0x56, 0x34, 0x12])).deserializeU64(),
         equals(BigInt.parse('1311768467750121216')),
       );
       expect(
@@ -79,8 +78,8 @@ void main() {
     });
 
     test('deserializes signed integers (two\'s complement)', () {
-      expect(Deserializer(Uint8List.fromList([0xff])).deserializeI8(),
-          equals(-1));
+      expect(
+          Deserializer(Uint8List.fromList([0xff])).deserializeI8(), equals(-1));
       expect(Deserializer(Uint8List.fromList([0x80])).deserializeI8(),
           equals(-128));
       expect(Deserializer(Uint8List.fromList([0x7f])).deserializeI8(),
@@ -95,8 +94,7 @@ void main() {
         equals(-1),
       );
       expect(
-        Deserializer(Uint8List.fromList(List.filled(8, 0xff)))
-            .deserializeI64(),
+        Deserializer(Uint8List.fromList(List.filled(8, 0xff))).deserializeI64(),
         equals(BigInt.from(-1)),
       );
       expect(
@@ -222,8 +220,7 @@ void main() {
         MoveOption.u64(BigInt.one).bcsToBytes(),
         equals(Uint8List.fromList([1, 1, 0, 0, 0, 0, 0, 0, 0])),
       );
-      expect(MoveOption.u8(null).bcsToBytes(),
-          equals(Uint8List.fromList([0])));
+      expect(MoveOption.u8(null).bcsToBytes(), equals(Uint8List.fromList([0])));
       expect(() => MoveOption.u8(null).unwrap(), throwsStateError);
       expect(MoveOption.u8(7).unwrap().value, equals(7));
 
@@ -269,8 +266,7 @@ void main() {
   group('Hex', () {
     test('creates from and converts between formats', () {
       expect(Hex.fromHexString('0x1234').toString(), equals('0x1234'));
-      expect(Hex.fromHexString('1234').toStringWithoutPrefix(),
-          equals('1234'));
+      expect(Hex.fromHexString('1234').toStringWithoutPrefix(), equals('1234'));
       expect(
         Hex.fromHexInput(Uint8List.fromList([0x12, 0x34])).toString(),
         equals('0x1234'),

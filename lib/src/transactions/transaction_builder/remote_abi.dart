@@ -151,7 +151,8 @@ Future<ModuleAbiBundle> fetchModuleAbiWithStructs(
   return memoizeAsync(
     () async {
       // Fetch the main module ABI.
-      final module = await fetchModuleAbi(moduleAddress, moduleName, aptosConfig);
+      final module =
+          await fetchModuleAbi(moduleAddress, moduleName, aptosConfig);
       if (module == null) {
         throw StateError('Module not found: $moduleAddress::$moduleName');
       }
@@ -197,7 +198,8 @@ Future<MoveFunction?> fetchFunctionAbi(
   String functionName,
   AptosConfig aptosConfig,
 ) async {
-  final moduleAbi = await fetchModuleAbi(moduleAddress, moduleName, aptosConfig);
+  final moduleAbi =
+      await fetchModuleAbi(moduleAddress, moduleName, aptosConfig);
   if (moduleAbi == null) {
     throw StateError(
       "Could not find module ABI for '$moduleAddress::$moduleName'",
@@ -217,8 +219,8 @@ Future<FunctionABI> fetchMoveFunctionAbi(
   String functionName,
   AptosConfig aptosConfig,
 ) async {
-  final functionAbi =
-      await fetchFunctionAbi(moduleAddress, moduleName, functionName, aptosConfig);
+  final functionAbi = await fetchFunctionAbi(
+      moduleAddress, moduleName, functionName, aptosConfig);
   if (functionAbi == null) {
     throw StateError(
       'Could not find function ABI for '
@@ -248,8 +250,8 @@ Future<EntryFunctionABI> fetchEntryFunctionAbi(
   String functionName,
   AptosConfig aptosConfig,
 ) async {
-  final functionAbi =
-      await fetchFunctionAbi(moduleAddress, moduleName, functionName, aptosConfig);
+  final functionAbi = await fetchFunctionAbi(
+      moduleAddress, moduleName, functionName, aptosConfig);
 
   // If there's no ABI, then the function is invalid.
   if (functionAbi == null) {
@@ -292,8 +294,8 @@ Future<ViewFunctionABI> fetchViewFunctionAbi(
   String functionName,
   AptosConfig aptosConfig,
 ) async {
-  final functionAbi =
-      await fetchFunctionAbi(moduleAddress, moduleName, functionName, aptosConfig);
+  final functionAbi = await fetchFunctionAbi(
+      moduleAddress, moduleName, functionName, aptosConfig);
 
   // If there's no ABI, then the function is invalid.
   if (functionAbi == null) {
@@ -400,9 +402,8 @@ EntryFunctionArgument convertArgument(
     param,
     position,
     genericTypeParams,
-    moduleAbi: functionAbiOrModuleAbi is MoveModule
-        ? functionAbiOrModuleAbi
-        : null,
+    moduleAbi:
+        functionAbiOrModuleAbi is MoveModule ? functionAbiOrModuleAbi : null,
     allowUnknownStructs: allowUnknownStructs,
   );
 }
@@ -427,9 +428,8 @@ Future<EntryFunctionArgument> convertArgumentWithABI(
     position,
     genericTypeParams,
     aptosConfig,
-    moduleAbi: functionAbiOrModuleAbi is MoveModule
-        ? functionAbiOrModuleAbi
-        : null,
+    moduleAbi:
+        functionAbiOrModuleAbi is MoveModule ? functionAbiOrModuleAbi : null,
     allowUnknownStructs: allowUnknownStructs,
   );
 }
@@ -928,8 +928,8 @@ Future<EntryFunctionArgument> _parseArgAsync(
       final moduleName = param.value.moduleName.identifier;
 
       try {
-        final abiBundle =
-            await fetchModuleAbiWithStructs(moduleAddress, moduleName, aptosConfig);
+        final abiBundle = await fetchModuleAbiWithStructs(
+            moduleAddress, moduleName, aptosConfig);
 
         // Instantiate the parser and preload it with all referenced struct
         // modules.
@@ -1120,11 +1120,12 @@ void _checkType(TypeTag param, Object? arg, int position) {
       return;
     }
 
-    throwTypeMismatch('MoveStructArgument | MoveEnumArgument | FixedBytes',
-        position);
+    throwTypeMismatch(
+        'MoveStructArgument | MoveEnumArgument | FixedBytes', position);
   }
 
-  throw ArgumentError("Type mismatch for argument $position, expected '$param'");
+  throw ArgumentError(
+      "Type mismatch for argument $position, expected '$param'");
 }
 
 // ARGUMENT TYPE HELPERS //

@@ -73,8 +73,7 @@ void main() {
 
     test('should verify the signature correctly', () {
       final pubKey = Secp256r1PublicKey(singleSignerSecp256r1.publicKey);
-      final signature =
-          Secp256r1Signature(singleSignerSecp256r1.signatureHex);
+      final signature = Secp256r1Signature(singleSignerSecp256r1.signatureHex);
 
       // Convert message to hex.
       final hexMsg = Hex.fromHexString(singleSignerSecp256r1.messageEncoded);
@@ -128,8 +127,7 @@ void main() {
     test(
         'should create the instance correctly without error with AIP-80 compliant private key',
         () {
-      final privateKey2 =
-          Secp256r1PrivateKey(singleSignerSecp256r1.privateKey);
+      final privateKey2 = Secp256r1PrivateKey(singleSignerSecp256r1.privateKey);
       expect(privateKey2.toString(), equals(singleSignerSecp256r1.privateKey));
     });
 
@@ -353,11 +351,11 @@ void main() {
         final privateKey = Secp256r1PrivateKey.generate();
         final publicKey = privateKey.publicKey();
         final sig = privateKey.signText('hello');
-        expect(
-            publicKey.verifyText(message: 'hello', signature: sig), isTrue);
+        expect(publicKey.verifyText(message: 'hello', signature: sig), isTrue);
       });
 
-      test('signText("cafe") and signBytes([0xCA, 0xFE]) are over different bytes',
+      test(
+          'signText("cafe") and signBytes([0xCA, 0xFE]) are over different bytes',
           () {
         final privateKey = Secp256r1PrivateKey.generate();
         final publicKey = privateKey.publicKey();
@@ -462,8 +460,7 @@ void main() {
       final deserializer = Deserializer(serializedSignatureUint8List);
       final signature = Secp256r1Signature.deserialize(deserializer);
 
-      expect(
-          signature.toString(), equals(singleSignerSecp256r1.signatureHex));
+      expect(signature.toString(), equals(singleSignerSecp256r1.signatureHex));
     });
   });
 
@@ -484,8 +481,8 @@ void main() {
         Deserializer(serializer.toUint8List()),
       );
 
-      expect(restored.signature.toString(),
-          equals(original.signature.toString()));
+      expect(
+          restored.signature.toString(), equals(original.signature.toString()));
       expect(restored.authenticatorData.toString(),
           equals(original.authenticatorData.toString()));
       expect(restored.clientDataJSON.toString(),

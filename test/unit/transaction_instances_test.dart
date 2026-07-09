@@ -92,9 +92,10 @@ void main() {
 
       final inner = payload as TransactionInnerPayloadV1;
       expect(inner.executable, isA<TransactionExecutableEntryFunction>());
-      final entry =
-          (inner.executable as TransactionExecutableEntryFunction).entryFunction;
-      expect(entry.moduleName.address.toString(), AccountAddress.one.toString());
+      final entry = (inner.executable as TransactionExecutableEntryFunction)
+          .entryFunction;
+      expect(
+          entry.moduleName.address.toString(), AccountAddress.one.toString());
       expect(entry.moduleName.name.identifier, 'aptos_account');
       expect(entry.functionName.identifier, 'transfer');
       expect(entry.typeArgs, isEmpty);
@@ -259,8 +260,9 @@ void main() {
       // Variant index 2 (EntryFunction).
       expect(bytes[0], 2);
 
-      final restored = roundTrip(original.serialize, TransactionPayload.deserialize)
-          as TransactionPayloadEntryFunction;
+      final restored =
+          roundTrip(original.serialize, TransactionPayload.deserialize)
+              as TransactionPayloadEntryFunction;
       expect(
         restored.entryFunction.moduleName.address.toString(),
         original.entryFunction.moduleName.address.toString(),
@@ -278,8 +280,9 @@ void main() {
       // Variant index 0 (Script).
       expect(bytes[0], 0);
 
-      final restored = roundTrip(original.serialize, TransactionPayload.deserialize)
-          as TransactionPayloadScript;
+      final restored =
+          roundTrip(original.serialize, TransactionPayload.deserialize)
+              as TransactionPayloadScript;
       expect(restored.script.bytecode, equals([0xa1, 0x1c]));
       expect(restored.script.typeArgs, isEmpty);
       expect(restored.script.args, isEmpty);
@@ -421,8 +424,8 @@ void main() {
         config.serialize,
         TransactionExtraConfig.deserialize,
       ) as TransactionExtraConfigV1;
-      expect(restored.multisigAddress.toString(),
-          AccountAddress.one.toString());
+      expect(
+          restored.multisigAddress.toString(), AccountAddress.one.toString());
       expect(restored.replayProtectionNonce, BigInt.from(256));
     });
 
@@ -509,8 +512,7 @@ void main() {
         ChainId(1),
       );
 
-      final restored =
-          roundTrip(rawTxn.serialize, RawTransaction.deserialize);
+      final restored = roundTrip(rawTxn.serialize, RawTransaction.deserialize);
 
       expect(restored.sender.toString(), txSender.toString());
       expect(restored.sequenceNumber, BigInt.zero);
@@ -607,8 +609,7 @@ void main() {
 
   group('MultiAgentTransaction', () {
     test('round-trips with one secondary signer and no fee payer', () {
-      final original =
-          MultiAgentTransaction(makeRawTransaction(), [recipient]);
+      final original = MultiAgentTransaction(makeRawTransaction(), [recipient]);
 
       final restored =
           roundTrip(original.serialize, MultiAgentTransaction.deserialize);
@@ -657,8 +658,7 @@ void main() {
 
   group('AnyRawTransaction', () {
     test('SimpleTransaction and MultiAgentTransaction implement it', () {
-      final AnyRawTransaction simple =
-          SimpleTransaction(makeRawTransaction());
+      final AnyRawTransaction simple = SimpleTransaction(makeRawTransaction());
       final AnyRawTransaction multi =
           MultiAgentTransaction(makeRawTransaction(), [recipient]);
 
@@ -670,8 +670,7 @@ void main() {
     });
 
     test('feePayerAddress is mutable (set at signing time)', () {
-      final AnyRawTransaction simple =
-          SimpleTransaction(makeRawTransaction());
+      final AnyRawTransaction simple = SimpleTransaction(makeRawTransaction());
       final AnyRawTransaction multi =
           MultiAgentTransaction(makeRawTransaction(), [recipient]);
 
@@ -705,7 +704,8 @@ void main() {
 
       // Constants — these are part of the on-chain ABI; locking them ensures
       // a future rename can't accidentally drift.
-      expect(challenge.accountAddress.toString(), AccountAddress.one.toString());
+      expect(
+          challenge.accountAddress.toString(), AccountAddress.one.toString());
       expect(challenge.moduleName.value, 'account');
       expect(challenge.structName.value, 'RotationProofChallenge');
     });
@@ -764,12 +764,10 @@ void main() {
           Uint8List.fromList(List.filled(64, 6)),
         );
 
-    test('ClaimedEntryFunction round-trips with and without function name',
-        () {
+    test('ClaimedEntryFunction round-trips with and without function name', () {
       final moduleId = ModuleId(AccountAddress.one, Identifier('coin'));
 
-      final withName =
-          ClaimedEntryFunction(moduleId, Identifier('transfer'));
+      final withName = ClaimedEntryFunction(moduleId, Identifier('transfer'));
       final restoredWithName = roundTrip(
         withName.serialize,
         ClaimedEntryFunction.deserialize,
@@ -801,8 +799,7 @@ void main() {
 
     test('DecryptedPlaintext round-trips and validates nonce length', () {
       final nonce = Uint8List.fromList(List.generate(16, (i) => i));
-      final plaintext =
-          DecryptedPlaintext(TransactionExecutableEmpty(), nonce);
+      final plaintext = DecryptedPlaintext(TransactionExecutableEmpty(), nonce);
 
       final restored = roundTrip(
         plaintext.serialize,
@@ -823,16 +820,14 @@ void main() {
       //   salt = sha3_256(b"APTOS::DecryptedPlaintext").digest()
       //   sha3_256(salt + bytes([0x02]) + bytes(range(16))).hexdigest()
       final nonce = Uint8List.fromList(List.generate(16, (i) => i));
-      final plaintext =
-          DecryptedPlaintext(TransactionExecutableEmpty(), nonce);
+      final plaintext = DecryptedPlaintext(TransactionExecutableEmpty(), nonce);
       expect(
         Hex.fromHexInput(plaintext.hash()).toStringWithoutPrefix(),
         '62417fe908080ce69d539b46e1f7187aa1c210f1b380ce9e4106b409ea2519eb',
       );
     });
 
-    test('PayloadAssociatedData round-trips and rejects empty signer list',
-        () {
+    test('PayloadAssociatedData round-trips and rejects empty signer list', () {
       final authKey = AuthenticationKey(data: Uint8List(32)..[31] = 0xcd);
       final data = PayloadAssociatedData(sender, [
         SignerAuthKeyPair(address: recipient, authenticationKey: authKey),
@@ -922,7 +917,8 @@ void main() {
       expect(serializeToBytes(restored.serialize), equals(bytes));
     });
 
-    test('TransactionPayloadEncryptedPayload validates hash length and inner variant',
+    test(
+        'TransactionPayloadEncryptedPayload validates hash length and inner variant',
         () {
       expect(
         () => TransactionPayloadEncryptedPayload(

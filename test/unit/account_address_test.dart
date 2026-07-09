@@ -119,8 +119,8 @@ void main() {
       final special = AccountAddress.fromString('0x1');
       expect(special.toString(), equals('0x1'));
       expect(special.toStringLong(), equals(addressOne));
-      expect(special.toStringLongWithoutPrefix(),
-          equals(addressOne.substring(2)));
+      expect(
+          special.toStringLongWithoutPrefix(), equals(addressOne.substring(2)));
       expect(special.toStringShort(), equals('0x1'));
 
       final other = AccountAddress.fromString(addressOther);
@@ -134,7 +134,8 @@ void main() {
           '0x0000ca843279e3427144cead5e4d5999a3d0ca843279e3427144cead5e4d5999');
       expect(
         padded.toStringShort(),
-        equals('0xca843279e3427144cead5e4d5999a3d0ca843279e3427144cead5e4d5999'),
+        equals(
+            '0xca843279e3427144cead5e4d5999a3d0ca843279e3427144cead5e4d5999'),
       );
     });
 
@@ -182,8 +183,8 @@ void main() {
       );
       final result = AccountAddress.isValid(input: '0xzz');
       expect(result.valid, isFalse);
-      expect(result.invalidReason,
-          equals(AddressInvalidReason.invalidHexChars));
+      expect(
+          result.invalidReason, equals(AddressInvalidReason.invalidHexChars));
     });
   });
 
@@ -194,8 +195,7 @@ void main() {
       expect(bytes.length, equals(32));
       expect(bytes.last, equals(1));
 
-      final deserialized =
-          AccountAddress.deserialize(Deserializer(bytes));
+      final deserialized = AccountAddress.deserialize(Deserializer(bytes));
       expect(deserialized.equals(address), isTrue);
     });
 

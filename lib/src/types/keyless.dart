@@ -137,8 +137,7 @@ class KeylessConfigurationResponse {
       maxIssValBytes: json['max_iss_val_bytes'] as int,
       maxJwtHeaderB64Bytes: json['max_jwt_header_b64_bytes'] as int,
       maxSignaturesPerTxn: json['max_signatures_per_txn'] as int,
-      overrideAudVals:
-          (json['override_aud_vals'] as List).cast<String>(),
+      overrideAudVals: (json['override_aud_vals'] as List).cast<String>(),
       trainingWheelsPubkey:
           trainingWheels.isEmpty ? null : trainingWheels.first as String,
     );

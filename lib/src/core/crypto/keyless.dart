@@ -148,8 +148,7 @@ class KeylessPublicKey extends AccountPublicKey {
 
   /// Determines if the provided public key is an instance of
   /// KeylessPublicKey.
-  static bool isPublicKey(PublicKey publicKey) =>
-      publicKey is KeylessPublicKey;
+  static bool isPublicKey(PublicKey publicKey) => publicKey is KeylessPublicKey;
 
   /// Creates a KeylessPublicKey from the JWT components plus pepper.
   ///
@@ -213,8 +212,7 @@ class KeylessPublicKey extends AccountPublicKey {
 
   /// Checks if the provided public key is a valid instance by verifying its
   /// structure and types.
-  static bool isInstance(PublicKey publicKey) =>
-      publicKey is KeylessPublicKey;
+  static bool isInstance(PublicKey publicKey) => publicKey is KeylessPublicKey;
 }
 
 // TODO: `verifyKeylessSignature` (the async variant that fetches the
@@ -456,8 +454,7 @@ class KeylessSignature extends Signature {
     );
   }
 
-  static bool isSignature(Signature signature) =>
-      signature is KeylessSignature;
+  static bool isSignature(Signature signature) => signature is KeylessSignature;
 }
 
 /// Represents an ephemeral certificate containing a signature, specifically a

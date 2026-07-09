@@ -21,8 +21,7 @@ class EphemeralPublicKey extends PublicKey {
   /// This constructor ensures that only supported key types are accepted.
   ///
   /// Throws an [ArgumentError] if the public key type is unsupported.
-  EphemeralPublicKey(this.publicKey)
-      : variant = _variantOf(publicKey);
+  EphemeralPublicKey(this.publicKey) : variant = _variantOf(publicKey);
 
   static EphemeralPublicKeyVariant _variantOf(PublicKey publicKey) {
     if (publicKey is Ed25519PublicKey) {
@@ -38,7 +37,8 @@ class EphemeralPublicKey extends PublicKey {
   /// Returns true if the [signature] was signed by the private key of the
   /// ephemeral public key, otherwise false.
   @override
-  bool verifySignature({required HexInput message, required Signature signature}) {
+  bool verifySignature(
+      {required HexInput message, required Signature signature}) {
     if (signature is! EphemeralSignature) {
       throw ArgumentError(
         'Signature must be an EphemeralSignature, got ${signature.runtimeType}',

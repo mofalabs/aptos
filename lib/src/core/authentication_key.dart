@@ -51,8 +51,7 @@ class AuthenticationKey extends Serializable {
   ///
   /// Throws an [ArgumentError] if the length of the provided hex input is not
   /// equal to the required Authentication Key length.
-  AuthenticationKey({required HexInput data})
-      : data = Hex.fromHexInput(data) {
+  AuthenticationKey({required HexInput data}) : data = Hex.fromHexInput(data) {
     if (this.data.toUint8List().length != AuthenticationKey.length) {
       throw ArgumentError(
         'Authentication Key length should be ${AuthenticationKey.length}',
