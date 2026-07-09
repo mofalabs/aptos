@@ -220,17 +220,47 @@ void main() {
       expect(config.verificationKey.hash(), hash);
     });
 
-    test('verifyProof is not yet supported (BN254 pairings)', () {
+    test('verifyProof accepts the fixture proof and rejects a tampered hash',
+        () {
       final config = keylessTestConfig();
-      final zkSig = ZeroKnowledgeSig.fromBytes(
-        Hex.fromHexInput(keylessTestObject.proofHex).toUint8List(),
+      final publicKey = KeylessPublicKey(
+        keylessTestObject.iss,
+        keylessTestObject.idCommitment,
       );
+      final signature = KeylessSignature.deserialize(Deserializer(
+        Hex.fromHexInput(keylessTestObject.signatureHex).toUint8List(),
+      ));
+      final jwk = MoveJWK.deserialize(Deserializer(
+        Hex.fromHexInput(keylessTestObject.jwkHex).toUint8List(),
+      ));
+      final publicInputsHash = getPublicInputsHash(
+        publicKey: publicKey,
+        signature: signature,
+        jwk: jwk,
+        keylessConfig: config,
+      );
+      final groth16Proof =
+          (signature.ephemeralCertificate.signature as ZeroKnowledgeSig)
+              .proof
+              .proof as Groth16Zkp;
+
+      // The real fixture proof verifies against the real verification key
+      // with the correct public inputs hash (exercises point decompression,
+      // the BN254 pairing, and the Groth16 equation end to end).
       expect(
-        () => config.verificationKey.verifyProof(
-          publicInputsHash: BigInt.one,
-          groth16Proof: zkSig.proof.proof as Groth16Zkp,
+        config.verificationKey.verifyProof(
+          publicInputsHash: publicInputsHash,
+          groth16Proof: groth16Proof,
         ),
-        throwsA(isA<UnsupportedError>()),
+        true,
+      );
+      // Tampering the public inputs hash makes verification fail.
+      expect(
+        config.verificationKey.verifyProof(
+          publicInputsHash: publicInputsHash + BigInt.one,
+          groth16Proof: groth16Proof,
+        ),
+        false,
       );
     });
   });

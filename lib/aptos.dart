@@ -47,6 +47,7 @@ export 'src/core/account_address.dart';
 export 'src/core/authentication_key.dart';
 export 'src/core/common.dart';
 export 'src/core/crypto/any_key_registry.dart';
+export 'src/core/crypto/bn254.dart';
 export 'src/core/crypto/ed25519.dart';
 export 'src/core/crypto/ephemeral.dart';
 export 'src/core/crypto/federated_keyless.dart';

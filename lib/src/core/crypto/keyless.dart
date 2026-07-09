@@ -10,6 +10,7 @@ import '../../types/types.dart';
 import '../../utils/helpers.dart';
 import '../authentication_key.dart';
 import '../hex.dart';
+import 'bn254.dart';
 import 'ed25519.dart';
 import 'ephemeral.dart';
 import 'federated_keyless.dart';
@@ -90,9 +91,8 @@ class KeylessPublicKey extends AccountPublicKey {
   /// optional named parameters only to satisfy the base [PublicKey]
   /// interface.
   ///
-  /// NOTE: full verification requires BN254 pairings for the Groth16
-  /// proof check, which are not yet available in pure Dart. See
-  /// [Groth16VerificationKey.verifyProof].
+  /// The Groth16 proof itself is verified via
+  /// [Groth16VerificationKey.verifyProof] (BN254 pairings).
   @override
   bool verifySignature({
     required HexInput message,
@@ -224,11 +224,10 @@ class KeylessPublicKey extends AccountPublicKey {
 /// Synchronously verifies a keyless signature for a given message. You need
 /// to provide the keyless configuration and the JWK to use for verification.
 ///
-/// Throws an [ArgumentError] or [StateError] if the signature is invalid.
+/// This performs full local verification, including the BN254 Groth16 proof
+/// check via [Groth16VerificationKey.verifyProof].
 ///
-/// NOTE: the final Groth16 proof check requires BN254 pairings and is
-/// not yet implemented in pure Dart — [Groth16VerificationKey.verifyProof]
-/// throws [UnsupportedError].
+/// Throws an [ArgumentError] or [StateError] if the signature is invalid.
 void verifyKeylessSignatureWithJwkAndConfig({
   required PublicKey publicKey,
   required HexInput message,
@@ -519,8 +518,8 @@ class G1Bytes extends Serializable {
     return G1Bytes(bytes);
   }
 
-  // TODO: `toArray`/`toProjectivePoint` require BN254 curve arithmetic,
-  // which has no pure Dart equivalent in the current dependency set.
+  /// Decodes the compressed bytes into an affine BN254 G1 point.
+  G1Point toProjectivePoint() => G1Point.fromAptosCompressed(data);
 }
 
 /// Represents a 64-byte G2 element in a cryptographic context.
@@ -546,8 +545,8 @@ class G2Bytes extends Serializable {
     return G2Bytes(bytes);
   }
 
-  // TODO: `toArray`/`toProjectivePoint` require BN254 curve arithmetic,
-  // which has no pure Dart equivalent in the current dependency set.
+  /// Decodes the compressed bytes into an affine BN254 G2 point.
+  G2Point toProjectivePoint() => G2Point.fromAptosCompressed(data);
 }
 
 /// Represents a Groth16 zero-knowledge proof, consisting of three proof points
@@ -874,17 +873,34 @@ class Groth16VerificationKey {
   /// Verifies a Groth16 proof using the verification key given the public
   /// inputs hash and the proof.
   ///
-  /// TODO: requires BN254 pairings. There is no pure Dart BN254
-  /// implementation in the current dependency set, so this throws
-  /// [UnsupportedError].
+  /// Checks the pairing equation
+  /// `e(A, B) = e(α, β) · e(ic₀ + h·ic₁, γ) · e(C, δ)`, where `A`, `B`, `C`
+  /// are the proof points, `h` is [publicInputsHash], and the remaining
+  /// points come from this verification key.
   bool verifyProof({
     required BigInt publicInputsHash,
     required Groth16Zkp groth16Proof,
   }) {
-    throw UnsupportedError(
-      'Groth16 proof verification requires BN254 pairings, which are not yet '
-      'implemented in the Dart SDK.',
-    );
+    final proofA = groth16Proof.a.toProjectivePoint();
+    final proofB = groth16Proof.b.toProjectivePoint();
+    final proofC = groth16Proof.c.toProjectivePoint();
+
+    final vkAlpha1 = alphaG1.toProjectivePoint();
+    final vkBeta2 = betaG2.toProjectivePoint();
+    final vkGamma2 = gammaG2.toProjectivePoint();
+    final vkDelta2 = deltaG2.toProjectivePoint();
+    final vkIc = gammaAbcG1.map((g1) => g1.toProjectivePoint()).toList();
+
+    // ic₀ + publicInputsHash · ic₁
+    final accum = vkIc[0].add(vkIc[1].multiply(publicInputsHash));
+
+    final pairingAccumGamma = bn254Pairing(accum, vkGamma2);
+    final pairingAb = bn254Pairing(proofA, proofB);
+    final pairingAlphaBeta = bn254Pairing(vkAlpha1, vkBeta2);
+    final pairingCDelta = bn254Pairing(proofC, vkDelta2);
+
+    final product = pairingAlphaBeta.mul(pairingAccumGamma.mul(pairingCDelta));
+    return pairingAb.eql(product);
   }
 
   // TODO: `toSnarkJsJson` depends on G1Bytes/G2Bytes.toArray which

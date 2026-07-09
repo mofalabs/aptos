@@ -50,8 +50,8 @@ class FederatedKeylessPublicKey extends AccountPublicKey {
   /// optional named parameters only to satisfy the base [PublicKey]
   /// interface.
   ///
-  /// NOTE: full verification requires BN254 pairings for the Groth16
-  /// proof check, which are not yet available in pure Dart. See
+  /// The Groth16 proof itself is verified via
+  /// [Groth16VerificationKey.verifyProof] (BN254 pairings). See
   /// [Groth16VerificationKey.verifyProof].
   @override
   bool verifySignature({
