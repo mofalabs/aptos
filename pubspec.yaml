@@ -1,29 +1,17 @@
 name: aptos
-description: Aptos Dart SDK.
-version: 0.0.6
+description: Aptos Dart SDK — a pure-Dart client library for the Aptos blockchain.
+version: 1.0.0
 repository: https://github.com/0xmove/aptos
 
 environment:
-  sdk: ">=3.0.3 <4.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-    
-  dio: ^5.3.0
-  hex: ^0.2.0
-  ed25519_edwards: 0.3.1
-  pointycastle: 3.7.3
-  bip39: 1.0.6
-  freezed_annotation: ^2.2.0
-  json_annotation: ^4.8.0
-  graphql: ^5.1.3
+  dio: ^5.4.0
+  ed25519_edwards: ^0.3.1
+  pointycastle: ^3.9.1
+  bip39: ^1.0.6
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^1.0.0
-  build_runner: ^2.3.3
-  freezed: ^2.3.2
-  json_serializable: ^6.6.1
+  lints: ^4.0.0
+  test: ^1.25.0
