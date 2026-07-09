@@ -9,7 +9,26 @@ import 'types.dart';
 class DioClient implements Client {
   final Dio _dio;
 
-  DioClient([Dio? dio]) : _dio = dio ?? Dio();
+  /// Default connection timeout applied when this client creates its own
+  /// [Dio] instance. Generous enough for slow fullnode/indexer/faucet
+  /// endpoints while still failing instead of hanging forever.
+  static const Duration defaultConnectTimeout = Duration(seconds: 30);
+
+  /// Default receive timeout applied when this client creates its own [Dio].
+  static const Duration defaultReceiveTimeout = Duration(seconds: 60);
+
+  /// Creates a client backed by [dio], or by a new [Dio] configured with
+  /// [defaultConnectTimeout]/[defaultReceiveTimeout] when [dio] is omitted.
+  ///
+  /// To use custom timeouts (or any other dio configuration), pass your own
+  /// [Dio] instance.
+  DioClient([Dio? dio])
+      : _dio = dio ??
+            Dio(BaseOptions(
+              connectTimeout: defaultConnectTimeout,
+              receiveTimeout: defaultReceiveTimeout,
+              sendTimeout: defaultReceiveTimeout,
+            ));
 
   @override
   Future<ClientResponse<dynamic>> provider(ClientRequest requestOptions) async {
