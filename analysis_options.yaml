@@ -8,3 +8,4 @@ linter:
   rules:
     - prefer_single_quotes
     - directives_ordering
+    - unintended_html_in_doc_comment

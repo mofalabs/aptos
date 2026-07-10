@@ -132,17 +132,17 @@ class TypeTagParserError implements Exception {
 /// accommodating various formats including generics and nested types.
 ///
 /// All types are made of a few parts they're either:
-/// 1. A simple type e.g. u8
-/// 2. A standalone struct e.g. 0x1::account::Account
-/// 3. A nested struct e.g. 0x1::coin::Coin<0x1234::coin::MyCoin>
+/// 1. A simple type e.g. `u8`
+/// 2. A standalone struct e.g. `0x1::account::Account`
+/// 3. A nested struct e.g. `0x1::coin::Coin<0x1234::coin::MyCoin>`
 ///
 /// There are a few more special cases that need to be handled, however.
-/// 1. Multiple generics e.g. 0x1::pair::Pair<u8, u16>
-/// 2. Spacing in the generics e.g. 0x1::pair::Pair< u8 , u16>
+/// 1. Multiple generics e.g. `0x1::pair::Pair<u8, u16>`
+/// 2. Spacing in the generics e.g. `0x1::pair::Pair< u8 , u16>`
 /// 3. Nested generics of different depths e.g.
-///    0x1::pair::Pair<0x1::coin::Coin<0x1234::coin::MyCoin>, u8>
-/// 4. Generics for types in ABIs are filled in with placeholders e.g. T1, T2,
-///    T3
+///    `0x1::pair::Pair<0x1::coin::Coin<0x1234::coin::MyCoin>, u8>`
+/// 4. Generics for types in ABIs are filled in with placeholders e.g. `T1`,
+///    `T2`, `T3`
 ///
 /// [typeStr] - The string representation of the type to be parsed.
 /// [allowGenerics] - A flag indicating whether to allow generics in the
