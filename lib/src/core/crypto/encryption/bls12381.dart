@@ -687,6 +687,9 @@ class G1Point {
     stripped[0] &= 0x1f;
     final xVal = _fpCreate(_beToBigInt(stripped));
     if (infinity) {
+      if (sort) {
+        throw ArgumentError('G1: sort flag must be unset for infinity');
+      }
       if (xVal != BigInt.zero) {
         throw ArgumentError('G1: non-zero coordinate for infinity');
       }
@@ -860,6 +863,9 @@ class G2Point {
     final xc1 = _fpCreate(_beToBigInt(c1Bytes));
     final xc0 = _fpCreate(_beToBigInt(bytes.sublist(48, 96)));
     if (infinity) {
+      if (sort) {
+        throw ArgumentError('G2: sort flag must be unset for infinity');
+      }
       if (xc0 != BigInt.zero || xc1 != BigInt.zero) {
         throw ArgumentError('G2: non-zero coordinate for infinity');
       }

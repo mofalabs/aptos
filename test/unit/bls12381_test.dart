@@ -98,4 +98,29 @@ void main() {
     final otpSource = blsPairing(g1Point, sigMpkG2).inverse().toLEBytes();
     expect(_hex(otpSource), v['bibe_otpSource']);
   });
+
+  group('compressed-point decoding rejects invalid encodings', () {
+    test('G1/G2 reject the infinity flag combined with the sort flag', () {
+      // 0xE0 = compressed | infinity | sort — an illegal flag combination.
+      final g1 = Uint8List(48)..[0] = 0xe0;
+      final g2 = Uint8List(96)..[0] = 0xe0;
+      expect(() => G1Point.fromCompressedBytes(g1), throwsArgumentError);
+      expect(() => G2Point.fromCompressedBytes(g2), throwsArgumentError);
+    });
+
+    test('G1/G2 still accept the canonical infinity encoding', () {
+      // 0xC0 = compressed | infinity, remaining bytes zero.
+      final g1 = Uint8List(48)..[0] = 0xc0;
+      final g2 = Uint8List(96)..[0] = 0xc0;
+      expect(G1Point.fromCompressedBytes(g1).isInfinity, isTrue);
+      expect(G2Point.fromCompressedBytes(g2).isInfinity, isTrue);
+    });
+
+    test('G1/G2 reject a wrong length', () {
+      expect(() => G1Point.fromCompressedBytes(Uint8List(47)),
+          throwsArgumentError);
+      expect(() => G2Point.fromCompressedBytes(Uint8List(95)),
+          throwsArgumentError);
+    });
+  });
 }

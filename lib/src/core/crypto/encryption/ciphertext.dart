@@ -78,6 +78,19 @@ class BIBECiphertext extends Serializable {
   static BIBECiphertext deserialize(Deserializer deserializer) {
     final idBytes = deserializer.deserializeBytes();
     final ctG2Bytes = deserializer.deserializeBytes();
+    if (ctG2Bytes.length != _g2Size * _ctG2Count) {
+      throw ArgumentError(
+        'Expected ${_g2Size * _ctG2Count} bytes for $_ctG2Count G2 points, '
+        'got ${ctG2Bytes.length}',
+      );
+    }
+    // Validate each ciphertext point is on the curve and in the prime-order
+    // subgroup, rejecting malformed or off-subgroup encodings on decode.
+    for (var i = 0; i < _ctG2Count; i += 1) {
+      G2Point.fromCompressedBytes(
+        Uint8List.sublistView(ctG2Bytes, i * _g2Size, (i + 1) * _g2Size),
+      );
+    }
     final paddedKey = deserializer.deserializeFixedBytes(symmetricKeyLength);
     final gcmNonce = deserializer.deserializeFixedBytes(gcmNonceLength);
     final ctBody = deserializer.deserializeBytes();

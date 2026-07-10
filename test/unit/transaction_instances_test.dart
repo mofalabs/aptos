@@ -7,6 +7,7 @@ import 'package:aptos/src/bcs/serializable/move_structs.dart';
 import 'package:aptos/src/bcs/serializer.dart';
 import 'package:aptos/src/core/account_address.dart';
 import 'package:aptos/src/core/authentication_key.dart';
+import 'package:aptos/src/core/crypto/encryption/bls12381.dart';
 import 'package:aptos/src/core/crypto/public_key.dart';
 import 'package:aptos/src/core/crypto/signature.dart';
 import 'package:aptos/src/core/hex.dart';
@@ -749,9 +750,12 @@ void main() {
   });
 
   group('Encrypted payload structures', () {
+    // Three valid, on-curve, prime-order G2 points (deserialize validates
+    // them), assembled as the concatenated 288-byte ct_g2 field.
+    final g2 = G2Point.base.toCompressedBytes();
     BIBECiphertext makeBibe() => BIBECiphertext(
           idBytes: Uint8List.fromList([1, 2, 3, 4]),
-          ctG2Bytes: Uint8List.fromList(List.filled(288, 7)),
+          ctG2Bytes: Uint8List.fromList([...g2, ...g2, ...g2]),
           paddedKey: Uint8List.fromList(List.filled(16, 8)),
           gcmNonce: Uint8List.fromList(List.filled(12, 9)),
           ctBody: Uint8List.fromList([1, 1, 2, 3, 5, 8]),
@@ -853,6 +857,32 @@ void main() {
       );
 
       expect(() => PayloadAssociatedData(sender, []), throwsArgumentError);
+    });
+
+    test('BIBECiphertext.deserialize rejects a wrong-length ct_g2 field', () {
+      final s = Serializer();
+      s.serializeBytes(Uint8List.fromList([1, 2, 3, 4])); // id
+      s.serializeBytes(Uint8List(10)); // ct_g2: 10 bytes instead of 288
+      s.serializeFixedBytes(Uint8List(16));
+      s.serializeFixedBytes(Uint8List(12));
+      s.serializeBytes(Uint8List(0));
+      expect(
+        () => BIBECiphertext.deserialize(Deserializer(s.toUint8List())),
+        throwsArgumentError,
+      );
+    });
+
+    test('BIBECiphertext.deserialize rejects invalid ct_g2 points', () {
+      final s = Serializer();
+      s.serializeBytes(Uint8List.fromList([1, 2, 3, 4]));
+      s.serializeBytes(Uint8List(288)); // 288 zero bytes: not valid G2 points
+      s.serializeFixedBytes(Uint8List(16));
+      s.serializeFixedBytes(Uint8List(12));
+      s.serializeBytes(Uint8List(0));
+      expect(
+        () => BIBECiphertext.deserialize(Deserializer(s.toUint8List())),
+        throwsA(anyOf(isA<ArgumentError>(), isA<StateError>())),
+      );
     });
 
     test('Ciphertext and BIBECiphertext round-trip byte-exactly', () {
