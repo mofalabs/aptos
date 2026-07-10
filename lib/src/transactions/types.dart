@@ -59,11 +59,12 @@ typedef AnyTransactionPayloadInstance = TransactionPayload;
 /// orderless options (`replayProtectionNonce`); the two fields are mutually
 /// exclusive at runtime (enforced by `generateRawTransaction`).
 ///
-/// NOTE: the encrypted-transaction build options (`encrypted`,
-/// `senderAuthenticationKey`, `secondarySignerAuthenticationKeys`,
-/// `feePayerAuthenticationKey`, `claimedEntryFunction`) are not yet
-/// implemented; they will be added together with the encrypted payload
-/// builder.
+/// When `encrypted` is set, the payload is encrypted against the node's
+/// per-epoch batch-encryption key before submission; the remaining
+/// encryption fields supply (or override) the signer authentication keys that
+/// go into the ciphertext's associated data, and an optional claimed entry
+/// function that fee payers / multisig co-signers can inspect without
+/// decrypting.
 class InputGenerateTransactionOptions {
   /// Maximum total gas to spend for this transaction.
   final int? maxGasAmount;
@@ -84,13 +85,50 @@ class InputGenerateTransactionOptions {
   /// a `TransactionInnerPayloadV1`.
   final BigInt? replayProtectionNonce;
 
+  /// When true, encrypt the payload against the node's batch-encryption key.
+  final bool? encrypted;
+
+  /// The sender's authentication key for the encrypted-payload associated
+  /// data. An `AuthenticationKey` or a `HexInput`; fetched from chain when
+  /// omitted. Only used when [encrypted] is true.
+  final Object? senderAuthenticationKey;
+
+  /// The secondary signers' authentication keys, one per secondary signer
+  /// address, in order. Each entry is an `AuthenticationKey` or `HexInput`;
+  /// leave an entry null to fetch it from chain. Only used when [encrypted].
+  final List<Object?>? secondarySignerAuthenticationKeys;
+
+  /// The fee payer's authentication key. An `AuthenticationKey` or `HexInput`;
+  /// fetched from chain when omitted. Only used when [encrypted].
+  final Object? feePayerAuthenticationKey;
+
+  /// An optional claim about the entry function inside the encrypted payload,
+  /// letting fee payers / multisig co-signers see the module (and optionally
+  /// the function name) without decrypting. A [ClaimedEntryFunction] or an
+  /// [InputClaimedEntryFunction]. Only used when [encrypted].
+  final Object? claimedEntryFunction;
+
   const InputGenerateTransactionOptions({
     this.maxGasAmount,
     this.gasUnitPrice,
     this.expireTimestamp,
     this.accountSequenceNumber,
     this.replayProtectionNonce,
+    this.encrypted,
+    this.senderAuthenticationKey,
+    this.secondarySignerAuthenticationKeys,
+    this.feePayerAuthenticationKey,
+    this.claimedEntryFunction,
   });
+}
+
+/// A lightweight description of the entry function claimed by an encrypted
+/// payload: the fully-qualified `module` (e.g. `0x1::coin`) and optionally the
+/// `functionName`. Resolved into a [ClaimedEntryFunction] by the builder.
+class InputClaimedEntryFunction {
+  final String module;
+  final String? functionName;
+  const InputClaimedEntryFunction({required this.module, this.functionName});
 }
 
 /// The data needed to generate a transaction payload: an

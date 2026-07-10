@@ -83,6 +83,7 @@ export 'src/transactions/instances/transaction_payload.dart';
 export 'src/transactions/management/account_sequence_number.dart';
 export 'src/transactions/management/async_queue.dart';
 export 'src/transactions/management/transaction_worker.dart';
+export 'src/transactions/transaction_builder/encrypt_payload.dart';
 export 'src/transactions/transaction_builder/remote_abi.dart';
 export 'src/transactions/transaction_builder/signing_message.dart';
 export 'src/transactions/transaction_builder/struct_enum_parser.dart';

@@ -37,6 +37,7 @@ import '../instances/signed_transaction.dart';
 import '../instances/simple_transaction.dart';
 import '../instances/transaction_payload.dart';
 import '../types.dart';
+import 'encrypt_payload.dart';
 import 'remote_abi.dart';
 
 /// Builds a transaction payload based on the provided input data and returns
@@ -408,12 +409,22 @@ Future<RawTransaction> generateRawTransaction({
   );
   final replayProtectionNonce = options?.replayProtectionNonce;
 
-  // The orderless flow wraps the payload in an inner V1 payload carrying the
+  // When encryption is requested the payload is encrypted against the node's
+  // batch-encryption key (folding in any replay nonce); otherwise the
+  // orderless flow wraps the payload in an inner V1 payload carrying the
   // replay nonce.
-  // NOTE: the encrypted payload flow (`options.encrypted`) is not yet
-  // implemented; it will be added together with the encrypted payload builder.
   var txnPayload = payload;
-  if (replayProtectionNonce != null) {
+  if (options?.encrypted == true) {
+    txnPayload = await buildEncryptedPayload(
+      aptosConfig: aptosConfig,
+      sender: sender,
+      payload: payload,
+      options: options!,
+      feePayerAddress: feePayerAddress,
+      secondarySignerAddresses: secondarySignerAddresses,
+      replayProtectionNonce: replayProtectionNonce,
+    );
+  } else if (replayProtectionNonce != null) {
     txnPayload = convertPayloadToInnerPayload(payload, replayProtectionNonce);
   }
 
