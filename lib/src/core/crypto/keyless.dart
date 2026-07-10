@@ -114,9 +114,10 @@ class KeylessPublicKey extends AccountPublicKey {
         keylessConfig: keylessConfig,
       );
       return true;
-    } on ArgumentError {
-      return false;
-    } on StateError {
+    } catch (_) {
+      // Any failure to verify (malformed proof, off-curve or off-subgroup
+      // point, decode error) means the signature is invalid — not that the
+      // caller made a usage error. Mirrors FederatedKeylessPublicKey.
       return false;
     }
   }

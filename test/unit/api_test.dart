@@ -540,6 +540,30 @@ void main() {
       expect(client.requests[1].url,
           equals('$devnetFullnode/transactions/wait_by_hash/0xabc'));
     });
+
+    test('keeps polling through the commit settle race instead of crashing',
+        () async {
+      // Right after commit the fullnode can return a committed-shaped response
+      // whose `success`/`vm_status` fields are not yet populated. Strict
+      // decoding throws a TypeError; waitForTransaction must treat that as
+      // unsettled and keep polling rather than aborting with a cast error.
+      final partialCommitted = userTxnJson(hash: '0xabc')
+        ..remove('success')
+        ..remove('vm_status');
+      final client = FakeClient([
+        ClientResponse(status: 200, data: partialCommitted),
+        ClientResponse(status: 200, data: userTxnJson(hash: '0xabc')),
+      ]);
+      final aptos = Aptos(AptosConfig(network: Network.devnet, client: client));
+
+      final response = await aptos.waitForTransaction(transactionHash: '0xabc');
+
+      expect(response, isA<UserTransactionResponse>());
+      expect(response.success, isTrue);
+      // The first fetch hit the settle race; the long-wait returned the
+      // fully-populated transaction.
+      expect(client.requests.length, greaterThanOrEqualTo(2));
+    });
   });
 
   group('faucet', () {

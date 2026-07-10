@@ -27,8 +27,9 @@ Future<AptosResponse<dynamic>> get({
       acceptType: acceptType?.value,
       params: params,
       overrides: AptosRequestOverrides(
-        apiKey: aptosConfig.clientConfig.apiKey,
-        withCredentials: aptosConfig.clientConfig.withCredentials,
+        apiKey: overrides?.apiKey ?? aptosConfig.clientConfig.apiKey,
+        withCredentials: overrides?.withCredentials ??
+            aptosConfig.clientConfig.withCredentials,
         headers: {...?aptosConfig.clientConfig.headers, ...?overrides?.headers},
         authToken: overrides?.authToken,
       ),

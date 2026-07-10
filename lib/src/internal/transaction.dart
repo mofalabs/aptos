@@ -142,30 +142,38 @@ Future<CommittedTransactionResponse> waitForTransaction({
   const backoffMultiplier = 1.5;
 
   // A response is "settled" when the fullnode has populated the execution
-  // result.
+  // result. A null response (404) and a `pending` response are both unsettled.
   //
-  // NOTE: a committed-shaped response whose `success` field has not been
-  // filled in yet could also be considered unsettled. The DTOs require
-  // `success` on committed responses, so such a partial response fails to
-  // parse instead; that window cannot be represented here.
+  // There is a third, transient case: right after commit, the fullnode can
+  // return a committed-shaped response whose `success`/`vm_status` fields are
+  // not yet populated. The DTOs require `success` on committed responses, so
+  // decoding that partial response throws a TypeError rather than yielding a
+  // value here. That case is handled as unsettled in [handleAPIError].
   bool isUnsettled(TransactionResponse? txn) {
     if (txn == null) return true;
     return txn.type == TransactionResponseType.pending;
   }
 
-  // Handles API errors by rethrowing request errors (4xx other than 404) and
-  // recording retryable errors (404 and 5xx) as the last error seen.
+  // Classifies an error raised while fetching the transaction:
+  //   - AptosApiError 404 / 5xx: transient; record and keep polling.
+  //   - AptosApiError other 4xx: a real request error; rethrow.
+  //   - TypeError: the commit "settle race" above, where a committed-shaped
+  //     response is not yet fully populated and fails to decode; keep polling.
+  //   - anything else: unexpected; rethrow.
   void handleAPIError(Object e) {
-    // In short, this means we will retry if it was an AptosApiError and the
-    // code was 404 or 5xx.
-    if (e is! AptosApiError) {
-      throw e; // This would be unexpected.
+    if (e is AptosApiError) {
+      lastError = e;
+      final isRequestError =
+          e.status != 404 && e.status >= 400 && e.status < 500;
+      if (isRequestError) {
+        throw e;
+      }
+      return;
     }
-    lastError = e;
-    final isRequestError = e.status != 404 && e.status >= 400 && e.status < 500;
-    if (isRequestError) {
-      throw e;
+    if (e is TypeError) {
+      return;
     }
+    throw e; // This would be unexpected.
   }
 
   // Check to see if the txn is already on the blockchain.
