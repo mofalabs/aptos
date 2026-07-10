@@ -1,0 +1,8 @@
+# Tests tagged `e2e` hit a live Aptos network (faucet + real submission) and
+# are skipped by default so the standard `dart test` run (and CI) stays
+# offline and fast. Run them explicitly with:
+#
+#   dart test -t e2e --run-skipped
+tags:
+  e2e:
+    skip: "live-network test; run with: dart test -t e2e --run-skipped"
