@@ -16,11 +16,12 @@ VM, Flutter (all platforms), and dart2js.
   (AA / DAA), BIP-44 / SLIP-0010 derivation, AIP-80 private key formatting.
 - **Complete transaction pipeline** — remote-ABI argument encoding, simple /
   multi-agent / sponsored (fee payer) transactions, orderless transactions
-  (replay protection nonce), simulation, batched submission via a
-  transaction worker.
-- **Wire-exact BCS** — the serialization layer is validated byte-for-byte
-  against known-answer vectors (700+ unit tests), including poseidon hashing
-  for keyless accounts implemented in pure Dart.
+  (replay protection nonce), encrypted transaction payloads (batch
+  encryption), simulation, batched submission via a transaction worker.
+- **Pure-Dart cryptography** — the serialization (BCS) and curve layers are
+  validated byte-for-byte against known-answer vectors (700+ unit tests):
+  ed25519 / secp256k1 / secp256r1, poseidon and BN254 pairings for keyless
+  Groth16 verification, and BLS12-381 pairings for encrypted transactions.
 - **Indexer GraphQL support** — token / coin / staking / object / ANS queries
   against the Aptos indexer.
 
@@ -122,6 +123,28 @@ await aptos.transaction.submit.multiAgent(
   senderAuthenticator: aliceAuth,
   additionalSignersAuthenticators: [bobAuth],
 );
+```
+
+### Encrypted transactions
+
+On networks that advertise a batch-encryption key, set `encrypted: true` to
+encrypt the payload so its contents stay private until the validator decrypts
+them. Everything else (signing, submission) is unchanged.
+
+```dart
+final encrypted = await aptos.transaction.build.simple(
+  sender: alice.accountAddress,
+  data: InputEntryFunctionData(
+    function: '0x1::aptos_account::transfer',
+    functionArguments: [bob.accountAddress, 1000],
+  ),
+  // Encrypted transactions require a higher minimum gas unit price.
+  options: const InputGenerateTransactionOptions(
+    encrypted: true,
+    gasUnitPrice: 1000,
+  ),
+);
+await aptos.signAndSubmitTransaction(signer: alice, transaction: encrypted);
 ```
 
 ### Keyless (OIDC) accounts
