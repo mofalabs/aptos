@@ -19,8 +19,17 @@ Complete, ground-up rewrite with a new namespaced architecture.
   sponsored (fee payer) transactions, orderless transactions
   (replayProtectionNonce), simulation, batch submission worker, pluggable
   `TransactionSubmitter`.
-* BCS layer validated byte-for-byte against the official SDK test vectors;
-  700+ unit tests.
+* Keyless: full local signature verification, including the BN254 Groth16
+  proof check (pure-Dart pairing), plus network-backed
+  `verifySignatureAsync` (fetches the keyless configuration and JWKs from
+  chain).
+* Encrypted transactions: batch-encryption payloads via a pure-Dart
+  BLS12-381 pairing implementation (BIBE identity-based encryption, RFC 9380
+  hash-to-curve, AES-128-GCM), wired into the build flow through
+  `options.encrypted`.
+* BCS layer and all curve/pairing primitives validated byte-for-byte against
+  the official SDK and independently generated reference vectors; 700+ unit
+  tests.
 
 ## 0.0.1
 
