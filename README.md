@@ -8,7 +8,7 @@ VM, Flutter (all platforms), and dart2js.
 - **`Aptos` facade + `AptosConfig`** — a high-level, namespaced API:
   `account`, `coin`, `general`,
   `transaction` (`build` / `simulate` / `submit` / `batch`), `faucet`,
-  `table`, `event`, `fungibleAsset`, `digitalAsset` (Token v2), `staking`,
+  `table`, `fungibleAsset`, `digitalAsset` (Token v2), `staking`,
   `object`, `ans`, `keyless`, `abstraction`.
 - **Full account & key support** — legacy Ed25519, AIP-55 unified single key
   (Ed25519 / secp256k1), secp256r1 (WebAuthn), MultiKey, MultiEd25519,

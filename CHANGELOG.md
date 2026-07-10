@@ -8,7 +8,7 @@ Complete, ground-up rewrite with a new namespaced architecture.
 * **Breaking**: the package is now pure Dart — the Flutter dependency was
   removed (usable in server-side Dart, CLIs, and Flutter alike).
 * New `Aptos` facade + `AptosConfig` with namespaces: account, coin, general,
-  transaction (build/simulate/submit/batch), faucet, table, event,
+  transaction (build/simulate/submit/batch), faucet, table,
   fungibleAsset, digitalAsset (Token v2), staking, object, ans, keyless,
   abstraction.
 * New account hierarchy: `Account.generate()`, Ed25519 (legacy), AIP-55

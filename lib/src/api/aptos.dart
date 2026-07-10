@@ -27,7 +27,6 @@ import 'ans.dart';
 import 'aptos_config.dart';
 import 'coin.dart';
 import 'digital_asset.dart';
-import 'event.dart';
 import 'faucet.dart';
 import 'fungible_asset.dart';
 import 'general.dart';
@@ -59,7 +58,6 @@ class Aptos {
   Ans? _ans;
   Coin? _coin;
   DigitalAsset? _digitalAsset;
-  EventApi? _event;
   Faucet? _faucet;
   FungibleAsset? _fungibleAsset;
   General? _general;
@@ -107,10 +105,6 @@ class Aptos {
 
   /// The `DigitalAsset` namespace (Token v2 collections and tokens).
   DigitalAsset get digitalAsset => _digitalAsset ??= DigitalAsset(config);
-
-  /// The `Event` namespace (named `EventApi` to avoid clashing with the
-  /// fullnode transaction `Event` type).
-  EventApi get event => _event ??= EventApi(config);
 
   /// The `FungibleAsset` namespace.
   FungibleAsset get fungibleAsset => _fungibleAsset ??= FungibleAsset(config);
@@ -935,60 +929,6 @@ class Aptos {
         propertyValue: propertyValue,
         digitalAssetAddress: digitalAssetAddress,
         digitalAssetType: digitalAssetType,
-        options: options,
-      );
-
-  // ===
-  // EVENT namespace convenience methods
-  // ===
-
-  /// See [EventApi.getModuleEventsByEventType].
-  Future<List<IndexerEvent>> getModuleEventsByEventType({
-    required MoveStructId eventType,
-    AnyNumber? minimumLedgerVersion,
-    IndexerQueryArgs? options,
-  }) =>
-      event.getModuleEventsByEventType(
-        eventType: eventType,
-        minimumLedgerVersion: minimumLedgerVersion,
-        options: options,
-      );
-
-  /// See [EventApi.getAccountEventsByCreationNumber].
-  Future<List<IndexerEvent>> getAccountEventsByCreationNumber({
-    required AccountAddressInput accountAddress,
-    required AnyNumber creationNumber,
-    AnyNumber? minimumLedgerVersion,
-    IndexerQueryArgs? options,
-  }) =>
-      event.getAccountEventsByCreationNumber(
-        accountAddress: accountAddress,
-        creationNumber: creationNumber,
-        minimumLedgerVersion: minimumLedgerVersion,
-        options: options,
-      );
-
-  /// See [EventApi.getAccountEventsByEventType].
-  Future<List<IndexerEvent>> getAccountEventsByEventType({
-    required AccountAddressInput accountAddress,
-    required MoveStructId eventType,
-    AnyNumber? minimumLedgerVersion,
-    IndexerQueryArgs? options,
-  }) =>
-      event.getAccountEventsByEventType(
-        accountAddress: accountAddress,
-        eventType: eventType,
-        minimumLedgerVersion: minimumLedgerVersion,
-        options: options,
-      );
-
-  /// See [EventApi.getEvents].
-  Future<List<IndexerEvent>> getEvents({
-    AnyNumber? minimumLedgerVersion,
-    IndexerQueryArgs? options,
-  }) =>
-      event.getEvents(
-        minimumLedgerVersion: minimumLedgerVersion,
         options: options,
       );
 

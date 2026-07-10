@@ -22,7 +22,6 @@ export 'src/api/aptos.dart';
 export 'src/api/aptos_config.dart';
 export 'src/api/coin.dart';
 export 'src/api/digital_asset.dart';
-export 'src/api/event.dart';
 export 'src/api/faucet.dart';
 export 'src/api/fungible_asset.dart';
 export 'src/api/general.dart';

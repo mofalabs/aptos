@@ -317,27 +317,6 @@ const String getDelegatedStakingActivities = r'''
 }
     ''';
 
-const String getEvents = r'''
-    query getEvents($where_condition: events_bool_exp, $offset: Int, $limit: Int, $order_by: [events_order_by!]) {
-  events(
-    where: $where_condition
-    offset: $offset
-    limit: $limit
-    order_by: $order_by
-  ) {
-    account_address
-    creation_number
-    data
-    event_index
-    sequence_number
-    transaction_block_height
-    transaction_version
-    type
-    indexed_type
-  }
-}
-    ''';
-
 const String getFungibleAssetActivities = r'''
     query getFungibleAssetActivities($where_condition: fungible_asset_activities_bool_exp, $offset: Int, $limit: Int) {
   fungible_asset_activities(

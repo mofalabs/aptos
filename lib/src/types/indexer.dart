@@ -645,46 +645,6 @@ class DelegatedStakingActivity {
       );
 }
 
-/// An event row of the `GetEvents` query.
-///
-/// Named `IndexerEvent` to avoid clashing with the fullnode transaction
-/// `Event` type in `transaction_responses.dart`.
-class IndexerEvent {
-  final String accountAddress;
-  final dynamic creationNumber;
-  final dynamic data;
-  final dynamic eventIndex;
-  final dynamic sequenceNumber;
-  final dynamic transactionBlockHeight;
-  final dynamic transactionVersion;
-  final String type;
-  final String indexedType;
-
-  const IndexerEvent({
-    required this.accountAddress,
-    this.creationNumber,
-    this.data,
-    this.eventIndex,
-    this.sequenceNumber,
-    this.transactionBlockHeight,
-    this.transactionVersion,
-    required this.type,
-    required this.indexedType,
-  });
-
-  factory IndexerEvent.fromJson(Map<String, dynamic> json) => IndexerEvent(
-        accountAddress: json['account_address'] as String,
-        creationNumber: json['creation_number'],
-        data: json['data'],
-        eventIndex: json['event_index'],
-        sequenceNumber: json['sequence_number'],
-        transactionBlockHeight: json['transaction_block_height'],
-        transactionVersion: json['transaction_version'],
-        type: json['type'] as String,
-        indexedType: json['indexed_type'] as String,
-      );
-}
-
 /// A table item row of the `GetTableItemsData` query.
 class TableItemData {
   final dynamic decodedKey;
