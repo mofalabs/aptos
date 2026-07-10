@@ -3,8 +3,10 @@ import 'dart:typed_data';
 
 import 'package:pointycastle/digests/sha3.dart';
 
+import '../../api/aptos_config.dart';
 import '../../bcs/deserializer.dart';
 import '../../bcs/serializer.dart';
+import '../../internal/keyless.dart' as keyless_api;
 import '../../types/keyless.dart';
 import '../../types/types.dart';
 import '../../utils/helpers.dart';
@@ -18,6 +20,7 @@ import 'poseidon.dart';
 import 'proof.dart';
 import 'public_key.dart';
 import 'signature.dart';
+import 'single_key.dart' show VerifySignatureAsyncOptions;
 
 // NOTE: registration of the keyless variants into the
 // AnyPublicKey/AnySignature registry is intentionally NOT done in this
@@ -122,9 +125,26 @@ class KeylessPublicKey extends AccountPublicKey {
     }
   }
 
-  // TODO: verifySignatureAsync requires the api/aptosConfig module
-  // (fetches the keyless configuration and JWKs from the network); add it
-  // together with the client.
+  /// Verifies a keyless [signature], fetching the on-chain keyless
+  /// configuration and the relevant JWK from the network.
+  ///
+  /// [aptosConfig] must be an [AptosConfig]; it identifies the network to
+  /// query. See [verifyKeylessSignature] for the full behavior.
+  @override
+  Future<bool> verifySignatureAsync({
+    Object? aptosConfig,
+    required HexInput message,
+    required Signature signature,
+    Object? options,
+  }) {
+    return verifyKeylessSignature(
+      publicKey: this,
+      aptosConfig: aptosConfig as AptosConfig?,
+      message: message,
+      signature: signature,
+      options: options,
+    );
+  }
 
   /// Serializes the current instance into BCS.
   @override
@@ -216,9 +236,61 @@ class KeylessPublicKey extends AccountPublicKey {
   static bool isInstance(PublicKey publicKey) => publicKey is KeylessPublicKey;
 }
 
-// TODO: `verifyKeylessSignature` (the async variant that fetches the
-// keyless configuration and JWKs from the network) requires the api and
-// client modules; add it together with them.
+/// Verifies a keyless [signature] for [message], fetching the on-chain
+/// keyless configuration and the relevant JWK from the network when they are
+/// not supplied via [keylessConfig] / [jwk].
+///
+/// [publicKey] must be a [KeylessPublicKey] or [FederatedKeylessPublicKey].
+/// [aptosConfig] identifies the network to query; it may be omitted only when
+/// both [keylessConfig] and [jwk] are provided (no network lookup is needed).
+///
+/// This is the network-backed counterpart to
+/// [verifyKeylessSignatureWithJwkAndConfig]. It returns false on any
+/// verification failure, unless [options] is a [VerifySignatureAsyncOptions]
+/// with `throwErrorWithReason` set, in which case the failure is rethrown.
+Future<bool> verifyKeylessSignature({
+  required PublicKey publicKey,
+  required AptosConfig? aptosConfig,
+  required HexInput message,
+  required Signature signature,
+  KeylessConfiguration? keylessConfig,
+  MoveJWK? jwk,
+  Object? options,
+}) async {
+  try {
+    if (signature is! KeylessSignature) {
+      throw ArgumentError('Not a keyless signature');
+    }
+    if ((keylessConfig == null || jwk == null) && aptosConfig == null) {
+      throw ArgumentError(
+        'verifyKeylessSignature requires an aptosConfig to fetch the keyless '
+        'configuration and JWK from the network',
+      );
+    }
+    final resolvedConfig = keylessConfig ??
+        await keyless_api.getKeylessConfig(aptosConfig: aptosConfig!);
+    final resolvedJwk = jwk ??
+        await keyless_api.fetchJWK(
+          aptosConfig: aptosConfig!,
+          publicKey: publicKey,
+          kid: signature.getJwkKid(),
+        );
+    verifyKeylessSignatureWithJwkAndConfig(
+      publicKey: publicKey,
+      message: message,
+      signature: signature,
+      jwk: resolvedJwk,
+      keylessConfig: resolvedConfig,
+    );
+    return true;
+  } catch (_) {
+    if (options is VerifySignatureAsyncOptions &&
+        options.throwErrorWithReason) {
+      rethrow;
+    }
+    return false;
+  }
+}
 
 /// Synchronously verifies a keyless signature for a given message. You need
 /// to provide the keyless configuration and the JWK to use for verification.

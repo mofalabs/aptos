@@ -1,3 +1,4 @@
+import '../../api/aptos_config.dart';
 import '../../bcs/deserializer.dart';
 import '../../bcs/serializer.dart';
 import '../../types/types.dart';
@@ -80,9 +81,26 @@ class FederatedKeylessPublicKey extends AccountPublicKey {
     }
   }
 
-  // TODO: verifySignatureAsync requires the api/aptosConfig module
-  // (fetches the keyless configuration and JWKs from the network); add it
-  // together with the client.
+  /// Verifies a keyless [signature], fetching the on-chain keyless
+  /// configuration and the relevant JWK (from this key's federated JWK
+  /// address) from the network.
+  ///
+  /// [aptosConfig] must be an [AptosConfig]. See [verifyKeylessSignature].
+  @override
+  Future<bool> verifySignatureAsync({
+    Object? aptosConfig,
+    required HexInput message,
+    required Signature signature,
+    Object? options,
+  }) {
+    return verifyKeylessSignature(
+      publicKey: this,
+      aptosConfig: aptosConfig as AptosConfig?,
+      message: message,
+      signature: signature,
+      options: options,
+    );
+  }
 
   @override
   void serialize(Serializer serializer) {

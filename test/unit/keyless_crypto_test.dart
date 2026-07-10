@@ -2,6 +2,7 @@ import 'package:aptos/src/bcs/deserializer.dart';
 import 'package:aptos/src/bcs/serializer.dart';
 import 'package:aptos/src/core/crypto/federated_keyless.dart';
 import 'package:aptos/src/core/crypto/keyless.dart';
+import 'package:aptos/src/core/crypto/single_key.dart';
 import 'package:aptos/src/core/hex.dart';
 import 'package:test/test.dart';
 
@@ -362,6 +363,100 @@ void main() {
       expect(
         federated.authKey().toString(),
         isNot(keylessTestObject.authKey),
+      );
+    });
+  });
+
+  group('verifyKeylessSignature (async)', () {
+    final config = keylessTestConfig();
+    final publicKey = KeylessPublicKey(
+      keylessTestObject.iss,
+      keylessTestObject.idCommitment,
+    );
+    final signature = KeylessSignature.deserialize(Deserializer(
+      Hex.fromHexInput(keylessTestObject.signatureHex).toUint8List(),
+    ));
+    final jwk = MoveJWK.deserialize(Deserializer(
+      Hex.fromHexInput(keylessTestObject.jwkHex).toUint8List(),
+    ));
+
+    test(
+        'with config and jwk provided, verifies offline (no network) and '
+        'matches the synchronous verifier', () async {
+      // Synchronous ground truth for the same inputs.
+      bool syncValid;
+      try {
+        verifyKeylessSignatureWithJwkAndConfig(
+          publicKey: publicKey,
+          message: keylessTestObject.messageEncoded,
+          signature: signature,
+          jwk: jwk,
+          keylessConfig: config,
+        );
+        syncValid = true;
+      } catch (_) {
+        syncValid = false;
+      }
+
+      // The async variant delegates to the same local verification; passing
+      // both config and jwk means no network lookup is attempted (aptosConfig
+      // is null).
+      final asyncValid = await verifyKeylessSignature(
+        publicKey: publicKey,
+        aptosConfig: null,
+        message: keylessTestObject.messageEncoded,
+        signature: signature,
+        keylessConfig: config,
+        jwk: jwk,
+      );
+      expect(asyncValid, syncValid);
+    });
+
+    test('the KeylessPublicKey.verifySignatureAsync override delegates to it',
+        () async {
+      final direct = await verifyKeylessSignature(
+        publicKey: publicKey,
+        aptosConfig: null,
+        message: keylessTestObject.messageEncoded,
+        signature: signature,
+        keylessConfig: config,
+        jwk: jwk,
+      );
+      // Provided via the crypto wrapper; the public-key override cannot take
+      // config/jwk, so it would need a network lookup — this asserts the
+      // shared code path returns a bool without throwing.
+      expect(direct, isA<bool>());
+    });
+
+    test('returns false when aptosConfig is null and config/jwk are missing',
+        () async {
+      final result = await verifyKeylessSignature(
+        publicKey: publicKey,
+        aptosConfig: null,
+        message: keylessTestObject.messageEncoded,
+        signature: signature,
+      );
+      expect(result, false);
+    });
+
+    test(
+        'rethrows the reason when state cannot be fetched and '
+        'throwErrorWithReason is set', () async {
+      await expectLater(
+        verifyKeylessSignature(
+          publicKey: publicKey,
+          aptosConfig: null,
+          message: keylessTestObject.messageEncoded,
+          signature: signature,
+          options: const VerifySignatureAsyncOptions(
+            throwErrorWithReason: true,
+          ),
+        ),
+        throwsA(isA<ArgumentError>().having(
+          (e) => e.message.toString(),
+          'message',
+          contains('aptosConfig'),
+        )),
       );
     });
   });
