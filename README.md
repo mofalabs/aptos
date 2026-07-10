@@ -168,11 +168,11 @@ server-side Dart, CLIs, and Flutter apps alike.
 
 ## Notes
 
-- Groth16 proof verification (`Groth16VerificationKey.verifyProof`) is not
-  supported client-side: it requires BN254 pairings, which have no pure-Dart
-  implementation. Everything else in the keyless flow (pepper/prover services,
-  address derivation, signing) is fully supported — proof verification is done
-  by the chain itself.
+- Keyless signatures are verified fully client-side, including the Groth16
+  proof check (`Groth16VerificationKey.verifyProof`), via a pure-Dart BN254
+  pairing engine. Network-backed verification (`verifySignatureAsync`) fetches
+  the keyless configuration and JWKs from chain. The rest of the keyless flow
+  (pepper/prover services, address derivation, signing) is fully supported.
 - `dart test` runs the full offline unit suite. `example/main.dart` performs a
   live devnet end-to-end check.
 

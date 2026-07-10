@@ -1062,6 +1062,10 @@ Map<String, dynamic> _decodeJwtPayload(String jwt) {
   return decoded;
 }
 
+/// A JSON Web Key (JWK) as represented on chain
+/// (`0x1::jwks::RSA_JWK`), used to verify the OIDC provider signature over the
+/// JWT during keyless verification. Serializes to and from the on-chain BCS
+/// layout and exposes the RSA `kid`/`n`/`e` fields.
 class MoveJWK extends Serializable {
   final String kid;
   final String kty;

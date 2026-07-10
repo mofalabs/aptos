@@ -176,10 +176,14 @@ class AptosConfig {
   /// Checks if the provided URL is a known prover service endpoint.
   bool isProverServiceRequest(String url) => networkToProverApi[network] == url;
 
+  /// The default `max_gas_amount` used when a transaction does not specify one
+  /// (the config override if set, otherwise the SDK default).
   int getDefaultMaxGasAmount() =>
       transactionGenerationConfig.defaultMaxGasAmountOverride ??
       defaultMaxGasAmount;
 
+  /// The default expiration horizon in seconds from now, used when a
+  /// transaction does not specify an expiration timestamp.
   int getDefaultTxnExpirySecFromNow() =>
       transactionGenerationConfig.defaultTxnExpirySecFromNowOverride ??
       defaultTxnExpSecFromNow;

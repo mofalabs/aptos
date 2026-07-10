@@ -1,5 +1,5 @@
-# Test fixtures/vectors are large and not needed by consumers of the package.
-test/vectors/
+# Tests (and their large fixtures/vectors) are not needed by consumers.
+test/
 
 # Local scratch / tooling not part of the published package.
 .agents/
