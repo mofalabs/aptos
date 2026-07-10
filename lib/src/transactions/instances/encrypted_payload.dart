@@ -11,21 +11,14 @@ import 'identifier.dart';
 import 'module_id.dart';
 import 'transaction_payload.dart';
 
+// The BIBE ciphertext types and the encryption key live in the crypto layer;
+// re-exported here so the encrypted-payload API is reachable from one place.
+export '../../core/crypto/encryption/ciphertext.dart'
+    show BIBECiphertext, Ciphertext, EncryptionKey;
+
 /// 16-byte decryption nonce for encrypted payloads (aptos-core
 /// `DecryptionNonce`).
 const int decryptionNonceLength = 16;
-
-/// Length of an ed25519 verification key in bytes.
-const int _vkLength = 32;
-
-/// Length of an ed25519 signature in bytes.
-const int _signatureLength = 64;
-
-/// Length of the AES-GCM nonce in bytes.
-const int _gcmNonceLength = 12;
-
-/// Length of the padded symmetric key in bytes.
-const int _symmetricKeyLength = 16;
 
 Uint8List _sha3_256(Uint8List input) => SHA3Digest(256).process(input);
 
@@ -167,125 +160,5 @@ class PayloadAssociatedData extends Serializable {
       ));
     }
     return PayloadAssociatedData(sender, signerAuthKeys);
-  }
-}
-
-// TODO: `BIBECiphertext` belongs in `core/crypto/encryption/` once the
-// batch-encryption cryptography is implemented. Until then this class holds
-// the raw byte representations of the curve points and symmetric primitives
-// so the BCS wire layout is byte-exact. The symmetric key (fixed 16 bytes)
-// and symmetric ciphertext (fixed 12-byte GCM nonce + length-prefixed body)
-// are flattened into raw fields.
-///
-/// Corresponds to the Rust type
-/// `aptos_batch_encryption::shared::ciphertext::BIBECiphertext`.
-///
-/// BCS: `id` bytes | `ct_g2` bytes (single length prefix for all 3 G2
-/// elements) | padded key fixed 16 bytes | GCM nonce fixed 12 bytes |
-/// ciphertext body bytes.
-class BIBECiphertext extends Serializable {
-  /// Little-endian Fr scalar bytes (length-prefixed on the wire).
-  final Uint8List idBytes;
-
-  /// Concatenated compressed G2 points (length-prefixed on the wire).
-  final Uint8List ctG2Bytes;
-
-  /// Padded symmetric key, fixed 16 bytes.
-  final Uint8List paddedKey;
-
-  /// AES-GCM nonce, fixed 12 bytes.
-  final Uint8List gcmNonce;
-
-  /// Symmetric ciphertext body (length-prefixed on the wire).
-  final Uint8List ctBody;
-
-  BIBECiphertext({
-    required this.idBytes,
-    required this.ctG2Bytes,
-    required this.paddedKey,
-    required this.gcmNonce,
-    required this.ctBody,
-  }) {
-    if (paddedKey.length != _symmetricKeyLength) {
-      throw ArgumentError('paddedKey must be $_symmetricKeyLength bytes');
-    }
-    if (gcmNonce.length != _gcmNonceLength) {
-      throw ArgumentError('gcmNonce must be $_gcmNonceLength bytes');
-    }
-  }
-
-  @override
-  void serialize(Serializer serializer) {
-    serializer.serializeBytes(idBytes);
-    // BCS: single length prefix for all 3 G2 elements (matches the
-    // arkworks-serde wrapper in Rust).
-    serializer.serializeBytes(ctG2Bytes);
-    serializer.serializeFixedBytes(paddedKey);
-    serializer.serializeFixedBytes(gcmNonce);
-    serializer.serializeBytes(ctBody);
-  }
-
-  static BIBECiphertext deserialize(Deserializer deserializer) {
-    final idBytes = deserializer.deserializeBytes();
-    final ctG2Bytes = deserializer.deserializeBytes();
-    final paddedKey = deserializer.deserializeFixedBytes(_symmetricKeyLength);
-    final gcmNonce = deserializer.deserializeFixedBytes(_gcmNonceLength);
-    final ctBody = deserializer.deserializeBytes();
-    return BIBECiphertext(
-      idBytes: idBytes,
-      ctG2Bytes: ctG2Bytes,
-      paddedKey: paddedKey,
-      gcmNonce: gcmNonce,
-      ctBody: ctBody,
-    );
-  }
-}
-
-// TODO: `Ciphertext` belongs in `core/crypto/encryption/` once the
-// batch-encryption cryptography is implemented. Only the BCS data structure
-// is defined here; encryption/decryption math is not yet included.
-///
-/// Corresponds to the Rust type
-/// `aptos_batch_encryption::shared::ciphertext::Ciphertext`.
-class Ciphertext extends Serializable {
-  /// ed25519 verification key, 32 bytes (length-prefixed on the wire).
-  final Uint8List vk;
-
-  final BIBECiphertext bibeCt;
-
-  final Uint8List associatedDataBytes;
-
-  /// ed25519 signature, fixed 64 bytes.
-  final Uint8List signature;
-
-  Ciphertext(this.vk, this.bibeCt, this.associatedDataBytes, this.signature) {
-    if (vk.length != _vkLength) {
-      throw ArgumentError(
-        'ed25519 public key must be $_vkLength bytes, got ${vk.length}',
-      );
-    }
-    if (signature.length != _signatureLength) {
-      throw ArgumentError(
-        'ed25519 signature must be $_signatureLength bytes, got ${signature.length}',
-      );
-    }
-  }
-
-  @override
-  void serialize(Serializer serializer) {
-    // Rust: ed25519 VKs serialized as variable bytes.
-    serializer.serializeBytes(vk);
-    bibeCt.serialize(serializer);
-    serializer.serializeBytes(associatedDataBytes);
-    // Rust: signatures serialized as fixed bytes.
-    serializer.serializeFixedBytes(signature);
-  }
-
-  static Ciphertext deserialize(Deserializer deserializer) {
-    final vk = deserializer.deserializeBytes();
-    final bibeCt = BIBECiphertext.deserialize(deserializer);
-    final associatedDataBytes = deserializer.deserializeBytes();
-    final signature = deserializer.deserializeFixedBytes(_signatureLength);
-    return Ciphertext(vk, bibeCt, associatedDataBytes, signature);
   }
 }
